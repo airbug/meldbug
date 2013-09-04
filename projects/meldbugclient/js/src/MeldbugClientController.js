@@ -77,7 +77,7 @@ var MeldbugClientController = Class.extend(Obj, {
                 var data        = request.getData();
                 var meldId      = data.meldId;
                 var meldObject  = _this.meldObjectManager.generateMeldObject(meldId, data.meldObject);
-                _this.meldbugClientService.addMeldObject(meldId, meldObject, function(error) {
+                _this.meldbugClientService.addMeldObject(meldObject, function(error) {
                     var data        = null;
                     var response    = null;
                     if (!error) {
@@ -113,6 +113,9 @@ var MeldbugClientController = Class.extend(Obj, {
                     }
                     responder.sendResponse(response);
                 });
+            },
+            removeMeldObject: function(request, responder) {
+
             }
         });
 

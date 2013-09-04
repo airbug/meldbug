@@ -94,49 +94,6 @@ var MeldObject = Class.extend(EventDispatcher, {
         return this.meldId;
     },
 
-    /**
-     * @param {string} propertyName
-     * @return {*}
-     */
-    getProperty: function(propertyName) {
-        var propertyValue = undefined;
-        if (this.propertyChangeMap.containsKey(propertyName)) {
-            var propertyChange = this.propertyChangeMap.get(propertyName);
-            switch (propertyChange.getChangeType()) {
-                case PropertyChange.ChangeTypes.PROPERTY_REMOVED:
-                    //do nothing
-                    break;
-                case PropertyChange.ChangeTypes.PROPERTY_SET:
-                    propertyValue = propertyChange.getPropertyValue();
-                    break;
-            }
-        } else {
-            propertyValue = this.propertyMap.get(propertyName);
-        }
-        return propertyValue;
-    },
-
-    /**
-     * @param {string} propertyName
-     */
-    removeProperty: function(propertyName) {
-        var previousValue = this.propertyMap.get(propertyName);
-        var propertyChange = new PropertyChange(PropertyChange.ChangeTypes.PROPERTY_REMOVED, propertyName,
-            previousValue);
-        this.propertyChangeMap.put(propertyName, propertyChange);
-    },
-
-    /**
-     * @param {string} propertyName
-     * @param {*} propertyValue
-     */
-    setProperty: function(propertyName, propertyValue) {
-        var previousValue = this.propertyMap.get(propertyName);
-        var propertyChange = new PropertyChange(PropertyChange.ChangeTypes.PROPERTY_SET, propertyName,
-            previousValue, propertyValue);
-        this.propertyChangeMap.put(propertyName, propertyChange);
-    },
-
 
     //-------------------------------------------------------------------------------
     // IMeld Implementation
@@ -207,6 +164,13 @@ var MeldObject = Class.extend(EventDispatcher, {
     },
 
     /**
+     *
+     */
+    destroy: function() {
+        this.dispatchEvent(new Event(MeldObject.DESTROYED));
+    },
+
+    /**
      * @return {Object}
      */
     generateObject: function() {
@@ -215,6 +179,49 @@ var MeldObject = Class.extend(EventDispatcher, {
             obj[key] = value;
         });
         return obj;
+    },
+
+    /**
+     * @param {string} propertyName
+     * @return {*}
+     */
+    getProperty: function(propertyName) {
+        var propertyValue = undefined;
+        if (this.propertyChangeMap.containsKey(propertyName)) {
+            var propertyChange = this.propertyChangeMap.get(propertyName);
+            switch (propertyChange.getChangeType()) {
+                case PropertyChange.ChangeTypes.PROPERTY_REMOVED:
+                    //do nothing
+                    break;
+                case PropertyChange.ChangeTypes.PROPERTY_SET:
+                    propertyValue = propertyChange.getPropertyValue();
+                    break;
+            }
+        } else {
+            propertyValue = this.propertyMap.get(propertyName);
+        }
+        return propertyValue;
+    },
+
+    /**
+     * @param {string} propertyName
+     */
+    removeProperty: function(propertyName) {
+        var previousValue = this.propertyMap.get(propertyName);
+        var propertyChange = new PropertyChange(PropertyChange.ChangeTypes.PROPERTY_REMOVED, propertyName,
+            previousValue);
+        this.propertyChangeMap.put(propertyName, propertyChange);
+    },
+
+    /**
+     * @param {string} propertyName
+     * @param {*} propertyValue
+     */
+    setProperty: function(propertyName, propertyValue) {
+        var previousValue = this.propertyMap.get(propertyName);
+        var propertyChange = new PropertyChange(PropertyChange.ChangeTypes.PROPERTY_SET, propertyName,
+            previousValue, propertyValue);
+        this.propertyChangeMap.put(propertyName, propertyChange);
     }
 });
 
@@ -235,6 +242,7 @@ Class.implement(MeldObject, IObjectable);
  * @type {Object}
  */
 MeldObject.EventTypes = {
+    DESTROYED: "MeldObject:Destroyed",
     PROPERTY_CHANGES: "MeldObject:PropertyChanges"
 };
 

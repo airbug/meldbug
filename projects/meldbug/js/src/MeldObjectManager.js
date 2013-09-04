@@ -147,6 +147,16 @@ var MeldObjectManager = Class.extend(Obj, {
      */
     getMeldObject: function(meldId) {
         return this.meldIdToMeldObjectMap.get(meldId);
+    },
+
+    /**
+     * @param {string} meldId
+     */
+    removeMeldObject: function(meldId) {
+        var meldObject = this.meldIdToMeldObjectMap.remove(meldId);
+        if (meldObject) {
+            meldObject.destroy();
+        }
     }
 });
 
