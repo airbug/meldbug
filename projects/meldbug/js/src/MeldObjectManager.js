@@ -94,6 +94,13 @@ var MeldObjectManager = Class.extend(Obj, {
     },
 
     /**
+     *
+     */
+    clearCache: function() {
+        this.meldIdToMeldObjectMap = new Map();
+    },
+
+    /**
      * @param meldId
      * @param meldObjectData
      */
@@ -147,6 +154,19 @@ var MeldObjectManager = Class.extend(Obj, {
      */
     getMeldObject: function(meldId) {
         return this.meldIdToMeldObjectMap.get(meldId);
+    },
+
+    /**
+     * @param {Array.<string>} meldIds
+     * @return {Array.<Array.<MeldObject>, Array.<string>>}
+     */
+    getMeldObjects: function(meldIds) {
+        var _this = this;
+        var meldObjects = [];
+        meldIds.forEach(function(meldId){
+            meldObjects.push(this.getMeldObject(meldId));
+        });
+        return meldObjects;
     },
 
     /**
