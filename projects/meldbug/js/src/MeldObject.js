@@ -8,38 +8,36 @@
 
 //@Require('Class')
 //@Require('Event')
-//@Require('EventDispatcher')
-//@Require('IObjectable')
-//@Require('List')
-//@Require('Map')
-//@Require('meldbug.PropertyChange')
+//@Require('bugdelta.DeltaObject')
+//@Require('meldbug.Meld')
+//@Require('meldbug.PropertyRemoveOperation')
+//@Require('meldbug.PropertySetOperation')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack             = require('bugpack').context();
+var bugpack                     = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class               = bugpack.require('Class');
-var Event               = bugpack.require('Event');
-var EventDispatcher     = bugpack.require('EventDispatcher');
-var IObjectable         = bugpack.require('IObjectable');
-var List                = bugpack.require('List');
-var Map                 = bugpack.require('Map');
-var PropertyChange      = bugpack.require('meldbug.PropertyChange');
+var Class                       = bugpack.require('Class');
+var Event                       = bugpack.require('Event');
+var DeltaObject                 = bugpack.require('bugdelta.DeltaObject');
+var Meld                        = bugpack.require('meldbug.Meld');
+var PropertyRemoveOperation     = bugpack.require('meldbug.PropertyRemoveOperation');
+var PropertySetOperation        = bugpack.require('meldbug.PropertySetOperation');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldObject = Class.extend(EventDispatcher, {
+var MeldObject = Class.extend(Meld, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -48,9 +46,9 @@ var MeldObject = Class.extend(EventDispatcher, {
     /**
      *
      */
-    _constructor: function(meldId) {
+    _constructor: function(meldKey) {
 
-        this._super();
+        this._super(meldKey, MeldObject.TYPE);
 
 
         //-------------------------------------------------------------------------------
@@ -59,27 +57,9 @@ var MeldObject = Class.extend(EventDispatcher, {
 
         /**
          * @private
-         * @type {string}
+         * @type {DeltaObject}
          */
-        this.meldId                 = meldId;
-
-        /**
-         * @private
-         * @type {List.<MeldOperation>}
-         */
-        this.operationList          = new List();
-
-        /**
-         * @private
-         * @type {Map.<string, PropertyChange>}
-         */
-        this.propertyChangeMap      = new Map();
-
-        /**
-         * @private
-         * @type {Map.<string, *>}
-         */
-        this.propertyMap            = new Map();
+        this.deltaObject            = new DeltaObject();
     },
 
 
@@ -88,51 +68,26 @@ var MeldObject = Class.extend(EventDispatcher, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {string}
+     * @return {DeltaObject}
      */
-    getMeldId: function() {
-        return this.meldId;
+    getDeltaObject: function() {
+        return this.deltaObject;
     },
 
 
     //-------------------------------------------------------------------------------
-    // IMeld Implementation
+    // IClone Implementation
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {number} revision
-     * @param {MeldOperation} operation
+     * @param {boolean} deep
+     * @return {*}
      */
-    applyOperation: function(revision, operation) {
-        var _this = this;
-        if (revision < 0 || revision > _this.operationList.getCount()) {
-            throw new Error("operation revision not in history");
-        }
-        var concurrentOperationList = _this.operationList.subList(revision);
-        concurrentOperationList.forEach(function(concurrentOperation) {
-            operation.transform(concurrentOperation);
-        });
-        operation.apply(this);
-        _this.operationList.add(operation);
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // IObjectable Implementation
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @return {Object}
-     */
-    toObject: function() {
-        var operationList = [];
-        this.operationList.forEach(function(operation) {
-            operationList.push(operation.toObject());
-        });
-        return {
-            meldId: this.meldId,
-            operationList: operationList
-        };
+    clone: function(deep) {
+        var meldObject = new MeldObject(this.meldKey, this.meldType);
+        meldObject.getMeldOperationList().addAll(this.meldOperationList);
+        meldObject.deltaObject = this.deltaObject.clone();
+        return meldObject;
     },
 
 
@@ -143,42 +98,19 @@ var MeldObject = Class.extend(EventDispatcher, {
     /**
      *
      */
-    commitPropertyChanges: function() {
+    commit: function() {
         var _this = this;
         this.dispatchEvent(new Event(MeldObject.EventTypes.PROPERTY_CHANGES, {
-            changeMap: this.propertyChangeMap
+            changeMap: this.deltaObject.getPropertyChangeMap()
         }));
-        this.propertyChangeMap.forEach(function(propertyChange) {
-            switch (propertyChange.getChangeType()) {
-                case PropertyChange.ChangeTypes.PROPERTY_REMOVED:
-                    _this.propertyMap.remove(propertyChange.getPropertyName());
-                    break;
-                case PropertyChange.ChangeTypes.PROPERTY_SET:
-                    var propertyName    = propertyChange.getPropertyName();
-                    var propertyValue   = propertyChange.getPropertyValue();
-                    _this.propertyMap.put(propertyName, propertyValue);
-                    break;
-            }
-        });
-        this.propertyChangeMap.clear();
-    },
-
-    /**
-     *
-     */
-    destroy: function() {
-        this.dispatchEvent(new Event(MeldObject.DESTROYED));
+        this.deltaObject.commitPropertyChanges();
     },
 
     /**
      * @return {Object}
      */
     generateObject: function() {
-        var obj = {};
-        this.propertyMap.forEach(function(value, key) {
-            obj[key] = value;
-        });
-        return obj;
+        return this.deltaObject.toObject();
     },
 
     /**
@@ -186,31 +118,23 @@ var MeldObject = Class.extend(EventDispatcher, {
      * @return {*}
      */
     getProperty: function(propertyName) {
-        var propertyValue = undefined;
-        if (this.propertyChangeMap.containsKey(propertyName)) {
-            var propertyChange = this.propertyChangeMap.get(propertyName);
-            switch (propertyChange.getChangeType()) {
-                case PropertyChange.ChangeTypes.PROPERTY_REMOVED:
-                    //do nothing
-                    break;
-                case PropertyChange.ChangeTypes.PROPERTY_SET:
-                    propertyValue = propertyChange.getPropertyValue();
-                    break;
-            }
-        } else {
-            propertyValue = this.propertyMap.get(propertyName);
-        }
-        return propertyValue;
+        return this.deltaObject.getProperty(propertyName);
+    },
+
+    /**
+     * @param {string} propertyName
+     * @param {*} propertyValue
+     */
+    meldProperty: function(propertyName, propertyValue) {
+        var operation = new PropertySetOperation(propertyName, propertyValue);
+        this.meldOperation(operation);
     },
 
     /**
      * @param {string} propertyName
      */
     removeProperty: function(propertyName) {
-        var previousValue = this.propertyMap.get(propertyName);
-        var propertyChange = new PropertyChange(PropertyChange.ChangeTypes.PROPERTY_REMOVED, propertyName,
-            previousValue);
-        this.propertyChangeMap.put(propertyName, propertyChange);
+        this.deltaObject.removeProperty(this.propertyName);
     },
 
     /**
@@ -218,19 +142,17 @@ var MeldObject = Class.extend(EventDispatcher, {
      * @param {*} propertyValue
      */
     setProperty: function(propertyName, propertyValue) {
-        var previousValue = this.propertyMap.get(propertyName);
-        var propertyChange = new PropertyChange(PropertyChange.ChangeTypes.PROPERTY_SET, propertyName,
-            previousValue, propertyValue);
-        this.propertyChangeMap.put(propertyName, propertyChange);
+        this.deltaObject.setProperty(propertyName, propertyValue);
+    },
+
+    /**
+     * @param {string} propertyName
+     */
+    unmeldProperty: function(propertyName) {
+        var operation = new PropertyRemoveOperation(this.meldKey, propertyName);
+        this.meldOperation(operation);
     }
 });
-
-
-//-------------------------------------------------------------------------------
-// Interfaces
-//-------------------------------------------------------------------------------
-
-Class.implement(MeldObject, IObjectable);
 
 
 //-------------------------------------------------------------------------------
@@ -242,9 +164,14 @@ Class.implement(MeldObject, IObjectable);
  * @type {Object}
  */
 MeldObject.EventTypes = {
-    DESTROYED: "MeldObject:Destroyed",
     PROPERTY_CHANGES: "MeldObject:PropertyChanges"
 };
+
+/**
+ * @static
+ * @const {string}
+ */
+MeldObject.TYPE = "MeldObject";
 
 
 //-------------------------------------------------------------------------------

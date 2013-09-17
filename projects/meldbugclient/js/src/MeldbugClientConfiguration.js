@@ -14,7 +14,9 @@
 //@Require('bugioc.IConfiguration')
 //@Require('bugioc.ModuleAnnotation')
 //@Require('bugmeta.BugMeta')
-//@Require('meldbugclient.MeldObjectManager')
+//@Require('meldbug.MeldBuilder')
+//@Require('meldbug.MeldDocument')
+//@Require('meldbug.MeldStore')
 //@Require('meldbugclient.MeldbugClientController')
 //@Require('meldbugclient.MeldbugClientService')
 
@@ -40,7 +42,9 @@ var ConfigurationAnnotation     = bugpack.require('bugioc.ConfigurationAnnotatio
 var IConfiguration              = bugpack.require('bugioc.IConfiguration');
 var ModuleAnnotation            = bugpack.require('bugioc.ModuleAnnotation');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var MeldObjectManager           = bugpack.require('meldbugclient.MeldObjectManager');
+var MeldBuilder                 = bugpack.require('meldbug.MeldBuilder');
+var MeldDocument                = bugpack.require('meldbug.MeldDocument');
+var MeldStore                   = bugpack.require('meldbug.MeldStore');
 var MeldbugClientController     = bugpack.require('meldbugclient.MeldbugClientController');
 var MeldbugClientService        = bugpack.require('meldbugclient.MeldbugClientService');
 
@@ -63,10 +67,25 @@ var module                  = ModuleAnnotation.module;
 var MeldbugClientConfiguration = Class.extend(Obj, {
 
     /**
-     * @return {MeldObjectManager}
+     * @return {MeldBuilder}
      */
-    meldObjectManager: function() {
-        return new MeldObjectManager();
+    meldBuilder: function() {
+        return new MeldBuilder();
+    },
+
+    /**
+     * @return {MeldDocument}
+     */
+    meldDocument: function() {
+        return new MeldDocument();
+    },
+
+    /**
+     * @param {MeldDocument} meldDocument
+     * @return {MeldStore}
+     */
+    meldStore: function(meldDocument) {
+        return new MeldStore(meldDocument);
     },
 
     /**
@@ -79,11 +98,11 @@ var MeldbugClientConfiguration = Class.extend(Obj, {
     },
 
     /**
-     * @param {MeldObjectManager} meldObjectManager
+     * @param {MeldStore} meldStore
      * @return {MeldbugClientService}
      */
-    meldbugClientService: function(meldObjectManager) {
-        return new MeldbugClientService(meldObjectManager);
+    meldbugClientService: function(meldStore) {
+        return new MeldbugClientService(meldStore);
     }
 });
 
@@ -101,35 +120,21 @@ Class.implement(MeldbugClientConfiguration, IConfiguration);
 
 bugmeta.annotate(MeldbugClientConfiguration).with(
     configuration().modules([
-
-
-        //-------------------------------------------------------------------------------
-        // Controllers
-        //-------------------------------------------------------------------------------
-
         module("meldbugClientController")
             .args([
                 arg().ref("bugCallRouter"),
-                arg().ref("meldbugClientService"),
-                arg().ref("meldObjectManager")
+                arg().ref("meldbugClientService")
             ]),
-
-
-        //-------------------------------------------------------------------------------
-        // Services
-        //-------------------------------------------------------------------------------
-
         module("meldbugClientService")
             .args([
-                arg().ref("meldObjectManager")
+                arg().ref("meldStore")
             ]),
-
-
-        //-------------------------------------------------------------------------------
-        // Managers
-        //-------------------------------------------------------------------------------
-
-        module("meldObjectManager")
+        module("meldBuilder"),
+        module("meldDocument"),
+        module("meldStore")
+            .args([
+                arg().ref("meldDocument")
+            ])
     ])
 );
 

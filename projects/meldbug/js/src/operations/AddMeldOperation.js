@@ -2,34 +2,34 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('bugmeld')
+//@Package('meldbug')
 
-//@Export('PropertyChange')
+//@Export('AddMeldOperation')
 
 //@Require('Class')
-//@Require('Obj')
+//@Require('meldbug.MeldDocumentOperation')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack     = require('bugpack').context();
+var bugpack                 = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class       = bugpack.require('Class');
-var Obj         = bugpack.require('Obj');
+var Class                   = bugpack.require('Class');
+var MeldDocumentOperation   = bugpack.require('meldbug.MeldDocumentOperation');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var PropertyChange = Class.extend(Obj, {
+var AddMeldOperation = Class.extend(MeldDocumentOperation, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -38,9 +38,9 @@ var PropertyChange = Class.extend(Obj, {
     /**
      *
      */
-    _constructor: function(changeType, propertyName, previousValue, propertyValue) {
+    _constructor: function(meldKey, meld) {
 
-        this._super();
+        this._super(meldKey, AddMeldOperation.TYPE);
 
 
         //-------------------------------------------------------------------------------
@@ -49,27 +49,9 @@ var PropertyChange = Class.extend(Obj, {
 
         /**
          * @private
-         * @type {string}
+         * @type {Meld}
          */
-        this.changeType     = changeType;
-
-        /**
-         * @private
-         * @type {*}
-         */
-        this.previousValue  = previousValue;
-
-        /**
-         * @private
-         * @type {string}
-         */
-        this.propertyName   = propertyName;
-
-        /**
-         * @private
-         * @type {*}
-         */
-        this.propertyValue  = propertyValue;
+        this.meld           = meld;
     },
 
 
@@ -78,31 +60,45 @@ var PropertyChange = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {string}
+     * @return {Meld}
      */
-    getChangeType: function() {
-        return this.changeType;
+    getMeld: function() {
+        return this.meld;
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // IObjectable Implementation
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @return {Object}
+     */
+    toObject: function() {
+        var obj = this._super();
+        obj.meld = this.meld.toObject();
+        return obj;
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // MeldOperation Implementation
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @param {MeldDocument} meldDocument
+     * @return {Meld}
+     */
+    apply: function(meldDocument) {
+        meldDocument.addMeld(this.meld);
+        return this.meld;
     },
 
     /**
-     * @return {*}
+     * @param {MeldOperation} meldOperation
      */
-    getPreviousValue: function() {
-        return this.previousValue;
-    },
-
-    /**
-     * @return {string}
-     */
-    getPropertyName: function() {
-        return this.propertyName;
-    },
-
-    /**
-     * @return {*}
-     */
-    getPropertyValue: function() {
-        return this.propertyValue;
+    transform: function(meldOperation) {
+        //TODO
     }
 });
 
@@ -113,16 +109,13 @@ var PropertyChange = Class.extend(Obj, {
 
 /**
  * @static
- * @type {Object}
+ * @const {string}
  */
-PropertyChange.ChangeTypes = {
-    PROPERTY_REMOVED: "PropertyChange:PropertyRemoved",
-    PROPERTY_SET: "PropertyChange:PropertySet"
-};
+AddMeldOperation.TYPE = "AddMeldOperation";
 
 
 //-------------------------------------------------------------------------------
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbug.PropertyChange', PropertyChange);
+bugpack.export('meldbug.AddMeldOperation', AddMeldOperation);

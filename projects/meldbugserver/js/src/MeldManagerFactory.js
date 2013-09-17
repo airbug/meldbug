@@ -2,55 +2,48 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbugclient')
+//@Package('meldbugserver')
 
-//@Export('MeldbugClientService')
+//@Export('MeldManagerFactory')
 
 //@Require('Class')
-//@Require('EventDispatcher')
-//@Require('bugflow.BugFlow')
+//@Require('Obj')
+//@Require('meldbug.MeldManager')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack = require('bugpack').context();
+var bugpack         = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class               = bugpack.require('Class');
-var EventDispatcher     = bugpack.require('Obj');
-var BugFlow             = bugpack.require('bugflow.BugFlow');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var $series         = BugFlow.$series;
-var $task           = BugFlow.$task;
+var Class           = bugpack.require('Class');
+var Obj             = bugpack.require('Obj');
+var MeldManager     = bugpack.require('meldbug.MeldManager');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldbugClientService = Class.extend(EventDispatcher, {
+var MeldManagerFactory = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
     // Constructor
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {MeldStore} meldStore
+     *
      */
     _constructor: function(meldStore) {
 
         this._super();
+
 
         //-------------------------------------------------------------------------------
         // Properties
@@ -60,31 +53,19 @@ var MeldbugClientService = Class.extend(EventDispatcher, {
          * @private
          * @type {MeldStore}
          */
-        this.meldStore = meldStore;
+        this.meldStore  = meldStore;
     },
 
 
     //-------------------------------------------------------------------------------
-    // Public Instance Methods
+    // Public Methods
     //-------------------------------------------------------------------------------
 
     /**
-     * @private
-     * @param {MeldTransaction} meldTransaction
+     * @return {MeldManager}
      */
-    commitMeldTransaction: function(meldTransaction) {
-        var _this = this;
-        $task(function(flow) {
-            _this.meldStore.commitMeldTransaction(meldTransaction, function(error) {
-                flow.complete(error);
-            });
-        }).execute(function(error) {
-            if (!error) {
-                callback(undefined);
-            } else {
-                callback(error);
-            }
-        });
+    factoryManager: function() {
+        return new MeldManager(this.meldStore);
     }
 });
 
@@ -93,4 +74,4 @@ var MeldbugClientService = Class.extend(EventDispatcher, {
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbugclient.MeldbugClientService', MeldbugClientService);
+bugpack.export('meldbugserver.MeldManagerFactory', MeldManagerFactory);

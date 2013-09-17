@@ -4,7 +4,7 @@
 
 //@Package('meldbug')
 
-//@Export('PropertyRemoveOperation')
+//@Export('MeldDocumentOperation')
 
 //@Require('Class')
 //@Require('meldbug.MeldOperation')
@@ -29,7 +29,7 @@ var MeldOperation   = bugpack.require('meldbug.MeldOperation');
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var PropertyRemoveOperation = Class.extend(MeldOperation, {
+var MeldDocumentOperation = Class.extend(MeldOperation, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -38,85 +38,34 @@ var PropertyRemoveOperation = Class.extend(MeldOperation, {
     /**
      *
      */
-    _constructor: function(meldKey, propertyName) {
+    _constructor: function(meldKey, type) {
 
-        this._super(meldKey, PropertyRemoveOperation.TYPE);
+        this._super(meldKey, type);
 
 
         //-------------------------------------------------------------------------------
         // Properties
         //-------------------------------------------------------------------------------
 
-        /**
-         * @private
-         * @type {string}
-         */
-        this.propertyName   = propertyName;
     },
 
 
     //-------------------------------------------------------------------------------
-    // Getters and Setters
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @return {string}
-     */
-    getPropertyName: function() {
-        return this.propertyName;
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // IObjectable Implementation
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @return {Object}
-     */
-    toObject: function() {
-        var obj = this._super();
-        obj.propertyName = this.propertyName;
-        return obj;
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // MeldOperation Implementation
+    // Public Methods
     //-------------------------------------------------------------------------------
 
     /**
      * @param {MeldDocument} meldDocument
      * @return {Meld}
      */
-    apply: function(meldDocument) {
-        var meldObject = meldDocument.getMeld(this.meldKey);
-        meldObject.removeProperty(this.propertyName);
-        return meldObject;
-    },
-
-    /**
-     * @param {MeldOperation} meldOperation
-     */
-    transform: function(meldOperation) {
-        //TODO
+    commit: function(meldDocument) {
+        return this.apply(meldDocument);
     }
 });
-
-
-//-------------------------------------------------------------------------------
-// Static Variables
-//-------------------------------------------------------------------------------
-
-/**
- * @static
- * @const {string}
- */
-PropertyRemoveOperation.TYPE = "PropertyRemoveOperation";
 
 
 //-------------------------------------------------------------------------------
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbug.PropertyRemoveOperation', PropertyRemoveOperation);
+bugpack.export('meldbug.MeldDocumentOperation', MeldDocumentOperation);

@@ -4,12 +4,12 @@
 
 //@Package('meldbugserver')
 
-//@Export('MeldbugClientConsumerManager')
+//@Export('MeldMirrorStoreDelegate')
 
 //@Require('Class')
 //@Require('Map')
+//@Require('Set')
 //@Require('Obj')
-//@Require('meldbugserver.MeldbugClientConsumer')
 
 
 //-------------------------------------------------------------------------------
@@ -25,15 +25,15 @@ var bugpack                 = require('bugpack').context();
 
 var Class                   = bugpack.require('Class');
 var Map                     = bugpack.require('Map');
+var Set                     = bugpack.require('Set');
 var Obj                     = bugpack.require('Obj');
-var MeldbugClientConsumer   = bugpack.require('meldbugserver.MeldbugClientConsumer');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldbugClientConsumerManager = Class.extend(Obj, {
+var MeldMirrorStoreDelegate = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -42,7 +42,7 @@ var MeldbugClientConsumerManager = Class.extend(Obj, {
     /**
      *
      */
-    _constructor: function() {
+    _constructor: function(meldMirrorStore) {
 
         this._super();
 
@@ -53,53 +53,67 @@ var MeldbugClientConsumerManager = Class.extend(Obj, {
 
         /**
          * @private
-         * @type {Map.<CallManager, MeldbugClientConsumer>}
+         * @type {Set.<CallManager>}
          */
-        this.callManagerToConsumerMap   = new Map();
+        this.callManagerRetrievedSet        = new Set();
+
+        /**
+         * @private
+         * @type {Map.<CallManager, MeldMirror>}
+         */
+        this.callManagerToMeldMirrorMap     = new Map();
+
+        /**
+         * @private
+         * @type {MeldMirrorStore}
+         */
+        this.meldMirrorStore                = meldMirrorStore;
     },
 
 
     //-------------------------------------------------------------------------------
-    // Public Instance Methods
+    // Public Methods
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {MeldbugClientConsumer} consumer
-     */
-    addConsumer: function(consumer) {
-        this.callManagerToConsumerMap.put(consumer.getCallManager(), consumer);
-    },
-
-    /**
-     * @param {BugCallServer} bugCallServer
      * @param {CallManager} callManager
-     * @return {MeldbugClientConsumer}
+     * @return {MeldMirror}
      */
-    factoryConsumer: function(bugCallServer, callManager) {
-        return new MeldbugClientConsumer(bugCallServer, callManager);
-    },
-
-    /**
-     * @param {CallManager} callManager
-     * @return {ClientCacheConsumer}
-     */
-    getConsumerForCallManager: function(callManager) {
-        return this.callManagerToConsumerMap.get(callManager);
+    getMeldMirrorForCallManager: function(callManager) {
+        this.ensureCallManagerRetrieved(callManager);
+        return this.callManagerToMeldMirrorMap.get(callManager);
     },
 
     /**
      * @param {CallManager} callManager
      * @return {boolean}
      */
-    hasConsumerForCallManager: function(callManager) {
-        return this.callManagerToConsumerMap.containsKey(callManager);
+    hasCallManager: function(callManager) {
+        this.ensureCallManagerRetrieved(callManager);
+        return this.callManagerToMeldMirrorMap.containsKey(callManager);
     },
 
+
+    //-------------------------------------------------------------------------------
+    // Private Methods
+    //-------------------------------------------------------------------------------
+
     /**
+     * @private
      * @param {CallManager} callManager
      */
-    removeConsumerForCallManager: function(callManager) {
-         this.callManagerToConsumerMap.remove(callManager);
+    ensureCallManagerRetrieved: function(callManager) {
+
+        // TODO BRN: This doesn't quite work since the meldStore could change out from under us...
+        // TODO BRN: Instead, the delegate should only interact with the store at a specific revision so that it does not interact with any new changes
+
+        if (!this.callManagerRetrievedSet.contains(callManager)) {
+            if (this.meldMirrorStore.hasCallManager(callManager)) {
+                var meldMirror = this.meldMirrorStore.getMeldMirrorForCallManager(callManager).clone();
+                this.callManagerToMeldMirrorMap.put(callManager, meldMirror);
+            }
+            this.callManagerRetrievedSet.add(callManager);
+        }
     }
 });
 
@@ -108,4 +122,4 @@ var MeldbugClientConsumerManager = Class.extend(Obj, {
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbugserver.MeldbugClientConsumerManager', MeldbugClientConsumerManager);
+bugpack.export('meldbugserver.MeldMirrorStoreDelegate', MeldMirrorStoreDelegate);

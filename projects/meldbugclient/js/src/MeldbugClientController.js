@@ -21,8 +21,8 @@ var bugpack     = require('bugpack').context();
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class       = bugpack.require('Class');
-var Obj         = bugpack.require('Obj');
+var Class               = bugpack.require('Class');
+var Obj                 = bugpack.require('Obj');
 
 
 //-------------------------------------------------------------------------------
@@ -35,7 +35,7 @@ var MeldbugClientController = Class.extend(Obj, {
     // Constructor
     //-------------------------------------------------------------------------------
 
-    _constructor: function(bugCallRouter, meldbugClientService, meldObjectManager) {
+    _constructor: function(bugCallRouter, meldbugClientService, meldBuilder) {
 
         this._super();
 
@@ -47,7 +47,7 @@ var MeldbugClientController = Class.extend(Obj, {
          * @private
          * @type {BugCallRouter}
          */
-        this.bugCallRouter  = bugCallRouter;
+        this.bugCallRouter          = bugCallRouter;
 
         /**
          * @private
@@ -57,9 +57,9 @@ var MeldbugClientController = Class.extend(Obj, {
 
         /**
          * @private
-         * @type {*}
+         * @type {MeldBuilder}
          */
-        this.meldObjectManager      = meldObjectManager;
+        this.meldBuilder            = meldBuilder;
     },
 
 
@@ -73,49 +73,23 @@ var MeldbugClientController = Class.extend(Obj, {
     configure: function(callback){
         var _this = this;
         this.bugCallRouter.addAll({
-            addMeldObject: function(request, responder) {
-                var data        = request.getData();
-                var meldId      = data.meldId;
-                var meldObject  = _this.meldObjectManager.generateMeldObject(meldId, data.meldObject);
-                _this.meldbugClientService.addMeldObject(meldObject, function(error) {
-                    var data        = null;
-                    var response    = null;
-                    if (!error) {
-                        data        = {meldId: meldId};
-                        response    = responder.response("addMeldObjectResponse", data);
-                    } else {
-                        data        = {
-                            meldId: meldId,
-                            error: error
-                        };
-                        response    = responder.response("addMeldObjectError", data);
-                    }
-                    responder.sendResponse(response);
-                });
-            },
-            applyMeldOperations: function(request, responder) {
+            commitMeldTransaction: function(request, responder) {
                 var data                = request.getData();
-                var meldId              = data.meldId;
-                var revision            = data.revision;
-                var operationList   = _this.meldObjectManager.generateOperationList(data.operationList);
-                _this.meldbugClientService.applyOperationList(meldId, revision, operationList, function(error) {
-                    var data        = null;
+                var meldTransaction     = _this.meldBuilder.generateMeldTransaction(data.meldTransaction);
+                _this.meldbugClientService.commitMeldTransaction(meldTransaction, function(error) {
                     var response    = null;
                     if (!error) {
-                        data        = {meldId: meldId};
-                        response    = responder.response("applyOperationListResponse", data);
+                        response    = responder.response("commitMeldTransactionResponse", {
+                            success: true
+                        });
                     } else {
-                        data        = {
-                            meldId: meldId,
+                        response    = responder.response("commitMeldTransactionError", {
+                            success: false,
                             error: error
-                        };
-                        response    = responder.response("applyOperationListError", data);
+                        });
                     }
                     responder.sendResponse(response);
                 });
-            },
-            removeMeldObject: function(request, responder) {
-
             }
         });
 

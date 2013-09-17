@@ -2,65 +2,62 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbugclient')
+//@Package('meldbugserver')
 
-//@Export('MeldbugClientService')
+//@Export('MeldMirrorStore')
 
 //@Require('Class')
-//@Require('EventDispatcher')
-//@Require('bugflow.BugFlow')
+//@Require('DualMultiSetMap')
+//@Require('Exception')
+//@Require('Map')
+//@Require('Obj')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack = require('bugpack').context();
+var bugpack                 = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
-// BugPack
+// Bugpack Modules
 //-------------------------------------------------------------------------------
 
-var Class               = bugpack.require('Class');
-var EventDispatcher     = bugpack.require('Obj');
-var BugFlow             = bugpack.require('bugflow.BugFlow');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var $series         = BugFlow.$series;
-var $task           = BugFlow.$task;
+var Class                   = bugpack.require('Class');
+var DualMultiSetMap         = bugpack.require('DualMultiSetMap');
+var Exception               = bugpack.require('Exception');
+var Map                     = bugpack.require('Map');
+var Obj                     = bugpack.require('Obj');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldbugClientService = Class.extend(EventDispatcher, {
+var MeldMirrorStore = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
     // Constructor
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {MeldStore} meldStore
+     *
      */
-    _constructor: function(meldStore) {
+    _constructor: function() {
 
         this._super();
 
+
         //-------------------------------------------------------------------------------
-        // Properties
+        // Instance Properties
         //-------------------------------------------------------------------------------
 
         /**
          * @private
-         * @type {MeldStore}
+         * @type {Map.<CallManager, MeldMirror>}
          */
-        this.meldStore = meldStore;
+        this.callManagerToMeldMirrorMap     = new Map();
     },
 
 
@@ -69,22 +66,33 @@ var MeldbugClientService = Class.extend(EventDispatcher, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @private
-     * @param {MeldTransaction} meldTransaction
+     * @param {MeldMirror} meldMirror
      */
-    commitMeldTransaction: function(meldTransaction) {
-        var _this = this;
-        $task(function(flow) {
-            _this.meldStore.commitMeldTransaction(meldTransaction, function(error) {
-                flow.complete(error);
-            });
-        }).execute(function(error) {
-            if (!error) {
-                callback(undefined);
-            } else {
-                callback(error);
-            }
-        });
+    addMeldMirror: function(meldMirror) {
+        this.callManagerToMeldMirrorMap.put(meldMirror.getCallManager(), meldMirror);
+    },
+
+    /**
+     * @param {CallManager} callManager
+     * @return {MeldMirror}
+     */
+    getMeldMirrorForCallManager: function(callManager) {
+        return this.callManagerToMeldMirrorMap.get(callManager);
+    },
+
+    /**
+     * @param {CallManager} callManager
+     * @return {boolean}
+     */
+    hasCallManager: function(callManager) {
+        return this.callManagerToMeldMirrorMap.containsKey(callManager);
+    },
+
+    /**
+     * @param {CallManager} callManager
+     */
+    removeMeldMirrorForCallManager: function(callManager) {
+        this.callManagerToMeldMirrorMap.remove(callManager);
     }
 });
 
@@ -93,4 +101,4 @@ var MeldbugClientService = Class.extend(EventDispatcher, {
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbugclient.MeldbugClientService', MeldbugClientService);
+bugpack.export('meldbugserver.MeldMirrorStore', MeldMirrorStore);

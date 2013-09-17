@@ -9,6 +9,7 @@
 //@Require('Class')
 //@Require('IObjectable')
 //@Require('Obj')
+//@Require('UuidGenerator')
 
 
 //-------------------------------------------------------------------------------
@@ -25,6 +26,7 @@ var bugpack         = require('bugpack').context();
 var Class           = bugpack.require('Class');
 var IObjectable     = bugpack.require('IObjectable');
 var Obj             = bugpack.require('Obj');
+var UuidGenerator   = bugpack.require('UuidGenerator');
 
 
 //-------------------------------------------------------------------------------
@@ -40,7 +42,7 @@ var MeldOperation = Class.extend(Obj, {
     /**
      *
      */
-    _constructor: function(type) {
+    _constructor: function(meldKey, type, previousOperationUuid) {
 
         this._super();
 
@@ -51,9 +53,27 @@ var MeldOperation = Class.extend(Obj, {
 
         /**
          * @private
+         * @type {MeldKey}
+         */
+        this.meldKey                = meldKey;
+
+        /**
+         * @private
          * @type {string}
          */
-        this.type           = type;
+        this.previousOperationUuid  = previousOperationUuid;
+
+        /**
+         * @private
+         * @type {string}
+         */
+        this.type                   = type;
+
+        /**
+         * @private
+         * @type {string}
+         */
+        this.uuid                   = UuidGenerator.generateUuid();
     },
 
 
@@ -62,10 +82,38 @@ var MeldOperation = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
+     * @return {MeldKey}
+     */
+    getMeldKey: function() {
+        return this.meldKey;
+    },
+
+    /**
+     * @return {string}
+     */
+    getPreviousOperationUuid: function() {
+        return this.previousOperationUuid;
+    },
+
+    /**
+     * @param {string} previousOperationUuid
+     */
+    setPreviousOperationUuid: function(previousOperationUuid) {
+        this.previousOperationUuid = previousOperationUuid;
+    },
+
+    /**
      * @return {string}
      */
     getType: function() {
         return this.type;
+    },
+
+    /**
+     * @return {string}
+     */
+    getUuid: function() {
+        return this.uuid;
     },
 
 
@@ -78,8 +126,35 @@ var MeldOperation = Class.extend(Obj, {
      */
     toObject: function() {
         return {
-            type: this.type
+            meldKey: this.meldKey.toObject(),
+            type: this.type,
+            uuid: this.uuid
         };
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Public Methods
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @param {MeldDocument} meldDocument
+     * @return {Meld}
+     */
+    commit: function(meldDocument) {
+        var _this = this;
+        var meld = meldDocument.getMeld(this.meldKey);
+        var revisionIndex = meld.getRevisionIndex(this.previousOperationUuid);
+        if (revisionIndex < 0 || revisionIndex > _this.operationList.getCount()) {
+            throw new Error("operation revision not in history");
+        }
+        var concurrentOperationList = meld.getOperationList().subList(revisionIndex);
+        concurrentOperationList.forEach(function(concurrentOperation) {
+            _this.transform(concurrentOperation);
+        });
+        var modifiedMeld = this.apply(meldDocument);
+        meld.getOperationList().add(this);
+        return modifiedMeld;
     },
 
 
@@ -87,11 +162,20 @@ var MeldOperation = Class.extend(Obj, {
     // Abstract Methods
     //-------------------------------------------------------------------------------
 
-    apply: function(meld) {
+    /**
+     * @abstract
+     * @param {MeldDocument} meldDocument
+     * @return {Meld}
+     */
+    apply: function(meldDocument) {
 
     },
 
-    transform: function(operation) {
+    /**
+     * @abstract
+     * @param {MeldOperation} meldOperation
+     */
+    transform: function(meldOperation) {
 
     }
 });

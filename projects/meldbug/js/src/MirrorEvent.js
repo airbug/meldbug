@@ -4,32 +4,32 @@
 
 //@Package('meldbug')
 
-//@Export('PropertyRemoveOperation')
+//@Export('MirrorEvent')
 
 //@Require('Class')
-//@Require('meldbug.MeldOperation')
+//@Require('Event')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack         = require('bugpack').context();
+var bugpack             = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class           = bugpack.require('Class');
-var MeldOperation   = bugpack.require('meldbug.MeldOperation');
+var Class               = bugpack.require('Class');
+var Event               = bugpack.require('Event');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var PropertyRemoveOperation = Class.extend(MeldOperation, {
+var MirrorEvent = Class.extend(Event, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -38,9 +38,9 @@ var PropertyRemoveOperation = Class.extend(MeldOperation, {
     /**
      *
      */
-    _constructor: function(meldKey, propertyName) {
+    _constructor: function(type, meldKeySet, data) {
 
-        this._super(meldKey, PropertyRemoveOperation.TYPE);
+        this._super(type, data);
 
 
         //-------------------------------------------------------------------------------
@@ -49,9 +49,9 @@ var PropertyRemoveOperation = Class.extend(MeldOperation, {
 
         /**
          * @private
-         * @type {string}
+         * @type {Set.<MeldKey>}
          */
-        this.propertyName   = propertyName;
+        this.meldKeySet = meldKeySet;
     },
 
 
@@ -60,46 +60,10 @@ var PropertyRemoveOperation = Class.extend(MeldOperation, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {string}
+     * @return {Set.<MeldKey>}
      */
-    getPropertyName: function() {
-        return this.propertyName;
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // IObjectable Implementation
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @return {Object}
-     */
-    toObject: function() {
-        var obj = this._super();
-        obj.propertyName = this.propertyName;
-        return obj;
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // MeldOperation Implementation
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @param {MeldDocument} meldDocument
-     * @return {Meld}
-     */
-    apply: function(meldDocument) {
-        var meldObject = meldDocument.getMeld(this.meldKey);
-        meldObject.removeProperty(this.propertyName);
-        return meldObject;
-    },
-
-    /**
-     * @param {MeldOperation} meldOperation
-     */
-    transform: function(meldOperation) {
-        //TODO
+    getMeldKeySet: function() {
+        return this.meldKeySet;
     }
 });
 
@@ -110,13 +74,17 @@ var PropertyRemoveOperation = Class.extend(MeldOperation, {
 
 /**
  * @static
- * @const {string}
+ * @type {Object}
  */
-PropertyRemoveOperation.TYPE = "PropertyRemoveOperation";
+MirrorEvent.EventTypes = {
+    MIRROR: "MirrorEvent:Mirror",
+    UNMIRROR: "MirrorEvent:Unmirror"
+};
+
 
 
 //-------------------------------------------------------------------------------
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbug.PropertyRemoveOperation', PropertyRemoveOperation);
+bugpack.export('meldbug.MirrorEvent', MirrorEvent);

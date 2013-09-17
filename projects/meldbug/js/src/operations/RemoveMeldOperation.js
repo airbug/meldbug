@@ -4,32 +4,32 @@
 
 //@Package('meldbug')
 
-//@Export('PropertySetOperation')
+//@Export('RemoveMeldOperation')
 
 //@Require('Class')
-//@Require('meldbug.MeldOperation')
+//@Require('meldbug.MeldDocumentOperation')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack         = require('bugpack').context();
+var bugpack                 = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class           = bugpack.require('Class');
-var MeldOperation   = bugpack.require('meldbug.MeldOperation');
+var Class                   = bugpack.require('Class');
+var MeldDocumentOperation   = bugpack.require('meldbug.MeldDocumentOperation');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var PropertySetOperation = Class.extend(MeldOperation, {
+var RemoveMeldOperation = Class.extend(MeldDocumentOperation, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -38,59 +38,14 @@ var PropertySetOperation = Class.extend(MeldOperation, {
     /**
      *
      */
-    _constructor: function(meldKey, propertyName, propertyValue) {
+    _constructor: function(meldKey) {
 
-        this._super(meldKey, PropertySetOperation.TYPE);
+        this._super(meldKey, RemoveMeldOperation.TYPE);
 
 
         //-------------------------------------------------------------------------------
         // Properties
         //-------------------------------------------------------------------------------
-
-        /**
-         * @private
-         * @type {string}
-         */
-        this.propertyName   = propertyName;
-
-        /**
-         * @private
-         * @type {*}
-         */
-        this.propertyValue  = propertyValue;
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // Getters and Setters
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @return {string}
-     */
-    getPropertyName: function() {
-        return this.propertyName;
-    },
-
-    /**
-     * @return {*}
-     */
-    getPropertyValue: function() {
-        return this.propertyValue;
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // IObjectable Implementation
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @return {Object}
-     */
-    toObject: function() {
-        var obj = this._super();
-        obj.propertyName = this.propertyName;
-        return obj;
     },
 
 
@@ -103,9 +58,7 @@ var PropertySetOperation = Class.extend(MeldOperation, {
      * @return {Meld}
      */
     apply: function(meldDocument) {
-        var meldObject = meldDocument.getMeld(this.meldKey);
-        meldObject.setProperty(this.propertyName, this.propertyValue);
-        return meldObject;
+        return meldDocument.removeMeld(this.getMeldKey());
     },
 
     /**
@@ -125,11 +78,11 @@ var PropertySetOperation = Class.extend(MeldOperation, {
  * @static
  * @const {string}
  */
-PropertySetOperation.TYPE = "PropertySetOperation";
+RemoveMeldOperation.TYPE = "RemoveMeldOperation";
 
 
 //-------------------------------------------------------------------------------
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbug.PropertySetOperation', PropertySetOperation);
+bugpack.export('meldbug.RemoveMeldOperation', RemoveMeldOperation);

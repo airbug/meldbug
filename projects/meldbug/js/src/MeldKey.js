@@ -4,32 +4,34 @@
 
 //@Package('meldbug')
 
-//@Export('PropertySetOperation')
+//@Export('MeldKey')
 
 //@Require('Class')
-//@Require('meldbug.MeldOperation')
+//@Require('IObjectable')
+//@Require('Obj')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack         = require('bugpack').context();
+var bugpack             = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class           = bugpack.require('Class');
-var MeldOperation   = bugpack.require('meldbug.MeldOperation');
+var Class               = bugpack.require('Class');
+var IObjectable         = bugpack.require('IObjectable');
+var Obj                 = bugpack.require('Obj');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var PropertySetOperation = Class.extend(MeldOperation, {
+var MeldKey = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -38,9 +40,9 @@ var PropertySetOperation = Class.extend(MeldOperation, {
     /**
      *
      */
-    _constructor: function(meldKey, propertyName, propertyValue) {
+    _constructor: function(dataType, id, filterType) {
 
-        this._super(meldKey, PropertySetOperation.TYPE);
+        this._super();
 
 
         //-------------------------------------------------------------------------------
@@ -51,13 +53,19 @@ var PropertySetOperation = Class.extend(MeldOperation, {
          * @private
          * @type {string}
          */
-        this.propertyName   = propertyName;
+        this.dataType           = dataType;
 
         /**
          * @private
-         * @type {*}
+         * @type {string}
          */
-        this.propertyValue  = propertyValue;
+        this.filterType         = filterType;
+
+        /**
+         * @private
+         * @type {string}
+         */
+        this.id                 = id;
     },
 
 
@@ -68,15 +76,48 @@ var PropertySetOperation = Class.extend(MeldOperation, {
     /**
      * @return {string}
      */
-    getPropertyName: function() {
-        return this.propertyName;
+    getDataType: function() {
+        return this.dataType;
     },
 
     /**
-     * @return {*}
+     * @return {string}
      */
-    getPropertyValue: function() {
-        return this.propertyValue;
+    getFilterType: function() {
+        return this.filterType;
+    },
+
+    /**
+     * @return {string}
+     */
+    getId: function() {
+        return this.id;
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Object Implementation
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @param {*} value
+     * @return {boolean}
+     */
+    equals: function(value) {
+        if (Class.doesExtend(value, MeldKey)) {
+            return (value.getId() === this.getId() && value.getDataType() === this.getDataType() && value.getFilterType() === this.getFilterType());
+        }
+        return false;
+    },
+
+    hashCode: function() {
+        if (!this._hashCode) {
+            this._hashCode = Obj.hashCode("[MeldKey]" +
+                Obj.hashCode(this.id) + "_" +
+                Obj.hashCode(this.dataType) + "_" +
+                Obj.hashCode(this.filterType));
+        }
+        return this._hashCode;
     },
 
 
@@ -88,48 +129,36 @@ var PropertySetOperation = Class.extend(MeldOperation, {
      * @return {Object}
      */
     toObject: function() {
-        var obj = this._super();
-        obj.propertyName = this.propertyName;
-        return obj;
+        return {
+            id: this.id,
+            dataType: this.dataType,
+            filterType: this.filterType
+        };
     },
 
 
     //-------------------------------------------------------------------------------
-    // MeldOperation Implementation
+    // Public Methods
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {MeldDocument} meldDocument
-     * @return {Meld}
+     * @return {string}
      */
-    apply: function(meldDocument) {
-        var meldObject = meldDocument.getMeld(this.meldKey);
-        meldObject.setProperty(this.propertyName, this.propertyValue);
-        return meldObject;
-    },
-
-    /**
-     * @param {MeldOperation} meldOperation
-     */
-    transform: function(meldOperation) {
-        //TODO
+    toKey: function() {
+        return this.id + "_" + this.dataType + "_" + this.filterType;
     }
 });
 
 
 //-------------------------------------------------------------------------------
-// Static Variables
+// Interfaces
 //-------------------------------------------------------------------------------
 
-/**
- * @static
- * @const {string}
- */
-PropertySetOperation.TYPE = "PropertySetOperation";
+Class.implement(MeldKey, IObjectable);
 
 
 //-------------------------------------------------------------------------------
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbug.PropertySetOperation', PropertySetOperation);
+bugpack.export('meldbug.MeldKey', MeldKey);

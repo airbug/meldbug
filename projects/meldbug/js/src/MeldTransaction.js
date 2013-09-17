@@ -4,10 +4,12 @@
 
 //@Package('meldbug')
 
-//@Export('PropertySetOperation')
+//@Export('MeldTransaction')
 
 //@Require('Class')
-//@Require('meldbug.MeldOperation')
+//@Require('IObjectable')
+//@Require('List')
+//@Require('Obj')
 
 
 //-------------------------------------------------------------------------------
@@ -22,14 +24,16 @@ var bugpack         = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var Class           = bugpack.require('Class');
-var MeldOperation   = bugpack.require('meldbug.MeldOperation');
+var IObjectable     = bugpack.require('IObjectable');
+var List            = bugpack.require('List');
+var Obj             = bugpack.require('Obj');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var PropertySetOperation = Class.extend(MeldOperation, {
+var MeldTransaction = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -38,9 +42,9 @@ var PropertySetOperation = Class.extend(MeldOperation, {
     /**
      *
      */
-    _constructor: function(meldKey, propertyName, propertyValue) {
+    _constructor: function() {
 
-        this._super(meldKey, PropertySetOperation.TYPE);
+        this._super();
 
 
         //-------------------------------------------------------------------------------
@@ -49,15 +53,9 @@ var PropertySetOperation = Class.extend(MeldOperation, {
 
         /**
          * @private
-         * @type {string}
+         * @type {List.<MeldOperation>}
          */
-        this.propertyName   = propertyName;
-
-        /**
-         * @private
-         * @type {*}
-         */
-        this.propertyValue  = propertyValue;
+        this.meldOperationList          = new List();
     },
 
 
@@ -66,17 +64,17 @@ var PropertySetOperation = Class.extend(MeldOperation, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {string}
+     * @return {List.<MeldOperation>}
      */
-    getPropertyName: function() {
-        return this.propertyName;
+    getMeldOperationList: function() {
+        return this.meldOperationList;
     },
 
     /**
-     * @return {*}
+     * @param {List.<MeldOperation>} meldOperationList
      */
-    getPropertyValue: function() {
-        return this.propertyValue;
+    setMeldOperationList: function(meldOperationList) {
+        this.meldOperationList = meldOperationList;
     },
 
 
@@ -88,48 +86,38 @@ var PropertySetOperation = Class.extend(MeldOperation, {
      * @return {Object}
      */
     toObject: function() {
-        var obj = this._super();
-        obj.propertyName = this.propertyName;
-        return obj;
+        var meldOperationList = [];
+        this.meldOperationList.forEach(function(meldOperation) {
+            meldOperationList.push(meldOperation.toObject());
+        });
+        return {
+            meldOperationList: meldOperationList
+        };
     },
 
 
     //-------------------------------------------------------------------------------
-    // MeldOperation Implementation
+    // IObjectable Implementation
     //-------------------------------------------------------------------------------
-
-    /**
-     * @param {MeldDocument} meldDocument
-     * @return {Meld}
-     */
-    apply: function(meldDocument) {
-        var meldObject = meldDocument.getMeld(this.meldKey);
-        meldObject.setProperty(this.propertyName, this.propertyValue);
-        return meldObject;
-    },
 
     /**
      * @param {MeldOperation} meldOperation
      */
-    transform: function(meldOperation) {
-        //TODO
+    addMeldOperation: function(meldOperation) {
+        this.meldOperationList.add(meldOperation);
     }
 });
 
 
 //-------------------------------------------------------------------------------
-// Static Variables
+// Interfaces
 //-------------------------------------------------------------------------------
 
-/**
- * @static
- * @const {string}
- */
-PropertySetOperation.TYPE = "PropertySetOperation";
+Class.implement(MeldTransaction, IObjectable);
 
 
 //-------------------------------------------------------------------------------
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbug.PropertySetOperation', PropertySetOperation);
+bugpack.export('meldbug.MeldTransaction', MeldTransaction);
