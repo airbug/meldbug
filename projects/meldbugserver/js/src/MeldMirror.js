@@ -7,11 +7,10 @@
 //@Export('MeldMirror')
 
 //@Require('Class')
-//@Require('Event')
-//@Require('EventDispatcher')
-//@Require('IClone')
+//@Require('List')
+//@Require('Obj')
 //@Require('Set')
-//@Require('meldbug.MirrorEvent')
+//@Require('meldbugserver.MeldMirrorDocument')
 
 
 //-------------------------------------------------------------------------------
@@ -26,18 +25,17 @@ var bugpack             = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var Class               = bugpack.require('Class');
-var Event               = bugpack.require('Event');
-var EventDispatcher     = bugpack.require('EventDispatcher');
-var IClone              = bugpack.require('IClone');
+var List                = bugpack.require('List');
+var Obj                 = bugpack.require('Obj');
 var Set                 = bugpack.require('Set');
-var MirrorEvent         = bugpack.require('melbug.MirrorEvent');
+var MeldMirrorDocument  = bugpack.require('meldbug.MeldMirrorDocument');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldMirror = Class.extend(EventDispatcher, {
+var MeldMirror = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -46,7 +44,7 @@ var MeldMirror = Class.extend(EventDispatcher, {
     /**
      *
      */
-    _constructor: function(callManager, meldbugClientConsumerManager) {
+    _constructor: function(callManager, meldbugClientConsumer) {
 
         this._super();
 
@@ -63,15 +61,15 @@ var MeldMirror = Class.extend(EventDispatcher, {
 
         /**
          * @private
-         * @type {MeldbugClientConsumerManager}
+         * @type {MeldbugClientConsumer}
          */
-        this.meldbugClientConsumerManager   = meldbugClientConsumerManager;
+        this.meldbugClientConsumer          = meldbugClientConsumer;
 
         /**
          * @private
-         * @type {Set.<MeldKey>}
+         * @type {MeldMirrorDocument}
          */
-        this.meldKeySet                     = new Set();
+        this.meldMirrorDocument             = new MeldMirrorDocument();
     },
 
 
@@ -87,35 +85,17 @@ var MeldMirror = Class.extend(EventDispatcher, {
     },
 
     /**
-     * @return {MeldbugClientConsumerManager}
+     * @return {MeldbugClientConsumer}
      */
-    getMeldbugClientConsumerManager: function() {
-        return this.meldbugClientConsumerManager;
+    getMeldbugClientConsumer: function() {
+        return this.meldbugClientConsumer;
     },
 
     /**
-     * @return {Set.<MeldKey>}
+     * @return {MeldMirrorDocument}
      */
-    getMeldKeySet: function() {
-        return this.meldKeySet;
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // IClone Implementation
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @param {boolean} deep
-     * @return {*}
-     */
-    clone: function(deep) {
-
-        //TODO BRN: Implement "deep" cloning
-
-        var meldMirror = new MeldMirror();
-        meldMirror.getMeldKeySet().addAll(this.meldKeySet);
-        return meldMirror;
+    getMeldMirrorDocument: function() {
+        return this.meldMirrorDocument;
     },
 
 
@@ -123,69 +103,27 @@ var MeldMirror = Class.extend(EventDispatcher, {
     // Public Methods
     //-------------------------------------------------------------------------------
 
+
     /**
-     * @param {(Array.<MeldKey> | Collection.<MeldKey>)} meldKeys
-     * @return {Set.<MeldKey>}
+     * @param {MeldTransaction} meldTransaction
+     * @param {function(Error)} callback
      */
-    addMeldKeys: function(meldKeys) {
+    commitMeldTransaction: function(meldTransaction, callback) {
         var _this = this;
-        var addedMeldKeys = new Set();
-        meldKeys.forEach(function(meldKey) {
-            var result = _this.meldKeySet.add(meldKey);
-            if (result) {
-                addedMeldKeys.add(meldKey);
-            }
+        meldTransaction.getMeldOperationList().forEach(function(meldOperation) {
+            meldOperation.commit(_this.meldMirrorDocument);
         });
-        return addedMeldKeys;
+        this.meldbugClientConsumer.commitMeldTransaction(meldTransaction, callback);
     },
 
     /**
-     * @param {(Array.<MeldKey> | Collection.<MeldKey>)} meldKeys
-     * @return {Set.<MeldKey>}
+     * @param {MeldKey} meldKey
+     * @return {boolean}
      */
-    mirrorMeldKeys: function(meldKeys) {
-        var returnedKeySet = this.addMeldKeys(meldKeys);
-        if (!returnedKeySet.isEmpty()) {
-            this.dispatchEvent(new MirrorEvent(MirrorEvent.EventTypes.MIRROR, returnedKeySet));
-        }
-        return returnedKeySet;
-    },
-
-    /**
-     * @param {(Array.<MeldKey> | Collection.<MeldKey>)} meldKeys
-     * @return {Set.<MeldKey>}
-     */
-    removeMeldKeys: function(meldKeys) {
-        var _this = this;
-        var removedMeldKeys = new Set();
-        meldKeys.forEach(function(meldKey) {
-            var result = _this.meldKeySet.remove(meldKey);
-            if (result) {
-                removedMeldKeys.add(meldKey);
-            }
-        });
-        return removedMeldKeys;
-    },
-
-    /**
-     * @param {(Array.<MeldKey> | Collection.<MeldKey>)} meldKeys
-     * @return {Set.<MeldKey>}
-     */
-    unmirrorMeldKeys: function(meldKeys) {
-        var returnedKeySet = this.removeMeldKeys(meldKeys);
-        if (!returnedKeySet.isEmpty()) {
-            this.dispatchEvent(new MirrorEvent(MirrorEvent.EventTypes.UNMIRROR, returnedKeySet));
-        }
-        return returnedKeySet;
+    containsMeldByKey: function(meldKey) {
+        return this.meldMirrorDocument.containsMeldByKey(meldKey);
     }
 });
-
-
-//-------------------------------------------------------------------------------
-// Interfaces
-//-------------------------------------------------------------------------------
-
-Class.implement(MeldMirror, IClone);
 
 
 //-------------------------------------------------------------------------------

@@ -27,6 +27,7 @@ var bugpack                     = require('bugpack').context();
 
 var Class                       = bugpack.require('Class');
 var Event                       = bugpack.require('Event');
+var IClone                      = bugpack.require('IClone');
 var DeltaObject                 = bugpack.require('bugdelta.DeltaObject');
 var Meld                        = bugpack.require('meldbug.Meld');
 var PropertyRemoveOperation     = bugpack.require('meldbug.PropertyRemoveOperation');

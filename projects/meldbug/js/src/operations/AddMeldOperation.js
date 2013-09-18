@@ -68,6 +68,19 @@ var AddMeldOperation = Class.extend(MeldDocumentOperation, {
 
 
     //-------------------------------------------------------------------------------
+    // IClone Implementation
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @param {boolean} deep
+     * @return {*}
+     */
+    clone: function(deep) {
+        return new AddMeldOperation(this.meldKey, this.meld.clone(deep));
+    },
+
+
+    //-------------------------------------------------------------------------------
     // IObjectable Implementation
     //-------------------------------------------------------------------------------
 

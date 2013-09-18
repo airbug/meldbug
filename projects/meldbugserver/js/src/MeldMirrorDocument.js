@@ -2,34 +2,36 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
+//@Package('meldbugserver')
 
-//@Export('MirrorEvent')
+//@Export('MeldMirrorDocument')
 
 //@Require('Class')
-//@Require('Event')
+//@Require('EventDispatcher')
+//@Require('Set')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack             = require('bugpack').context();
+var bugpack                 = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class               = bugpack.require('Class');
-var Event               = bugpack.require('Event');
+var Class                   = bugpack.require('Class');
+var EventDispatcher         = bugpack.require('EventDispatcher');
+var Set                     = bugpack.require('Set');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MirrorEvent = Class.extend(Event, {
+var MeldMirrorDocument = Class.extend(EventDispatcher, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -38,53 +40,71 @@ var MirrorEvent = Class.extend(Event, {
     /**
      *
      */
-    _constructor: function(type, meldKeySet, data) {
+    _constructor: function() {
 
-        this._super(type, data);
+        this._super();
 
 
         //-------------------------------------------------------------------------------
         // Properties
         //-------------------------------------------------------------------------------
 
+        //TODO BRN: This is where we can add MeldMirrorObjects that should track the hash of an object so that we can detect when an object is out of sync
+        //NOTE: For now, we're just keeping a list of the keys
+
         /**
          * @private
          * @type {Set.<MeldKey>}
          */
-        this.meldKeySet = meldKeySet;
+        this.meldKeySet     = new Set();
     },
 
 
     //-------------------------------------------------------------------------------
-    // Getters and Setters
+    // Public Methods
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {Set.<MeldKey>}
+     * @param {Meld} meld
      */
-    getMeldKeySet: function() {
-        return this.meldKeySet;
+    addMeld: function(meld) {
+        this.meldKeySet.add(meld.getMeldKey());
+    },
+
+    /**
+     * @param {Meld} meld
+     * @return {boolean}
+     */
+    containsMeld: function(meld) {
+        return this.meldKeySet.contains(meld.getMeldKey());
+    },
+
+    /**
+     * @param {MeldKey} meldKey
+     */
+    containsMeldByKey: function(meldKey) {
+        return this.meldKeySet.contains(meldKey);
+    },
+
+    /**
+     * @param {MeldKey} meldKey
+     * @return {Meld}
+     */
+    getMeld: function(meldKey) {
+        return undefined;
+    },
+
+    /**
+     * @param {MeldKey} meldKey
+     */
+    removeMeld: function(meldKey) {
+        this.meldKeySet.remove(meldKey);
     }
 });
-
-
-//-------------------------------------------------------------------------------
-// Static Variables
-//-------------------------------------------------------------------------------
-
-/**
- * @static
- * @type {Object}
- */
-MirrorEvent.EventTypes = {
-    MIRROR: "MirrorEvent:Mirror",
-    UNMIRROR: "MirrorEvent:Unmirror"
-};
-
 
 
 //-------------------------------------------------------------------------------
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbug.MirrorEvent', MirrorEvent);
+bugpack.export('meldbugserver.MeldMirrorDocument', MeldMirrorDocument);

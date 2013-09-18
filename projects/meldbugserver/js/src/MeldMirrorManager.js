@@ -2,34 +2,40 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
+//@Package('meldbugserver')
 
-//@Export('RemoveMeldOperation')
+//@Export('MeldMirrorManager')
 
 //@Require('Class')
-//@Require('meldbug.MeldDocumentOperation')
+//@Require('Obj')
+//@Require('meldbug.MeldDocument')
+//@Require('meldbug.MeldEvent')
+//@Require('meldbug.MeldTransaction')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack                 = require('bugpack').context();
+var bugpack             = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class                   = bugpack.require('Class');
-var MeldDocumentOperation   = bugpack.require('meldbug.MeldDocumentOperation');
+var Class               = bugpack.require('Class');
+var Obj                 = bugpack.require('Obj');
+var MeldDocument        = bugpack.require('meldbug.MeldDocument');
+var MeldEvent           = bugpack.require('meldbug.MeldEvent');
+var MeldTransaction     = bugpack.require('meldbug.MeldTransaction');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var RemoveMeldOperation = Class.extend(MeldDocumentOperation, {
+var MeldMirrorManager = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -38,64 +44,79 @@ var RemoveMeldOperation = Class.extend(MeldDocumentOperation, {
     /**
      *
      */
-    _constructor: function(meldKey) {
+    _constructor: function(meldMirror) {
 
-        this._super(meldKey, RemoveMeldOperation.TYPE);
+        this._super();
 
 
         //-------------------------------------------------------------------------------
         // Properties
         //-------------------------------------------------------------------------------
+
+        /**
+         * @private
+         * @type {MeldMirror}
+         */
+        this.meldMirror                     = meldMirror;
+
+        /**
+         * @private
+         * @type {MeldTransaction}
+         */
+        this.meldTransaction                = undefined;
+
+        this.initialize();
     },
 
 
     //-------------------------------------------------------------------------------
-    // IClone Implementation
+    // Public Methods
     //-------------------------------------------------------------------------------
-
-    /**
-     * @param {boolean} deep
-     * @return {*}
-     */
-    clone: function(deep) {
-        return new RemoveMeldOperation(this.meldKey);
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // MeldOperation Implementation
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @param {MeldDocument} meldDocument
-     * @return {Meld}
-     */
-    apply: function(meldDocument) {
-        return meldDocument.removeMeld(this.getMeldKey());
-    },
 
     /**
      * @param {MeldOperation} meldOperation
      */
-    transform: function(meldOperation) {
-        //TODO
+    addMeldOperation: function(meldOperation) {
+        this.meldTransaction.addMeldOperation(meldOperation);
+    },
+
+    /**
+     * @param {function(Error)} callback
+     */
+    commitTransaction: function(callback) {
+        this.meldMirror.commitMeldTransaction(this.meldTransaction, callback);
+    },
+
+    /**
+     * @param {MeldKey} meldKey
+     */
+    containsMeldByKey: function(meldKey) {
+        this.meldMirror.containsMeldByKey(meldKey);
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Private Methods
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @private
+     */
+    generateTransaction: function() {
+        this.meldTransaction = new MeldTransaction();
+    },
+
+    /**
+     * @private
+     */
+    initialize: function() {
+        this.generateTransaction();
     }
 });
-
-
-//-------------------------------------------------------------------------------
-// Static Variables
-//-------------------------------------------------------------------------------
-
-/**
- * @static
- * @const {string}
- */
-RemoveMeldOperation.TYPE = "RemoveMeldOperation";
 
 
 //-------------------------------------------------------------------------------
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbug.RemoveMeldOperation', RemoveMeldOperation);
+bugpack.export('meldbugserver.MeldMirrorManager', MeldMirrorManager);

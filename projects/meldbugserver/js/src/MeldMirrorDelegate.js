@@ -4,12 +4,13 @@
 
 //@Package('meldbugserver')
 
-//@Export('MeldMirrorStoreDelegate')
+//@Export('MeldMirrorDelegate')
 
 //@Require('Class')
 //@Require('Map')
 //@Require('Set')
 //@Require('Obj')
+//@Require('meldbug.MeldDocument')
 
 
 //-------------------------------------------------------------------------------
@@ -27,13 +28,14 @@ var Class                   = bugpack.require('Class');
 var Map                     = bugpack.require('Map');
 var Set                     = bugpack.require('Set');
 var Obj                     = bugpack.require('Obj');
+var MeldDocument            = bugpack.require('meldbug.MeldDocument');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldMirrorStoreDelegate = Class.extend(Obj, {
+var MeldMirrorDelegate = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -42,33 +44,36 @@ var MeldMirrorStoreDelegate = Class.extend(Obj, {
     /**
      *
      */
-    _constructor: function(meldMirrorStore) {
+    _constructor: function(meldMirror) {
 
         this._super();
 
 
         //-------------------------------------------------------------------------------
-        // Instance Properties
+        // Properties
         //-------------------------------------------------------------------------------
 
         /**
          * @private
-         * @type {Set.<CallManager>}
+         * @type {MeldDocument}
          */
-        this.callManagerRetrievedSet        = new Set();
+        this.meldDocument           = new MeldDocument();
 
         /**
          * @private
-         * @type {Map.<CallManager, MeldMirror>}
+         * @type {Set.<MeldKey>}
          */
-        this.callManagerToMeldMirrorMap     = new Map();
+        this.meldKeyRetrievedSet    = new Set();
 
         /**
          * @private
-         * @type {MeldMirrorStore}
+         * @type {MeldMirror}
          */
-        this.meldMirrorStore                = meldMirrorStore;
+        this.meldMirror             = meldMirror;
+
+        this.initialize();
     },
+
 
 
     //-------------------------------------------------------------------------------
@@ -76,21 +81,44 @@ var MeldMirrorStoreDelegate = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {CallManager} callManager
-     * @return {MeldMirror}
+     * @param {Meld} meld
      */
-    getMeldMirrorForCallManager: function(callManager) {
-        this.ensureCallManagerRetrieved(callManager);
-        return this.callManagerToMeldMirrorMap.get(callManager);
+    addMeld: function(meld) {
+        this.ensureMeldKeyRetrieved(meld.getMeldKey());
+        if (!this.meldDocument.containsMeldByKey(meld.getMeldKey())) {
+            this.meldDocument.meldMeld(meld);
+        } else {
+            throw new Error("MeldStore already has Meld by key '" + meld.getMeldKey() + "'");
+        }
     },
 
     /**
-     * @param {CallManager} callManager
+     * @param {MeldKey} meldKey
      * @return {boolean}
      */
-    hasCallManager: function(callManager) {
-        this.ensureCallManagerRetrieved(callManager);
-        return this.callManagerToMeldMirrorMap.containsKey(callManager);
+    containsMeldByKey: function(meldKey) {
+        this.ensureMeldKeyRetrieved(meldKey);
+        return this.meldDocument.containsMeldByKey(meldKey);
+    },
+
+    /**
+     * @param {MeldKey} meldKey
+     * @return {Meld}
+     */
+    getMeld: function(meldKey) {
+        this.ensureMeldKeyRetrieved(meldKey);
+        return this.meldDocument.getMeld(meldKey);
+    },
+
+    /**
+     * @param {MeldKey} meldKey
+     */
+    removeMeldObject: function(meldKey) {
+        this.ensureMeldKeyRetrieved(meldKey);
+        var meld = this.getMeld(meldKey);
+        if (meld) {
+            this.meldDocument.unmeldMeld(meld);
+        }
     },
 
 
@@ -100,20 +128,27 @@ var MeldMirrorStoreDelegate = Class.extend(Obj, {
 
     /**
      * @private
-     * @param {CallManager} callManager
+     * @param {MeldKey} meldKey
      */
-    ensureCallManagerRetrieved: function(callManager) {
+    ensureMeldKeyRetrieved: function(meldKey) {
 
         // TODO BRN: This doesn't quite work since the meldStore could change out from under us...
         // TODO BRN: Instead, the delegate should only interact with the store at a specific revision so that it does not interact with any new changes
 
-        if (!this.callManagerRetrievedSet.contains(callManager)) {
-            if (this.meldMirrorStore.hasCallManager(callManager)) {
-                var meldMirror = this.meldMirrorStore.getMeldMirrorForCallManager(callManager).clone();
-                this.callManagerToMeldMirrorMap.put(callManager, meldMirror);
+        if (!this.meldKeyRetrievedSet.contains(meldKey)) {
+            if (this.meldMirror.containsMeldByKey(meldKey)) {
+                var meld = this.meldMirror.getMeld(meldKey).clone();
+                this.meldDocument.addMeld(meld);
             }
-            this.callManagerRetrievedSet.add(callManager);
+            this.meldKeyRetrievedSet.add(meldKey);
         }
+    },
+
+    /**
+     * @private
+     */
+    initialize: function() {
+        this.meldDocument.setParentPropagator(this);
     }
 });
 
@@ -122,4 +157,4 @@ var MeldMirrorStoreDelegate = Class.extend(Obj, {
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbugserver.MeldMirrorStoreDelegate', MeldMirrorStoreDelegate);
+bugpack.export('meldbugserver.MeldMirrorDelegate', MeldMirrorDelegate);

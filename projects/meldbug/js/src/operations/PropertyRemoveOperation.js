@@ -68,6 +68,19 @@ var PropertyRemoveOperation = Class.extend(MeldOperation, {
 
 
     //-------------------------------------------------------------------------------
+    // IClone Implementation
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @param {boolean} deep
+     * @return {*}
+     */
+    clone: function(deep) {
+        return new PropertyRemoveOperation(this.meldKey, this.propertyName);
+    },
+
+
+    //-------------------------------------------------------------------------------
     // IObjectable Implementation
     //-------------------------------------------------------------------------------
 
@@ -91,7 +104,9 @@ var PropertyRemoveOperation = Class.extend(MeldOperation, {
      */
     apply: function(meldDocument) {
         var meldObject = meldDocument.getMeld(this.meldKey);
-        meldObject.removeProperty(this.propertyName);
+        if (meldObject) {
+            meldObject.removeProperty(this.propertyName);
+        }
         return meldObject;
     },
 

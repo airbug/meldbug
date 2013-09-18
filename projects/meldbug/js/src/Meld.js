@@ -9,6 +9,7 @@
 //@Require('Class')
 //@Require('Event')
 //@Require('EventDispatcher')
+//@Require('IClone')
 //@Require('IObjectable')
 //@Require('List')
 //@Require('bugdelta.DeltaObject')
@@ -29,6 +30,7 @@ var bugpack             = require('bugpack').context();
 var Class               = bugpack.require('Class');
 var Event               = bugpack.require('Event');
 var EventDispatcher     = bugpack.require('EventDispatcher');
+var IClone              = bugpack.require('IClone');
 var IObjectable         = bugpack.require('IObjectable');
 var List                = bugpack.require('List');
 var DeltaObject         = bugpack.require('bugdelta.DeltaObject');
@@ -131,6 +133,19 @@ var Meld = Class.extend(EventDispatcher, {
 
 
     //-------------------------------------------------------------------------------
+    // IClone Implementation
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @param {boolean} deep
+     * @return {*}
+     */
+    clone: function(deep) {
+        //abstract
+    },
+
+
+    //-------------------------------------------------------------------------------
     // IObjectable Implementation
     //-------------------------------------------------------------------------------
 
@@ -229,6 +244,7 @@ var Meld = Class.extend(EventDispatcher, {
 // Interfaces
 //-------------------------------------------------------------------------------
 
+Class.implement(Meld, IClone);
 Class.implement(Meld, IObjectable);
 
 

@@ -81,6 +81,19 @@ var PropertySetOperation = Class.extend(MeldOperation, {
 
 
     //-------------------------------------------------------------------------------
+    // IClone Implementation
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @param {boolean} deep
+     * @return {*}
+     */
+    clone: function(deep) {
+        return new PropertySetOperation(this.meldKey, this.propertyName, this.propertyValue);
+    },
+
+
+    //-------------------------------------------------------------------------------
     // IObjectable Implementation
     //-------------------------------------------------------------------------------
 
@@ -104,7 +117,9 @@ var PropertySetOperation = Class.extend(MeldOperation, {
      */
     apply: function(meldDocument) {
         var meldObject = meldDocument.getMeld(this.meldKey);
-        meldObject.setProperty(this.propertyName, this.propertyValue);
+        if (meldObject) {
+            meldObject.setProperty(this.propertyName, this.propertyValue);
+        }
         return meldObject;
     },
 

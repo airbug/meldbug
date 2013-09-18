@@ -7,6 +7,7 @@
 //@Export('MeldOperation')
 
 //@Require('Class')
+//@Require('IClone')
 //@Require('IObjectable')
 //@Require('Obj')
 //@Require('UuidGenerator')
@@ -24,6 +25,7 @@ var bugpack         = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var Class           = bugpack.require('Class');
+var IClone          = bugpack.require('IClone');
 var IObjectable     = bugpack.require('IObjectable');
 var Obj             = bugpack.require('Obj');
 var UuidGenerator   = bugpack.require('UuidGenerator');
@@ -118,6 +120,19 @@ var MeldOperation = Class.extend(Obj, {
 
 
     //-------------------------------------------------------------------------------
+    // IClone Implementation
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @param {boolean} deep
+     * @return {*}
+     */
+    clone: function(deep) {
+        //abstract
+    },
+
+
+    //-------------------------------------------------------------------------------
     // IObjectable Implementation
     //-------------------------------------------------------------------------------
 
@@ -185,6 +200,7 @@ var MeldOperation = Class.extend(Obj, {
 // Interfaces
 //-------------------------------------------------------------------------------
 
+Class.implement(MeldOperation, IClone);
 Class.implement(MeldOperation, IObjectable);
 
 
