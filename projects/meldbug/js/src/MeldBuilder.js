@@ -106,10 +106,10 @@ var MeldBuilder = Class.extend(Obj, {
             var value = object[key];
             var operation = new PropertySetOperation(meldKey, key, value);
             operationList.add(operation);
-            meldObject.setMeldOperationList(operationList);
             meldObject.setProperty(key, value);
             meldObject.commit();
         }
+        meldObject.setMeldOperationList(operationList);
         return meldObject;
     },
 
