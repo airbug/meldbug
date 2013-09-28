@@ -104,7 +104,7 @@ var MeldObject = Class.extend(Meld, {
         this.dispatchEvent(new Event(MeldObject.EventTypes.PROPERTY_CHANGES, {
             changeMap: this.deltaObject.getPropertyChangeMap()
         }));
-        this.deltaObject.commitPropertyChanges();
+        this.deltaObject.commitChanges();
     },
 
     /**
