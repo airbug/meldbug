@@ -7,37 +7,47 @@
 //@Export('MeldDocument')
 
 //@Require('Class')
-//@Require('EventDispatcher')
-//@Require('Map')
-//@Require('meldbug.AddMeldOperation')
-//@Require('meldbug.MeldEvent')
-//@Require('meldbug.RemoveMeldOperation')
+//@Require('Event')
+//@Require('Set')
+//@Require('TypeUtil')
+//@Require('bugdelta.DeltaDocument')
+//@Require('meldbug.AddToSetOperation')
+//@Require('meldbug.Meld')
+//@Require('meldbug.RemoveFromSetOperation')
+//@Require('meldbug.RemoveObjectPropertyOperation')
+//@Require('meldbug.SetDocumentOperation')
+//@Require('meldbug.SetObjectPropertyOperation')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack                 = require('bugpack').context();
+var bugpack                             = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class                   = bugpack.require('Class');
-var EventDispatcher         = bugpack.require('EventDispatcher');
-var Map                     = bugpack.require('Map');
-var AddMeldOperation        = bugpack.require('meldbug.AddMeldOperation');
-var MeldEvent               = bugpack.require('meldbug.MeldEvent');
-var RemoveMeldOperation     = bugpack.require('meldbug.RemoveMeldOperation');
+var Class                               = bugpack.require('Class');
+var Event                               = bugpack.require('Event');
+var Set                                 = bugpack.require('Set');
+var TypeUtil                            = bugpack.require('TypeUtil');
+var DeltaDocument                       = bugpack.require('bugdelta.DeltaDocument');
+var AddToSetOperation                   = bugpack.require('meldbug.AddToSetOperation');
+var Meld                                = bugpack.require('meldbug.Meld');
+var RemoveFromSetOperation              = bugpack.require('meldbug.RemoveFromSetOperation');
+var RemoveObjectPropertyOperation       = bugpack.require('meldbug.RemoveObjectPropertyOperation');
+var SetDocumentOperation                = bugpack.require('meldbug.SetDocumentOperation');
+var SetObjectPropertyOperation          = bugpack.require('meldbug.SetObjectPropertyOperation');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldDocument = Class.extend(EventDispatcher, {
+var MeldDocument = Class.extend(Meld, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -46,9 +56,9 @@ var MeldDocument = Class.extend(EventDispatcher, {
     /**
      *
      */
-    _constructor: function() {
+    _constructor: function(meldKey, data) {
 
-        this._super();
+        this._super(meldKey, MeldDocument.TYPE);
 
 
         //-------------------------------------------------------------------------------
@@ -57,9 +67,37 @@ var MeldDocument = Class.extend(EventDispatcher, {
 
         /**
          * @private
-         * @type {Map.<MeldKey, Meld>}
+         * @type {DeltaDocument}
          */
-        this.meldKeyToMeldMap    = new Map();
+        this.deltaDocument            = new DeltaDocument(data);
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Getters and Setters
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @return {DeltaDocument}
+     */
+    getDeltaDocument: function() {
+        return this.deltaDocument;
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // IClone Implementation
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @param {boolean} deep
+     * @return {*}
+     */
+    clone: function(deep) {
+        var meldDocument = new MeldDocument(this.meldKey);
+        meldDocument.getMeldOperationList().addAll(this.meldOperationList);
+        meldDocument.deltaDocument = this.deltaDocument.clone(deep);
+        return meldDocument;
     },
 
 
@@ -68,88 +106,157 @@ var MeldDocument = Class.extend(EventDispatcher, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {Meld} meld
+     * @param {string} path
+     * @param {*} setValue
      */
-    addMeld: function(meld) {
-        if (!this.meldKeyToMeldMap.containsKey(meld.getMeldKey())) {
-            meld.setMeldDocument(this);
-            meld.setParentPropagator(this);
-            this.meldKeyToMeldMap.put(meld.getMeldKey(), meld);
+    addToSet: function(path, setValue) {
+        var value = this.deltaDocument.getPath(this.path);
+        if (Class.doesExtend(value, Set)) {
+            value.add(setValue)
         } else {
-            throw new Error("MeldStore already has MeldObject by key '" + meld.getMeldKey().toKey() + "'");
+            throw new Error("Value at path '" + path + "' is not an Set");
         }
     },
 
     /**
-     * @param {Meld} meld
-     * @return {boolean}
+     *
      */
-    containsMeld: function(meld) {
-        return this.meldKeyToMeldMap.containsKey(meld.getMeldKey());
-    },
+    commit: function() {
+        var _this = this;
+        this.dispatchEvent(new Event(MeldDocument.EventTypes.PROPERTY_CHANGES, {
 
-    /**
-     * @param {MeldKey} meldKey
-     */
-    containsMeldByKey: function(meldKey) {
-        return this.meldKeyToMeldMap.containsKey(meldKey);
-    },
+            //TODO BRN: Fix this!
 
-    /**
-     * @param {MeldKey} meldKey
-     * @return {Meld}
-     */
-    getMeld: function(meldKey) {
-        return this.meldKeyToMeldMap.get(meldKey);
-    },
-
-    /**
-     * @param {Meld} meld
-     */
-    meldMeld: function(meld) {
-        if (!this.containsMeld(meld)) {
-            var operation = new AddMeldOperation(meld.getMeldKey(), meld);
-            this.meldOperation(operation);
-        }
-    },
-
-    /**
-     * @param {MeldKey} meldKey
-     * @return {Meld}
-     */
-    removeMeld: function(meldKey) {
-        var meld = this.meldKeyToMeldMap.remove(meldKey);
-        meld.setMeldDocument(undefined);
-        meld.setParentPropagator(undefined);
-        return meld;
-    },
-
-    /**
-     * @param {Meld} meld
-     */
-    unmeldMeld: function(meld) {
-        if (this.containsMeld(meld)) {
-            var operation = new RemoveMeldOperation(meld.getMeldKey(), meld);
-            this.meldOperation(operation);
-        }
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // Protected Methods
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @protected
-     * @param {MeldOperation} meldOperation
-     */
-    meldOperation: function(meldOperation) {
-        meldOperation.commit(this);
-        this.dispatchEvent(new MeldEvent(MeldEvent.EventTypes.OPERATION, meldOperation.getMeldKey(), {
-            meldOperation: meldOperation
+            changeMap: this.deltaDocument.getPropertyChangeMap()
         }));
+        this.deltaDocument.commitDelta();
+    },
+
+    /**
+     * @return {Object}
+     */
+    generateObject: function() {
+        return this.deltaDocument.toObject();
+    },
+
+    /**
+     * @return {*}
+     */
+    getData: function() {
+        return this.deltaDocument.getData();
+    },
+
+    /**
+     * @param {*} data
+     */
+    meldData: function(data) {
+        var operation = new SetDocumentOperation(this.meldKey, data);
+        this.meldOperation(operation);
+    },
+
+    /**
+     * @param {string} path
+     * @param {string} propertyName
+     * @param {*} propertyValue
+     */
+    meldObjectProperty: function(path, propertyName, propertyValue) {
+        var operation = new SetObjectPropertyOperation(this.meldKey, path, propertyName, propertyValue);
+        this.meldOperation(operation);
+    },
+
+    /**
+     * @param {string} path
+     * @param {*} setValue
+     */
+    meldToSet: function(path, setValue) {
+        var operation = new AddToSetOperation(this.meldKey, path, setValue);
+        this.meldOperation(operation);
+    },
+
+    /**
+     * @param {string} path
+     * @param {*} setValue
+     */
+    removeFromSet: function(path, setValue) {
+        var value = this.deltaDocument.getPath(this.path);
+        if (Class.doesExtend(value, Set)) {
+            value.remove(setValue)
+        } else {
+            throw new Error("Value at path '" + path + "' is not an Set");
+        }
+    },
+
+    /**
+     * @param {string} path
+     * @param {string} propertyName
+     */
+    removeObjectProperty: function(path, propertyName) {
+        var value = this.deltaDocument.getPath(this.path);
+        if (TypeUtil.isObject(value)) {
+            delete value[propertyName];
+        } else {
+            throw new Error("Value at path '" + path + "' is not an Object");
+        }
+    },
+
+    /**
+     * @param {*} data
+     */
+    setData: function(data) {
+        this.deltaDocument.setData(data);
+    },
+
+    /**
+     * @param {string} path
+     * @param {string} propertyName
+     * @param {*} propertyValue
+     */
+    setObjectProperty: function(path, propertyName, propertyValue) {
+        var value = this.deltaDocument.getPath(path);
+        if (TypeUtil.isObject(value)) {
+            value[propertyName] = propertyValue;
+        } else {
+            throw new Error("Value at path '" + path + "' is not an Set");
+        }
+    },
+
+    /**
+     * @param {string} path
+     * @param {*} setValue
+     */
+    unmeldFromSet: function(path, setValue) {
+        var operation = new RemoveFromSetOperation(this.meldKey, path, setValue);
+        this.meldOperation(operation);
+    },
+
+    /**
+     * @param {string} path
+     * @param {string} propertyName
+     */
+    unmeldObjectProperty: function(path, propertyName) {
+        var operation = new RemoveObjectPropertyOperation(this.meldKey, path, propertyName);
+        this.meldOperation(operation);
     }
 });
+
+
+//-------------------------------------------------------------------------------
+// Static Variables
+//-------------------------------------------------------------------------------
+
+/**
+ * @static
+ * @type {Object}
+ */
+MeldDocument.EventTypes = {
+    PROPERTY_CHANGES: "MeldDocument:PropertyChanges"
+};
+
+/**
+ * @static
+ * @const {string}
+ */
+MeldDocument.TYPE = "MeldDocument";
 
 
 //-------------------------------------------------------------------------------

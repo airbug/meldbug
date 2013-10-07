@@ -4,9 +4,10 @@
 
 //@Package('meldbug')
 
-//@Export('PropertySetOperation')
+//@Export('SetObjectPropertyOperation')
 
 //@Require('Class')
+//@Require('Obj')
 //@Require('meldbug.MeldOperation')
 
 
@@ -22,6 +23,7 @@ var bugpack         = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var Class           = bugpack.require('Class');
+var Obj             = bugpack.require('Obj');
 var MeldOperation   = bugpack.require('meldbug.MeldOperation');
 
 
@@ -29,7 +31,7 @@ var MeldOperation   = bugpack.require('meldbug.MeldOperation');
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var PropertySetOperation = Class.extend(MeldOperation, {
+var SetObjectPropertyOperation = Class.extend(MeldOperation, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -38,9 +40,9 @@ var PropertySetOperation = Class.extend(MeldOperation, {
     /**
      *
      */
-    _constructor: function(meldKey, propertyName, propertyValue) {
+    _constructor: function(meldKey, path, propertyName, propertyValue) {
 
-        this._super(meldKey, PropertySetOperation.TYPE);
+        this._super(meldKey, SetObjectPropertyOperation.TYPE);
 
 
         //-------------------------------------------------------------------------------
@@ -68,6 +70,13 @@ var PropertySetOperation = Class.extend(MeldOperation, {
     /**
      * @return {string}
      */
+    getPath: function() {
+        return this.path;
+    },
+
+    /**
+     * @return {string}
+     */
     getPropertyName: function() {
         return this.propertyName;
     },
@@ -89,21 +98,7 @@ var PropertySetOperation = Class.extend(MeldOperation, {
      * @return {*}
      */
     clone: function(deep) {
-        return new PropertySetOperation(this.meldKey, this.propertyName, this.propertyValue);
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // IObjectable Implementation
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @return {Object}
-     */
-    toObject: function() {
-        var obj = this._super();
-        obj.propertyName = this.propertyName;
-        return obj;
+        return new SetObjectPropertyOperation(this.meldKey, this.path, this.propertyName, Obj.clone(this.propertyValue, deep));
     },
 
 
@@ -112,15 +107,15 @@ var PropertySetOperation = Class.extend(MeldOperation, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {MeldDocument} meldDocument
+     * @param {MeldBucket} meldBucket
      * @return {Meld}
      */
-    apply: function(meldDocument) {
-        var meldObject = meldDocument.getMeld(this.meldKey);
-        if (meldObject) {
-            meldObject.setProperty(this.propertyName, this.propertyValue);
+    apply: function(meldBucket) {
+        var meldDocument = meldBucket.getMeld(this.meldKey);
+        if (meldDocument) {
+            meldDocument.setObjectProperty(this.getPath(), this.getPropertyName(), this.getPropertyValue());
         }
-        return meldObject;
+        return meldDocument;
     },
 
     /**
@@ -140,11 +135,11 @@ var PropertySetOperation = Class.extend(MeldOperation, {
  * @static
  * @const {string}
  */
-PropertySetOperation.TYPE = "PropertySetOperation";
+SetObjectPropertyOperation.TYPE = "SetObjectPropertyOperation";
 
 
 //-------------------------------------------------------------------------------
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbug.PropertySetOperation', PropertySetOperation);
+bugpack.export('meldbug.SetObjectPropertyOperation', SetObjectPropertyOperation);

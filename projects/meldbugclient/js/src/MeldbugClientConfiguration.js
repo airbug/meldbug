@@ -14,8 +14,8 @@
 //@Require('bugioc.IConfiguration')
 //@Require('bugioc.ModuleAnnotation')
 //@Require('bugmeta.BugMeta')
+//@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldBuilder')
-//@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldStore')
 //@Require('meldbugclient.MeldbugClientController')
 //@Require('meldbugclient.MeldbugClientService')
@@ -42,8 +42,8 @@ var ConfigurationAnnotation     = bugpack.require('bugioc.ConfigurationAnnotatio
 var IConfiguration              = bugpack.require('bugioc.IConfiguration');
 var ModuleAnnotation            = bugpack.require('bugioc.ModuleAnnotation');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+var MeldBucket                  = bugpack.require('meldbug.MeldBucket');
 var MeldBuilder                 = bugpack.require('meldbug.MeldBuilder');
-var MeldDocument                = bugpack.require('meldbug.MeldDocument');
 var MeldStore                   = bugpack.require('meldbug.MeldStore');
 var MeldbugClientController     = bugpack.require('meldbugclient.MeldbugClientController');
 var MeldbugClientService        = bugpack.require('meldbugclient.MeldbugClientService');
@@ -74,18 +74,18 @@ var MeldbugClientConfiguration = Class.extend(Obj, {
     },
 
     /**
-     * @return {MeldDocument}
+     * @return {MeldBucket}
      */
-    meldDocument: function() {
-        return new MeldDocument();
+    meldBucket: function() {
+        return new MeldBucket();
     },
 
     /**
-     * @param {MeldDocument} meldDocument
+     * @param {MeldBucket} meldBucket
      * @return {MeldStore}
      */
-    meldStore: function(meldDocument) {
-        return new MeldStore(meldDocument);
+    meldStore: function(meldBucket) {
+        return new MeldStore(meldBucket);
     },
 
     /**
@@ -129,11 +129,11 @@ bugmeta.annotate(MeldbugClientConfiguration).with(
             .args([
                 arg().ref("meldStore")
             ]),
+        module("meldBucket"),
         module("meldBuilder"),
-        module("meldDocument"),
         module("meldStore")
             .args([
-                arg().ref("meldDocument")
+                arg().ref("meldBucket")
             ])
     ])
 );

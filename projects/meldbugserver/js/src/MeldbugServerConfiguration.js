@@ -16,8 +16,8 @@
 //@Require('bugioc.ModuleAnnotation')
 //@Require('bugioc.PropertyAnnotation')
 //@Require('bugmeta.BugMeta')
+//@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldBuilder')
-//@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldStore')
 //@Require('meldbugserver.MeldbugClientApi')
 //@Require('meldbugserver.MeldbugClientConsumerManager')
@@ -50,8 +50,8 @@ var IConfiguration                  = bugpack.require('bugioc.IConfiguration');
 var ModuleAnnotation                = bugpack.require('bugioc.ModuleAnnotation');
 var PropertyAnnotation              = bugpack.require('bugioc.PropertyAnnotation');
 var BugMeta                         = bugpack.require('bugmeta.BugMeta');
+var MeldBucket                      = bugpack.require('meldbug.MeldBucket');
 var MeldBuilder                     = bugpack.require('meldbug.MeldBuilder');
-var MeldDocument                    = bugpack.require('meldbug.MeldDocument');
 var MeldManagerFactory              = bugpack.require('meldbug.MeldManagerFactory');
 var MeldMirrorManager               = bugpack.require('meldbug.MeldMirrorManager');
 var MeldMirrorService               = bugpack.require('meldbug.MeldMirrorService');
@@ -121,11 +121,11 @@ var MeldbugServerConfiguration = Class.extend(Obj, {
     },
 
     /**
-     * @param {BugCallServer} bugCallServer
+     * @param {MeldBuilder} meldBuilder
      * @return {MeldbugClientConsumerManager}
      */
-    meldbugClientConsumerManager: function(bugCallServer) {
-        return new MeldbugClientConsumerManager(bugCallServer);
+    meldbugClientConsumerManager: function(meldBuilder) {
+        return new MeldbugClientConsumerManager(meldBuilder);
     },
 
     /**
@@ -145,10 +145,10 @@ var MeldbugServerConfiguration = Class.extend(Obj, {
     },
 
     /**
-     * @return {MeldDocument}
+     * @return {MeldBucket}
      */
-    meldDocument: function() {
-        return new MeldDocument();
+    meldBucket: function() {
+        return new MeldBucket();
     },
 
     /**
@@ -175,11 +175,11 @@ var MeldbugServerConfiguration = Class.extend(Obj, {
     },
 
     /**
-     * @param {MeldDocument} meldDocument
+     * @param {MeldBucket} meldBucket
      * @return {MeldStore}
      */
-    meldStore: function(meldDocument) {
-        return new MeldStore(meldDocument);
+    meldStore: function(meldBucket) {
+        return new MeldStore(meldBucket);
     }
 });
 
@@ -203,7 +203,7 @@ bugmeta.annotate(MeldbugServerConfiguration).with(
             ]),
         module("meldbugClientConsumerManager")
             .args([
-                arg().ref("bugCallServer")
+                arg().ref("meldBuilder")
             ]),
         module("meldbugServerService")
             .args([
@@ -212,7 +212,7 @@ bugmeta.annotate(MeldbugServerConfiguration).with(
                 arg().ref("meldbugClientApi")
             ]),
         module("meldBuilder"),
-        module("meldDocument"),
+        module("meldBucket"),
         module("meldManagerFactory"),
         module("meldMirrorManager"),
         module("meldMirrorService")
@@ -222,7 +222,7 @@ bugmeta.annotate(MeldbugServerConfiguration).with(
             ]),
         module("meldStore")
             .args([
-                arg().ref("meldDocument")
+                arg().ref("meldBucket")
             ])
     ])
 );

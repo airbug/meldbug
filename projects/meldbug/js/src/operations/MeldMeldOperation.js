@@ -4,10 +4,10 @@
 
 //@Package('meldbug')
 
-//@Export('AddMeldOperation')
+//@Export('MeldMeldOperation')
 
 //@Require('Class')
-//@Require('meldbug.MeldDocumentOperation')
+//@Require('meldbug.MeldBucketOperation')
 
 
 //-------------------------------------------------------------------------------
@@ -22,14 +22,14 @@ var bugpack                 = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var Class                   = bugpack.require('Class');
-var MeldDocumentOperation   = bugpack.require('meldbug.MeldDocumentOperation');
+var MeldBucketOperation     = bugpack.require('meldbug.MeldBucketOperation');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var AddMeldOperation = Class.extend(MeldDocumentOperation, {
+var MeldMeldOperation = Class.extend(MeldBucketOperation, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -40,7 +40,7 @@ var AddMeldOperation = Class.extend(MeldDocumentOperation, {
      */
     _constructor: function(meldKey, meld) {
 
-        this._super(meldKey, AddMeldOperation.TYPE);
+        this._super(meldKey, MeldMeldOperation.TYPE);
 
 
         //-------------------------------------------------------------------------------
@@ -76,21 +76,7 @@ var AddMeldOperation = Class.extend(MeldDocumentOperation, {
      * @return {*}
      */
     clone: function(deep) {
-        return new AddMeldOperation(this.meldKey, this.meld.clone(deep));
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // IObjectable Implementation
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @return {Object}
-     */
-    toObject: function() {
-        var obj = this._super();
-        obj.meld = this.meld.toObject();
-        return obj;
+        return new MeldMeldOperation(this.meldKey, this.meld.clone(deep));
     },
 
 
@@ -99,11 +85,11 @@ var AddMeldOperation = Class.extend(MeldDocumentOperation, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {MeldDocument} meldDocument
+     * @param {MeldBucket} meldBucket
      * @return {Meld}
      */
-    apply: function(meldDocument) {
-        meldDocument.addMeld(this.meld);
+    apply: function(meldBucket) {
+        meldBucket.addMeld(this.meld);
         return this.meld;
     },
 
@@ -124,11 +110,11 @@ var AddMeldOperation = Class.extend(MeldDocumentOperation, {
  * @static
  * @const {string}
  */
-AddMeldOperation.TYPE = "AddMeldOperation";
+MeldMeldOperation.TYPE = "MeldMeldOperation";
 
 
 //-------------------------------------------------------------------------------
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbug.AddMeldOperation', AddMeldOperation);
+bugpack.export('meldbug.MeldMeldOperation', MeldMeldOperation);

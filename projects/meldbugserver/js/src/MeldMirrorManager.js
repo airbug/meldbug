@@ -8,7 +8,7 @@
 
 //@Require('Class')
 //@Require('Obj')
-//@Require('meldbug.MeldDocument')
+//@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldEvent')
 //@Require('meldbug.MeldTransaction')
 
@@ -26,7 +26,7 @@ var bugpack             = require('bugpack').context();
 
 var Class               = bugpack.require('Class');
 var Obj                 = bugpack.require('Obj');
-var MeldDocument        = bugpack.require('meldbug.MeldDocument');
+var MeldBucket          = bugpack.require('meldbug.MeldBucket');
 var MeldEvent           = bugpack.require('meldbug.MeldEvent');
 var MeldTransaction     = bugpack.require('meldbug.MeldTransaction');
 

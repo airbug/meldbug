@@ -11,14 +11,14 @@
 //@Require('Obj')
 //@Require('Set')
 //@Require('bugflow.BugFlow')
-//@Require('meldbug.AddMeldOperation')
 //@Require('meldbug.MeldEvent')
 //@Require('meldbug.MeldKey')
-//@Require('meldbug.MeldObject')
+//@Require('meldbug.MeldMeldOperation')
+//@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldStoreDelegate')
 //@Require('meldbug.MeldTransaction')
-//@Require('meldbug.PropertyRemoveOperation')
-//@Require('meldbug.PropertySetOperation')
+//@Require('meldbug.RemoveObjectPropertyOperation')
+//@Require('meldbug.SetObjectPropertyOperation')
 //@Require('meldbug.RemoveMeldOperation')
 //@Require('meldbugserver.MeldMirrorManager')
 
@@ -34,21 +34,21 @@ var bugpack         = require('bugpack').context();
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class                       = bugpack.require('Class');
-var Map                         = bugpack.require('Map');
-var Obj                         = bugpack.require('Obj');
-var Set                         = bugpack.require('Set');
-var BugFlow                     = bugpack.require('bugflow.BugFlow');
-var AddMeldOperation            = bugpack.require('meldbug.AddMeldOperation');
-var MeldEvent                   = bugpack.require('meldbug.MeldEvent');
-var MeldKey                     = bugpack.require('meldbug.MeldKey');
-var MeldObject                  = bugpack.require('meldbug.MeldObject');
-var MeldStoreDelegate           = bugpack.require('meldbug.MeldStoreDelegate');
-var MeldTransaction             = bugpack.require('meldbug.MeldTransaction');
-var PropertyRemoveOperation     = bugpack.require('meldbug.PropertyRemoveOperation');
-var PropertySetOperation        = bugpack.require('meldbug.PropertySetOperation');
-var RemoveMeldOperation         = bugpack.require('meldbug.RemoveMeldOperation');
-var MeldMirrorManager           = bugpack.require('meldbugserver.MeldMirrorManager');
+var Class                               = bugpack.require('Class');
+var Map                                 = bugpack.require('Map');
+var Obj                                 = bugpack.require('Obj');
+var Set                                 = bugpack.require('Set');
+var BugFlow                             = bugpack.require('bugflow.BugFlow');
+var MeldEvent                           = bugpack.require('meldbug.MeldEvent');
+var MeldKey                             = bugpack.require('meldbug.MeldKey');
+var MeldMeldOperation                   = bugpack.require('meldbug.MeldMeldOperation');
+var MeldDocument                          = bugpack.require('meldbug.MeldDocument');
+var MeldStoreDelegate                   = bugpack.require('meldbug.MeldStoreDelegate');
+var MeldTransaction                     = bugpack.require('meldbug.MeldTransaction');
+var RemoveObjectPropertyOperation       = bugpack.require('meldbug.RemoveObjectPropertyOperation');
+var SetObjectPropertyOperation          = bugpack.require('meldbug.SetObjectPropertyOperation');
+var RemoveMeldOperation                 = bugpack.require('meldbug.RemoveMeldOperation');
+var MeldMirrorManager                   = bugpack.require('meldbugserver.MeldMirrorManager');
 
 
 //-------------------------------------------------------------------------------
@@ -119,17 +119,13 @@ var MeldManager = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {Meld} meld
-     */
-    addMeld: function(meld) {
-        this.meldStoreDelegate.addMeld(meld);
-    },
-
-    /**
      * @param {function(Error)} callback
      */
     commitTransaction: function(callback) {
-        //Setup listeners on meldStore that listen for operations. When an operation occurs, perform the same changes against meldMirrorManagers that need to know about this changes
+
+        // Setup listeners on meldStore that listen for operations. When an operation occurs,
+        // perform the same changes against meldMirrorManagers that need to know about this changes
+
         this.meldStore.addEventListener(MeldEvent.EventTypes.OPERATION, this.handleMeldStoreOperation, this);
         this.meldStore.commitMeldTransaction(this.meldTransaction);
         this.meldStore.removeEventListener(MeldEvent.EventTypes.OPERATION, this.handleMeldStoreOperation, this);
@@ -145,7 +141,7 @@ var MeldManager = Class.extend(Obj, {
 
     /**
      * @param {MeldKey} meldKey
-     * @return {MeldObject}
+     * @return {MeldDocument}
      */
     getMeld: function(meldKey) {
         return this.meldStoreDelegate.get(meldKey);
@@ -165,10 +161,30 @@ var MeldManager = Class.extend(Obj, {
     },
 
     /**
+     * @param {Meld} meld
+     */
+    meldMeld: function(meld) {
+        this.meldStoreDelegate.meldMeld(meld);
+    },
+
+    /**
      * @param {MeldKey} meldKey
      */
     removeMeld: function(meldKey) {
         this.meldStoreDelegate.removeMeld(meldKey);
+    },
+
+    /**
+     * @param {CallManager} callManager
+     * @param {MeldKey} meldKey
+     */
+    unmeldCallManagerWithKey: function(callManager, meldKey) {
+        var meldMirror = this.meldMirrorStore.getMeldMirrorForCallManager(callManager);
+        if (meldMirror) {
+            this.meldMirrorStore.removeMeldKeyForMirror(meldKey, meldMirror);
+        } else {
+            throw new Error("Could not find MeldMirror for CallManager - callManager:", callManager);
+        }
     },
 
 
@@ -274,23 +290,18 @@ var MeldManager = Class.extend(Obj, {
      * @param {MeldEvent} meldEvent
      */
     handleMeldStoreOperation: function(meldEvent) {
-        var _this = this;
         /** @type {MeldOperation} */
         var meldOperation           = meldEvent.getData().meldOperation.clone(true);
         var meldMirrorManagerSet    = this.generateMeldMirrorManagersForMeldKey(meldOperation.getMeldKey());
 
         meldMirrorManagerSet.forEach(function(meldMirrorManager) {
-            switch (meldOperation.getType()) {
-                case PropertyRemoveOperation.TYPE:
-                case PropertySetOperation.TYPE:
-                    if (!meldMirrorManager.containsMeldByKey(meldOperation.getMeldKey())) {
-                        var meld = _this.meldStore.getMeld(meldOperation.getMeldKey());
-                        var addOperation = new AddMeldOperation(meldOperation.getMeldKey(), meld.clone());
-                        meldMirrorManager.addMeldOperation(addOperation);
-                    }
-                    break;
+            if (meldOperation.getType() === MeldMeldOperation.TYPE) {
+                if (!meldMirrorManager.containsMeldByKey(meldOperation.getMeldKey())) {
+                    meldMirrorManager.addMeldOperation(meldOperation);
+                }
+            } else {
+                meldMirrorManager.addMeldOperation(meldOperation);
             }
-            meldMirrorManager.addMeldOperation(meldOperation);
         });
     }
 });

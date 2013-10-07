@@ -9,36 +9,50 @@
 //@Require('Class')
 //@Require('List')
 //@Require('Obj')
-//@Require('meldbug.AddMeldOperation')
+//@Require('Pair')
+//@Require('Set')
+//@Require('TypeUtil')
+//@Require('meldbug.AddToSetOperation')
+//@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldKey')
-//@Require('meldbug.MeldObject')
+//@Require('meldbug.MeldMeldOperation')
 //@Require('meldbug.MeldTransaction')
-//@Require('meldbug.PropertyRemoveOperation')
-//@Require('meldbug.PropertySetOperation')
+//@Require('meldbug.RemoveFromSetOperation')
 //@Require('meldbug.RemoveMeldOperation')
+//@Require('meldbug.RemoveObjectPropertyOperation')
+//@Require('meldbug.SetDocumentOperation')
+//@Require('meldbug.SetObjectPropertyOperation')
+
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack         = require('bugpack').context();
+var bugpack                             = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class                       = bugpack.require('Class');
-var List                        = bugpack.require('List');
-var Obj                         = bugpack.require('Obj');
-var AddMeldOperation            = bugpack.require('meldbug.AddMeldOperation');
-var MeldKey                     = bugpack.require('meldbug.MeldKey');
-var MeldObject                  = bugpack.require('meldbug.MeldObject');
-var MeldTransaction             = bugpack.require('meldbug.MeldTransaction');
-var PropertyRemoveOperation     = bugpack.require('meldbug.PropertyRemoveOperation');
-var PropertySetOperation        = bugpack.require('meldbug.PropertySetOperation');
-var RemoveMeldOperation         = bugpack.require('meldbug.RemoveMeldOperation');
+var Class                               = bugpack.require('Class');
+var List                                = bugpack.require('List');
+var Obj                                 = bugpack.require('Obj');
+var Pair                                = bugpack.require('Pair');
+var Set                                 = bugpack.require('Set');
+var TypeUtil                            = bugpack.require('TypeUtil');
+var AddToSetOperation                   = bugpack.require('meldbug.AddToSetOperation');
+var MeldDocument                        = bugpack.require('meldbug.MeldDocument');
+var MeldKey                             = bugpack.require('meldbug.MeldKey');
+var MeldMeldOperation                   = bugpack.require('meldbug.MeldMeldOperation');
+var MeldTransaction                     = bugpack.require('meldbug.MeldTransaction');
+var RemoveFromSetOperation              = bugpack.require('meldbug.RemoveFromSetOperation');
+var RemoveMeldOperation                 = bugpack.require('meldbug.RemoveMeldOperation');
+var RemoveObjectPropertyOperation       = bugpack.require('meldbug.RemoveObjectPropertyOperation');
+var SetDocumentOperation                = bugpack.require('meldbug.SetDocumentOperation');
+var SetObjectPropertyOperation          = bugpack.require('meldbug.SetObjectPropertyOperation');
+
 
 
 //-------------------------------------------------------------------------------
@@ -62,106 +76,383 @@ var MeldBuilder = Class.extend(Obj, {
     },
 
     /**
-     * @param meldKeyData
+     * @param {MeldKey} meldKey
+     * @return {MeldDocument}
+     */
+    generateMeldDocument: function(meldKey) {
+        return new MeldDocument(meldKey);
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Build Methods
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @param {*} meldData
+     * @return {Meld}
+     */
+    buildMeld: function(meldData) {
+        switch (meldData.meldType) {
+            case MeldDocument.TYPE:
+                return this.buildMeldDocument(meldData);
+                break;
+        }
+    },
+
+    /**
+     * @param {Meld} meld
+     * @return {*}
+     */
+    unbuildMeld: function(meld) {
+        switch (meld.getMeldType()) {
+            case MeldDocument.TYPE:
+                return this.unbuildMeldDocument(meld);
+                break;
+        }
+    },
+
+    /**
+     * @param {*} meldDocumentData
+     * @return {MeldDocument}
+     */
+    buildMeldDocument: function(meldDocumentData) {
+        var meldKey                 = this.buildMeldKey(meldDocumentData.meldKey);
+        var meldData                = this.unmarshallData(meldDocumentData.data);
+        var meldDocument            = new MeldDocument(meldKey, meldData);
+        var meldOperationList       = this.buildMeldOperationList(meldDocumentData.meldOperationList);
+        meldDocument.setMeldOperationList(meldOperationList);
+        return meldDocument;
+    },
+
+    /**
+     * @param {MeldDocument} meldDocument
+     * @return {*}
+     */
+    unbuildMeldDocument: function(meldDocument) {
+        return {
+            meldKey: meldDocument.getMeldKey(),
+            data: this.marshalData(meldDocument.getData()),
+            meldOperationList: this.unbuildMeldOperationList(meldDocument.getMeldOperationList())
+        };
+    },
+
+    /**
+     * @param {*} meldKeyData
      * @return {MeldKey}
      */
-    generateMeldKeyFromObject: function(meldKeyData) {
+    buildMeldKey: function(meldKeyData) {
         return new MeldKey(meldKeyData.dataType, meldKeyData.id, meldKeyData.filterType);
     },
 
     /**
-     * @param {} meldData
-     * @return {Meld}
-     */
-    generateMeld: function(meldData) {
-        switch (meldData.meldType) {
-            case MeldObject.TYPE:
-                return this.generateMeldObject(meldData);
-                break;
-        }
-    },
-
-    /**
-     * @param meldObjectData
-     * @return {MeldObject}
-     */
-    generateMeldObject: function(meldObjectData) {
-        var meldKey                 = this.generateMeldKeyFromObject(meldObjectData.meldKey);
-        var meldObject              = new MeldObject(meldKey);
-        var meldOperationListData   = meldObjectData.meldOperationList;
-        var meldOperationList       = this.generateMeldOperationList(meldOperationListData);
-        meldObject.setMeldOperationList(meldOperationList);
-        return meldObject;
-    },
-
-    /**
      * @param {MeldKey} meldKey
-     * @param {Object} object
-     * @return {MeldObject}
+     * @return {*}
      */
-    generateMeldObjectFromObject: function(meldKey, object) {
-        var meldObject = new MeldObject(meldKey);
-        var operationList = new List();
-        for (var key in object) {
-            var value = object[key];
-            var operation = new PropertySetOperation(meldKey, key, value);
-            operationList.add(operation);
-            meldObject.setProperty(key, value);
-            meldObject.commit();
-        }
-        meldObject.setMeldOperationList(operationList);
-        return meldObject;
+    unbuildMeldKey: function(meldKey) {
+        return {
+            dataType: meldKey.getDataType(),
+            filterType: meldKey.getFilterType(),
+            id: meldKey.getId()
+        };
     },
 
     /**
-     * @param meldOperationData
+     * @param {*} meldOperationData
      * @return {MeldOperation}
      */
-    generateMeldOperation: function(meldOperationData) {
+    buildMeldOperation: function(meldOperationData) {
         var meldOperation = undefined;
-        var meldKey = this.generateMeldKey(meldOperationData.meldKey);
+        var meldKey = this.buildMeldKey(meldOperationData.meldKey);
         switch (meldOperationData.type) {
-            case PropertyRemoveOperation.TYPE:
-                meldOperation = new PropertyRemoveOperation(meldKey, meldOperationData.propertyName);
+            case AddToSetOperation.TYPE:
+                meldOperation = new AddToSetOperation(meldKey, meldOperationData.path,
+                    this.unmarshalData(meldOperationData.setValue));
                 break;
-            case PropertySetOperation.TYPE:
-                meldOperation = new PropertySetOperation(meldKey, meldOperationData.propertyName, meldOperationData.propertyValue);
+            case MeldMeldOperation.TYPE:
+                var meld      = this.buildMeld(meldOperationData.meld);
+                meldOperation = new MeldMeldOperation(meldKey, meld);
                 break;
-            case AddMeldOperation.TYPE:
-                var meld    = this.generateMeld(meldOperationData.meld);
-                meldOperation = new AddMeldOperation(meldKey, meld);
+            case RemoveFromSetOperation.TYPE:
+                meldOperation = new RemoveFromSetOperation(meldKey, meldOperationData.path,
+                    this.unmarshalData(meldOperationData.setValue));
                 break;
             case RemoveMeldOperation.TYPE:
                 meldOperation = new RemoveMeldOperation(meldKey);
                 break;
+            case RemoveObjectPropertyOperation.TYPE:
+                meldOperation = new RemoveObjectPropertyOperation(meldKey, meldOperationData.path,
+                    meldOperationData.propertyName);
+                break;
+            case SetDocumentOperation.TYPE:
+                meldOperation = new SetDocumentOperation(meldKey, this.unmarshalData(meldOperationData.data));
+                break;
+            case SetObjectPropertyOperation.TYPE:
+                meldOperation = new SetObjectPropertyOperation(meldKey, meldOperationData.path,
+                    meldOperationData.propertyName, this.unmarshalData(meldOperationData.propertyValue));
+                break;
+
         }
         return meldOperation;
     },
 
     /**
-     * @param meldOperationListData
+     * @param {MeldOperation} meldOperation
+     * @return {*}
+     */
+    unbuildMeldOperation: function(meldOperation) {
+        var meldOperationData = {
+            meldKey: this.unbuildMeldKey(meldOperation.getMeldKey()),
+            type: meldOperation.getType()
+        };
+        switch (meldOperation.getType()) {
+            case AddToSetOperation.TYPE:
+                meldOperationData.path = meldOperation.getPath();
+                meldOperationData.setValue = this.marshalData(meldOperation.getSetValue());
+                break;
+            case MeldMeldOperation.TYPE:
+                meldOperationData.meld = this.unbuildMeld(meldOperation.getMeld());
+                break;
+            case RemoveFromSetOperation.TYPE:
+                meldOperationData.path = meldOperation.getPath();
+                meldOperationData.setValue = this.marshalData(meldOperation.getSetValue());
+                break;
+            case RemoveMeldOperation.TYPE:
+                //do nothing
+                break;
+            case RemoveObjectPropertyOperation.TYPE:
+                meldOperationData.path = meldOperation.getPath();
+                meldOperationData.propertyName = meldOperation.getPropertyName();
+                break;
+            case SetDocumentOperation.TYPE:
+                meldOperationData.data = this.marshalData(meldOperation.getData());
+                break;
+            case SetObjectPropertyOperation.TYPE:
+                meldOperationData.path = meldOperation.getPath();
+                meldOperationData.propertyName = meldOperation.getPropertyName();
+                meldOperationData.propertyValue = this.marshalData(meldOperation.getPropertyValue());
+                break;
+
+        }
+        return meldOperationData;
+    },
+
+    /**
+     * @param {Array.<*>} meldOperationListData
      * @return {List.<MeldOperation>}
      */
-    generateMeldOperationList: function(meldOperationListData) {
+    buildMeldOperationList: function(meldOperationListData) {
         var _this = this;
         var meldOperationList = new List();
         meldOperationListData.forEach(function(meldOperationData) {
-            var meldOperation = _this.generateMeldOperation(meldOperationData);
+            var meldOperation = _this.buildMeldOperation(meldOperationData);
             meldOperationList.add(meldOperation);
         });
         return meldOperationList;
     },
 
     /**
+     * @param {List.<>MeldOperation} meldOperationList
+     * @return {Array.<*>}
+     */
+    unbuildMeldOperationList: function(meldOperationList) {
+        var _this = this;
+        var meldOperationListData = [];
+        meldOperationList.forEach(function(meldOperation) {
+            meldOperationListData.push(_this.unbuildMeldOperation(meldOperation));
+        });
+        return meldOperationListData;
+    },
+
+    /**
      * @param meldTransactionData
      * @return {MeldTransaction}
      */
-    generateMeldTransaction: function(meldTransactionData) {
+    buildMeldTransaction: function(meldTransactionData) {
         var meldTransaction = new MeldTransaction();
-        meldTransaction.setMeldOperationList(this.generateMeldOperationList(meldTransactionData.meldOperationList));
+        meldTransaction.setMeldOperationList(this.buildMeldOperationList(meldTransactionData.meldOperationList));
         return meldTransaction;
+    },
+
+    /**
+     * @param {MeldTransaction} meldTransaction
+     * @return {*}
+     */
+    unbuildMeldTransaction: function(meldTransaction) {
+        var _this = this;
+        var meldOperationList = [];
+        this.meldOperationList.forEach(function(meldOperation) {
+            meldOperationList.push(_this.unbuildMeldOperation(meldOperation));
+        });
+        return {
+            meldOperationList: meldOperationList
+        };
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Private Methods
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @private
+     * @param {*} data
+     * @return {Object}
+     */
+    marshalData: function(data) {
+        var _this = this;
+        var marshalled = undefined;
+        if (TypeUtil.isObject(data)) {
+            var objectType = TypeUtil.toType(data);
+            if (objectType === "Object") {
+                var marshalledObject = {};
+                Obj.forIn(data, function(key, value) {
+                    marshalledObject[key] = _this.marshalData(value);
+                });
+                marshalled = {
+                    type: MeldBuilder.TYPES.OBJECT,
+                    value: marshalledObject
+                };
+            } else if (objectType === "Set") {
+                var marshalledSet = [];
+                data.forEach(function(value) {
+                    marshalledSet.push(_this.marshalData(value));
+                });
+                marshalled = {
+                    type: objectType,
+                    value: marshalledSet
+                };
+            } else if (objectType === "Pair") {
+                var marshalledPair = {
+                    a: this.marshalData(data.getA()),
+                    b: this.marshalData(data.getB())
+                };
+                marshalled = {
+                    type: objectType,
+                    value: marshalledPair
+                };
+            } else if (objectType === "Date") {
+                marshalled = {
+                    type: MeldBuilder.TYPES.DATE,
+                    value: data.toString()
+                };
+            } else {
+
+                //TODO BRN: Add a bugmeta system for classes beyond the base ones so that classes can self register
+
+                throw new Error("Unsupported data type cannot be marshalled. objectType:" + objectType + " data:", data);
+            }
+        } else if (TypeUtil.isArray(data)) {
+            var marshalledArray = [];
+            data.forEach(function(value) {
+                marshalledArray.push(_this.marshalData(value));
+            });
+            marshalled = {
+                type: MeldBuilder.TYPES.ARRAY,
+                value: marshalledArray
+            };
+        } else if (TypeUtil.isBoolean(data)) {
+            marshalled = {
+                type: MeldBuilder.TYPES.BOOLEAN,
+                value: data
+            };
+        } else if (TypeUtil.isNull(data)) {
+            marshalled = {
+                type: MeldBuilder.TYPES.NULL,
+                value: data
+            };
+        } else if (TypeUtil.isNumber(data)) {
+            marshalled = {
+                type: MeldBuilder.TYPES.NUMBER,
+                value: data
+            };
+        } else if (TypeUtil.isString(data)) {
+            marshalled = {
+                type: MeldBuilder.TYPES.STRING,
+                value: data
+            };
+        } else if (TypeUtil.isUndefined(data)) {
+            marshalled = {
+                type: MeldBuilder.TYPES.UNDEFINED,
+                value: data
+            };
+        } else {
+            throw new Error("Unsupported data type cannot be marshalled. data:", data);
+        }
+        return marshalled;
+    },
+
+    /**
+     * @private
+     * @param {Object} marshalledData
+     * @return {*}
+     */
+    unmarshalData: function(marshalledData) {
+        var _this = this;
+        var unmarshalled = undefined;
+        switch (marshalledData.type) {
+            case MeldBuilder.TYPES.ARRAY:
+                unmarshalled = [];
+                marshalledData.value.forEach(function(value) {
+                    unmarshalled.push(this.unmarshalData(value));
+                });
+                break;
+            case MeldBuilder.TYPES.BOOLEAN:
+                unmarshalled = marshalledData.value;
+                break;
+            case MeldBuilder.TYPES.DATE:
+                unmarshalled = new Date(marshalledData.value);
+                break;
+            case MeldBuilder.TYPES.NULL:
+                unmarshalled = marshalledData.value;
+                break;
+            case MeldBuilder.TYPES.NUMBER:
+                unmarshalled = marshalledData.value;
+                break;
+            case MeldBuilder.TYPES.OBJECT:
+                unmarshalled = {};
+                Obj.forIn(marshalledData.value, function(key, value) {
+                    unmarshalled[key] = _this.unmarshalData(value);
+                });
+                break;
+            case MeldBuilder.TYPES.STRING:
+                unmarshalled = marshalledData.value;
+                break;
+            case MeldBuilder.TYPES.UNDEFINED:
+                unmarshalled = marshalledData.value;
+                break;
+            case "Pair":
+                unmarshalled = new Pair(marshalledData.value.a, marshalledData.value.b);
+                break;
+            case "Set":
+                unmarshalled = new Set();
+                marshalledData.value.forEach(function(value) {
+                    unmarshalled.add(_this.unmarshalData(value));
+                });
+                break;
+        }
+        return unmarshalled;
     }
 });
+
+
+//-------------------------------------------------------------------------------
+// Static Properties
+//-------------------------------------------------------------------------------
+
+/**
+ * @enum {string}
+ */
+MeldBuilder.TYPES = {
+    ARRAY: "array",
+    BOOLEAN: "boolean",
+    DATE: "date",
+    NULL: "null",
+    NUMBER: "number",
+    OBJECT: "object",
+    STRING: "string",
+    UNDEFINED: "undefined"
+};
 
 
 //-------------------------------------------------------------------------------

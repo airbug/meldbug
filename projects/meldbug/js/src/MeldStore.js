@@ -40,7 +40,7 @@ var MeldStore = Class.extend(Obj, {
     /**
      *
      */
-    _constructor: function(meldDocument) {
+    _constructor: function(meldBucket) {
 
         this._super();
 
@@ -51,9 +51,9 @@ var MeldStore = Class.extend(Obj, {
 
         /**
          * @private
-         * @type {MeldDocument}
+         * @type {MeldBucket}
          */
-        this.meldDocument    = meldDocument;
+        this.meldBucket    = meldBucket;
 
         this.initialize();
     },
@@ -65,10 +65,10 @@ var MeldStore = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {MeldDocument}
+     * @return {MeldBucket}
      */
-    getMeldDocument: function() {
-        return this.meldDocument;
+    getMeldBucket: function() {
+        return this.meldBucket;
     },
 
 
@@ -85,7 +85,7 @@ var MeldStore = Class.extend(Obj, {
         var meldList = new List();
 
         meldTransaction.getMeldOperationList().forEach(function(meldOperation) {
-            var meld = meldOperation.commit(_this.meldDocument);
+            var meld = meldOperation.commit(_this.meldBucket);
             meldList.add(meld);
         });
 
@@ -101,7 +101,7 @@ var MeldStore = Class.extend(Obj, {
      * @return {boolean}
      */
     containsMeldByKey: function(meldKey) {
-        return this.meldDocument.containsMeldByKey(meldKey);
+        return this.meldBucket.containsMeldByKey(meldKey);
     },
 
     /**
@@ -109,7 +109,7 @@ var MeldStore = Class.extend(Obj, {
      * @return {Meld}
      */
     getMeld: function(meldKey) {
-        return this.meldDocument.getMeld(meldKey);
+        return this.meldBucket.getMeld(meldKey);
     },
 
     /**
@@ -134,7 +134,7 @@ var MeldStore = Class.extend(Obj, {
      * @private
      */
     initialize: function() {
-        this.meldDocument.setParentPropagator(this);
+        this.meldBucket.setParentPropagator(this);
     }
 });
 

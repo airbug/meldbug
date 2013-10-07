@@ -10,6 +10,7 @@
 //@Require('Exception')
 //@Require('Obj')
 //@Require('bugcall.RequestFailedException')
+//@Require('meldbug.MeldDefines')
 
 
 //-------------------------------------------------------------------------------
@@ -27,6 +28,7 @@ var Class                   = bugpack.require('Class');
 var Exception               = bugpack.require('Exception');
 var Obj                     = bugpack.require('Obj');
 var RequestFailedException  = bugpack.require('bugcall.RequestFailedException');
+var MeldDefines             = bugpack.require('meldbug.MeldDefines');
 
 
 //-------------------------------------------------------------------------------
@@ -42,8 +44,9 @@ var MeldbugClientConsumer = Class.extend(Obj, {
     /**
      * @param {BugCallServer} bugCallServer
      * @param {CallManager} callManager
+     * @param {MeldBuilder} meldBuilder
      */
-    _constructor: function(bugCallServer, callManager) {
+    _constructor: function(bugCallServer, callManager, meldBuilder) {
 
         this._super();
 
@@ -63,6 +66,12 @@ var MeldbugClientConsumer = Class.extend(Obj, {
          * @type {CallManager}
          */
         this.callManager    = callManager;
+
+        /**
+         * @private
+         * @type {MeldBuilder}
+         */
+        this.meldBuilder    = meldBuilder;
 
         this.initialize();
     },
@@ -93,21 +102,21 @@ var MeldbugClientConsumer = Class.extend(Obj, {
         //TODO BRN: Add Lock support to this call so that we do not send more than one transaction at a time
 
         var _this = this;
-        var meldTransactionData = meldTransaction.toObject();
+        var meldTransactionData = this.meldBuilder.unbuildMeldTransaction(meldTransaction);
         _this.bugCallServer.request(this.callManager, MeldbugClientConsumer.RequstTypes.COMMIT_MELD_TRANSACTION,
-            {meldTransaction: meldTransactionData}, function(error, callResponse) {
-                if (!error) {
+            {meldTransaction: meldTransactionData}, function(throwable, callResponse) {
+                if (!throwable) {
 
                     //TEST
                     console.log("COMMIT_MELD_TRANSACTION callResponse:", callResponse);
 
-                    if (callResponse.getType() === "commitMeldTransactionResponse") {
+                    if (callResponse.getType() === MeldDefines.ResponseTypes.SUCCESS) {
                         callback();
-                    } else if (callResponse.getType() === "commitMeldTransactionException") {
-                        console.error("unhandled commitMeldTransactionException response:", callResponse);
+                    } else if (callResponse.getType() === MeldDefines.ResponseTypes.EXCEPTION) {
+                        console.error("unhandled exception response:", callResponse);
                         //TODO BRN: Handle exceptions...
-                    } else if (callResponse.getType() == "commitMeldTransactionError") {
-                        console.error("undhandled commitMeldTransactionError response:", callResponse);
+                    } else if (callResponse.getType() === MeldDefines.ResponseTypes.ERROR) {
+                        console.error("undhandled error response:", callResponse);
                         //TODO BRN: Handle errors...
                     }
                 } else {

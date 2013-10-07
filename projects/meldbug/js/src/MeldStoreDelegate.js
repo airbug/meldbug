@@ -9,10 +9,10 @@
 //@Require('Class')
 //@Require('Obj')
 //@Require('Set')
+//@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldDocument')
-//@Require('meldbug.MeldObject')
-//@Require('meldbug.PropertyRemoveOperation')
-//@Require('meldbug.PropertySetOperation')
+//@Require('meldbug.RemoveObjectPropertyOperation')
+//@Require('meldbug.SetObjectPropertyOperation')
 
 
 //-------------------------------------------------------------------------------
@@ -29,10 +29,10 @@ var bugpack         = require('bugpack').context();
 var Class                       = bugpack.require('Class');
 var Obj                         = bugpack.require('Obj');
 var Set                         = bugpack.require('Set');
-var MeldDocument                = bugpack.require('meldbug.MeldDocument');
-var MeldObject                  = bugpack.require('meldbug.MeldObject');
-var PropertyRemoveOperation     = bugpack.require('meldbug.PropertyRemoveOperation');
-var PropertySetOperation        = bugpack.require('meldbug.PropertySetOperation');
+var MeldBucket                = bugpack.require('meldbug.MeldBucket');
+var MeldDocument                  = bugpack.require('meldbug.MeldDocument');
+var RemoveObjectPropertyOperation     = bugpack.require('meldbug.RemoveObjectPropertyOperation');
+var SetObjectPropertyOperation        = bugpack.require('meldbug.SetObjectPropertyOperation');
 
 
 //-------------------------------------------------------------------------------
@@ -59,9 +59,9 @@ var MeldStoreDelegate = Class.extend(Obj, {
 
         /**
          * @private
-         * @type {MeldDocument}
+         * @type {MeldBucket}
          */
-        this.meldDocument           = new MeldDocument();
+        this.meldBucket           = new MeldBucket();
 
         /**
          * @private
@@ -84,24 +84,12 @@ var MeldStoreDelegate = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {Meld} meld
-     */
-    addMeld: function(meld) {
-        this.ensureMeldKeyRetrieved(meld.getMeldKey());
-        if (!this.meldDocument.containsMeldByKey(meld.getMeldKey())) {
-            this.meldDocument.meldMeld(meld);
-        } else {
-            throw new Error("MeldStore already has Meld by key '" + meld.getMeldKey() + "'");
-        }
-    },
-
-    /**
      * @param {MeldKey} meldKey
      * @return {boolean}
      */
     containsMeldByKey: function(meldKey) {
         this.ensureMeldKeyRetrieved(meldKey);
-        return this.meldDocument.containsMeldByKey(meldKey);
+        return this.meldBucket.containsMeldByKey(meldKey);
     },
 
     /**
@@ -110,17 +98,25 @@ var MeldStoreDelegate = Class.extend(Obj, {
      */
     getMeld: function(meldKey) {
         this.ensureMeldKeyRetrieved(meldKey);
-        return this.meldDocument.getMeld(meldKey);
+        return this.meldBucket.getMeld(meldKey);
+    },
+
+    /**
+     * @param {Meld} meld
+     */
+    meldMeld: function(meld) {
+        this.ensureMeldKeyRetrieved(meld.getMeldKey());
+        this.meldBucket.meldMeld(meld);
     },
 
     /**
      * @param {MeldKey} meldKey
      */
-    removeMeldObject: function(meldKey) {
+    removeMeld: function(meldKey) {
         this.ensureMeldKeyRetrieved(meldKey);
         var meld = this.getMeld(meldKey);
         if (meld) {
-            this.meldDocument.unmeldMeld(meld);
+            this.meldBucket.unmeldMeld(meld);
         }
     },
 
@@ -141,7 +137,7 @@ var MeldStoreDelegate = Class.extend(Obj, {
         if (!this.meldKeyRetrievedSet.contains(meldKey)) {
             if (this.meldStore.containsMeldByKey(meldKey)) {
                 var meld = this.meldStore.getMeld(meldKey).clone();
-                this.meldDocument.addMeld(meld);
+                this.meldBucket.addMeld(meld);
             }
             this.meldKeyRetrievedSet.add(meldKey);
         }
@@ -151,7 +147,7 @@ var MeldStoreDelegate = Class.extend(Obj, {
      * @private
      */
     initialize: function() {
-        this.meldDocument.setParentPropagator(this);
+        this.meldBucket.setParentPropagator(this);
     }
 });
 

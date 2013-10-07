@@ -4,9 +4,10 @@
 
 //@Package('meldbug')
 
-//@Export('PropertyRemoveOperation')
+//@Export('SetDocumentOperation')
 
 //@Require('Class')
+//@Require('Obj')
 //@Require('meldbug.MeldOperation')
 
 
@@ -14,22 +15,23 @@
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack         = require('bugpack').context();
+var bugpack             = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class           = bugpack.require('Class');
-var MeldOperation   = bugpack.require('meldbug.MeldOperation');
+var Class               = bugpack.require('Class');
+var Obj                 = bugpack.require('Obj');
+var MeldOperation       = bugpack.require('meldbug.MeldOperation');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var PropertyRemoveOperation = Class.extend(MeldOperation, {
+var SetDocumentOperation = Class.extend(MeldOperation, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -38,9 +40,9 @@ var PropertyRemoveOperation = Class.extend(MeldOperation, {
     /**
      *
      */
-    _constructor: function(meldKey, propertyName) {
+    _constructor: function(meldKey, data) {
 
-        this._super(meldKey, PropertyRemoveOperation.TYPE);
+        this._super(meldKey, SetDocumentOperation.TYPE);
 
 
         //-------------------------------------------------------------------------------
@@ -49,9 +51,9 @@ var PropertyRemoveOperation = Class.extend(MeldOperation, {
 
         /**
          * @private
-         * @type {string}
+         * @type {*}
          */
-        this.propertyName   = propertyName;
+        this.data = data;
     },
 
 
@@ -60,10 +62,10 @@ var PropertyRemoveOperation = Class.extend(MeldOperation, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {string}
+     * @return {*}
      */
-    getPropertyName: function() {
-        return this.propertyName;
+    getData: function() {
+        return this.data;
     },
 
 
@@ -76,21 +78,7 @@ var PropertyRemoveOperation = Class.extend(MeldOperation, {
      * @return {*}
      */
     clone: function(deep) {
-        return new PropertyRemoveOperation(this.meldKey, this.propertyName);
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // IObjectable Implementation
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @return {Object}
-     */
-    toObject: function() {
-        var obj = this._super();
-        obj.propertyName = this.propertyName;
-        return obj;
+        return new SetDocumentOperation(this.meldKey, Obj.clone(this.data, deep));
     },
 
 
@@ -99,15 +87,15 @@ var PropertyRemoveOperation = Class.extend(MeldOperation, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {MeldDocument} meldDocument
+     * @param {MeldBucket} meldBucket
      * @return {Meld}
      */
-    apply: function(meldDocument) {
-        var meldObject = meldDocument.getMeld(this.meldKey);
-        if (meldObject) {
-            meldObject.removeProperty(this.propertyName);
+    apply: function(meldBucket) {
+        var meldDocument = meldBucket.getMeld(this.meldKey);
+        if (meldDocument) {
+            meldDocument.setData(this.data);
         }
-        return meldObject;
+        return meldDocument;
     },
 
     /**
@@ -127,11 +115,11 @@ var PropertyRemoveOperation = Class.extend(MeldOperation, {
  * @static
  * @const {string}
  */
-PropertyRemoveOperation.TYPE = "PropertyRemoveOperation";
+SetDocumentOperation.TYPE = "SetDocumentOperation";
 
 
 //-------------------------------------------------------------------------------
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbug.PropertyRemoveOperation', PropertyRemoveOperation);
+bugpack.export('meldbug.SetDocumentOperation', SetDocumentOperation);

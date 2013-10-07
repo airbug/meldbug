@@ -4,7 +4,7 @@
 
 //@Package('meldbug')
 
-//@Export('MeldDocumentOperation')
+//@Export('MeldBucketOperation')
 
 //@Require('Class')
 //@Require('meldbug.MeldOperation')
@@ -29,7 +29,7 @@ var MeldOperation   = bugpack.require('meldbug.MeldOperation');
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldDocumentOperation = Class.extend(MeldOperation, {
+var MeldBucketOperation = Class.extend(MeldOperation, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -55,11 +55,11 @@ var MeldDocumentOperation = Class.extend(MeldOperation, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {MeldDocument} meldDocument
+     * @param {MeldBucket} meldBucket
      * @return {Meld}
      */
-    commit: function(meldDocument) {
-        return this.apply(meldDocument);
+    commit: function(meldBucket) {
+        return this.apply(meldBucket);
     }
 });
 
@@ -68,4 +68,4 @@ var MeldDocumentOperation = Class.extend(MeldOperation, {
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbug.MeldDocumentOperation', MeldDocumentOperation);
+bugpack.export('meldbug.MeldBucketOperation', MeldBucketOperation);

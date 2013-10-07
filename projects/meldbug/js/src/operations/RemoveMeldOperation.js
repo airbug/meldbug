@@ -7,7 +7,7 @@
 //@Export('RemoveMeldOperation')
 
 //@Require('Class')
-//@Require('meldbug.MeldDocumentOperation')
+//@Require('meldbug.MeldBucketOperation')
 
 
 //-------------------------------------------------------------------------------
@@ -22,14 +22,14 @@ var bugpack                 = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var Class                   = bugpack.require('Class');
-var MeldDocumentOperation   = bugpack.require('meldbug.MeldDocumentOperation');
+var MeldBucketOperation     = bugpack.require('meldbug.MeldBucketOperation');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var RemoveMeldOperation = Class.extend(MeldDocumentOperation, {
+var RemoveMeldOperation = Class.extend(MeldBucketOperation, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -67,11 +67,11 @@ var RemoveMeldOperation = Class.extend(MeldDocumentOperation, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {MeldDocument} meldDocument
+     * @param {MeldBucket} meldBucket
      * @return {Meld}
      */
-    apply: function(meldDocument) {
-        return meldDocument.removeMeld(this.getMeldKey());
+    apply: function(meldBucket) {
+        return meldBucket.removeMeld(this.getMeldKey());
     },
 
     /**

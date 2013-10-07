@@ -7,7 +7,6 @@
 //@Export('MeldTransaction')
 
 //@Require('Class')
-//@Require('IObjectable')
 //@Require('List')
 //@Require('Obj')
 
@@ -24,7 +23,6 @@ var bugpack         = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var Class           = bugpack.require('Class');
-var IObjectable     = bugpack.require('IObjectable');
 var List            = bugpack.require('List');
 var Obj             = bugpack.require('Obj');
 
@@ -83,37 +81,12 @@ var MeldTransaction = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {Object}
-     */
-    toObject: function() {
-        var meldOperationList = [];
-        this.meldOperationList.forEach(function(meldOperation) {
-            meldOperationList.push(meldOperation.toObject());
-        });
-        return {
-            meldOperationList: meldOperationList
-        };
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // IObjectable Implementation
-    //-------------------------------------------------------------------------------
-
-    /**
      * @param {MeldOperation} meldOperation
      */
     addMeldOperation: function(meldOperation) {
         this.meldOperationList.add(meldOperation);
     }
 });
-
-
-//-------------------------------------------------------------------------------
-// Interfaces
-//-------------------------------------------------------------------------------
-
-Class.implement(MeldTransaction, IObjectable);
 
 
 //-------------------------------------------------------------------------------

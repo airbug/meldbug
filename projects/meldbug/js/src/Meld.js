@@ -12,7 +12,6 @@
 //@Require('IClone')
 //@Require('IObjectable')
 //@Require('List')
-//@Require('bugdelta.DeltaObject')
 //@Require('meldbug.MeldEvent')
 
 
@@ -33,7 +32,6 @@ var EventDispatcher     = bugpack.require('EventDispatcher');
 var IClone              = bugpack.require('IClone');
 var IObjectable         = bugpack.require('IObjectable');
 var List                = bugpack.require('List');
-var DeltaObject         = bugpack.require('bugdelta.DeltaObject');
 var MeldEvent           = bugpack.require('meldbug.MeldEvent');
 
 
@@ -61,9 +59,9 @@ var Meld = Class.extend(EventDispatcher, {
 
         /**
          * @private
-         * @type {MeldDocument}
+         * @type {MeldBucket}
          */
-        this.meldDocument           = undefined;
+        this.meldBucket             = undefined;
 
         /**
          * @private
@@ -90,17 +88,17 @@ var Meld = Class.extend(EventDispatcher, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {MeldDocument}
+     * @return {MeldBucket}
      */
-    getMeldDocument: function() {
-        return this.meldDocument;
+    getMeldBucket: function() {
+        return this.meldBucket;
     },
 
     /**
-     * @param {MeldDocument} meldDocument
+     * @param {MeldBucket} meldBucket
      */
-    setMeldDocument: function(meldDocument) {
-        this.meldDocument = meldDocument;
+    setMeldBucket: function(meldBucket) {
+        this.meldBucket = meldBucket;
     },
 
     /**
@@ -232,7 +230,7 @@ var Meld = Class.extend(EventDispatcher, {
      */
     meldOperation: function(meldOperation) {
         meldOperation.setPreviousOperationUuid(this.getLastMeldOperation().getUuid());
-        meldOperation.commit(this.meldDocument);
+        meldOperation.commit(this.meldBucket);
         this.dispatchEvent(new MeldEvent(MeldEvent.EventTypes.OPERATION, this.meldKey, {
             meldOperation: meldOperation
         }));

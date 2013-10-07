@@ -7,14 +7,16 @@
 //@Export('MeldbugClientController')
 
 //@Require('Class')
+//@Require('Exception')
 //@Require('Obj')
+//@Require('meldbug.MeldDefines')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack     = require('bugpack').context();
+var bugpack             = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
@@ -22,7 +24,9 @@ var bugpack     = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var Class               = bugpack.require('Class');
+var Exception           = bugpack.require('Exception');
 var Obj                 = bugpack.require('Obj');
+var MeldDefines         = bugpack.require('meldbug.MeldDefines');
 
 
 //-------------------------------------------------------------------------------
@@ -75,18 +79,21 @@ var MeldbugClientController = Class.extend(Obj, {
         this.bugCallRouter.addAll({
             commitMeldTransaction: function(request, responder) {
                 var data                = request.getData();
-                var meldTransaction     = _this.meldBuilder.generateMeldTransaction(data.meldTransaction);
-                _this.meldbugClientService.commitMeldTransaction(meldTransaction, function(error) {
+                var meldTransaction     = _this.meldBuilder.buildMeldTransaction(data.meldTransaction);
+                _this.meldbugClientService.commitMeldTransaction(meldTransaction, function(throwable) {
                     var response    = null;
-                    if (!error) {
-                        response    = responder.response("commitMeldTransactionResponse", {
-                            success: true
-                        });
+                    if (!throwable) {
+                        response    = responder.response(MeldDefines.ResponseTypes.SUCCESS);
                     } else {
-                        response    = responder.response("commitMeldTransactionError", {
-                            success: false,
-                            error: error
-                        });
+                        if (Class.doesExtend(throwable, Exception)) {
+                            response    = responder.response(MeldDefines.ResponseTypes.EXCEPTION, {
+                                exception: throwable.toObject()
+                            });
+                        } else {
+                            response    = responder.response(MeldDefines.ResponseTypes.ERROR, {
+                                error: throwable
+                            });
+                        }
                     }
                     responder.sendResponse(response);
                 });

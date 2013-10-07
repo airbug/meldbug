@@ -11,8 +11,8 @@
 //@Require('Exception')
 //@Require('Map')
 //@Require('Obj')
-//@Require('meldbug.AddMeldOperation')
 //@Require('meldbug.MeldEvent')
+//@Require('meldbug.MeldMeldOperation')
 //@Require('meldbug.RemoveMeldOperation')
 
 
@@ -32,8 +32,8 @@ var DualMultiSetMap             = bugpack.require('DualMultiSetMap');
 var Exception                   = bugpack.require('Exception');
 var Map                         = bugpack.require('Map');
 var Obj                         = bugpack.require('Obj');
-var AddMeldOperation            = bugpack.require('meldbug.AddMeldOperation');
 var MeldEvent                   = bugpack.require('meldbug.MeldEvent');
+var MeldMeldOperation           = bugpack.require('meldbug.MeldMeldOperation');
 var RemoveMeldOperation         = bugpack.require('meldbug.RemoveMeldOperation');
 
 
@@ -91,7 +91,6 @@ var MeldMirrorStore = Class.extend(Obj, {
     addMeldMirror: function(meldMirror) {
         if (!this.hasCallManager(meldMirror.getCallManager())) {
             this.callManagerToMeldMirrorMap.put(meldMirror.getCallManager(), meldMirror);
-            meldMirror.addEventListener(MeldEvent.EventTypes.OPERATION, this.handleMeldOperation, this);
         }
     },
 
@@ -126,7 +125,6 @@ var MeldMirrorStore = Class.extend(Obj, {
         var meldMirror = this.callManagerToMeldMirrorMap.remove(callManager);
         if (meldMirror) {
             this.meldKeyToMeldMirror.removeByValue(meldMirror);
-            meldMirror.removeEventListener(MeldEvent.EventTypes.OPERATION, this.handleMeldOperation, this);
         }
     },
 
@@ -136,29 +134,6 @@ var MeldMirrorStore = Class.extend(Obj, {
      */
     removeMeldKeyForMirror: function(meldKey, meldMirror) {
         this.meldKeyToMeldMirror.removeKeyValuePair(meldKey, meldMirror);
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // Event Listeners
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @private
-     * @param {MeldEvent} meldEvent
-     */
-    handleMeldOperation: function(meldEvent) {
-        var meldMirror      = meldEvent.getCurrentTarget();
-        var meldOperation   = meldEvent.getData().meldOperation;
-        var meldKey         = meldOperation.getMeldKey();
-        switch (meldOperation.getType()) {
-            case AddMeldOperation.TYPE:
-                this.addMeldKeyForMirror(meldKey, meldMirror);
-                break;
-            case RemoveMeldOperation.TYPE:
-                this.removeMeldKeyForMirror(meldKey, meldMirror);
-                break;
-        }
     }
 });
 

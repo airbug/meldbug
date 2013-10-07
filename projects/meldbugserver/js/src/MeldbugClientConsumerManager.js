@@ -40,9 +40,9 @@ var MeldbugClientConsumerManager = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     *
+     * @param {MeldBuilder} meldBuilder
      */
-    _constructor: function() {
+    _constructor: function(meldBuilder) {
 
         this._super();
 
@@ -56,6 +56,12 @@ var MeldbugClientConsumerManager = Class.extend(Obj, {
          * @type {Map.<CallManager, MeldbugClientConsumer>}
          */
         this.callManagerToConsumerMap   = new Map();
+
+        /**
+         * @private
+         * @type {MeldBuilder}
+         */
+        this.meldBuilder                = meldBuilder;
     },
 
 

@@ -4,12 +4,11 @@
 
 //@Package('meldbug')
 
-//@Export('MeldOperation')
+//@Export('RemoveFromSetOperation')
 
 //@Require('Class')
-//@Require('IClone')
 //@Require('Obj')
-//@Require('UuidGenerator')
+//@Require('meldbug.MeldOperation')
 
 
 //-------------------------------------------------------------------------------
@@ -24,16 +23,15 @@ var bugpack         = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var Class           = bugpack.require('Class');
-var IClone          = bugpack.require('IClone');
 var Obj             = bugpack.require('Obj');
-var UuidGenerator   = bugpack.require('UuidGenerator');
+var MeldOperation   = bugpack.require('meldbug.MeldOperation');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldOperation = Class.extend(Obj, {
+var RemoveFromSetOperation = Class.extend(MeldOperation, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -42,9 +40,9 @@ var MeldOperation = Class.extend(Obj, {
     /**
      *
      */
-    _constructor: function(meldKey, type, previousOperationUuid) {
+    _constructor: function(meldKey, path, setValue) {
 
-        this._super();
+        this._super(meldKey, RemoveFromSetOperation.TYPE);
 
 
         //-------------------------------------------------------------------------------
@@ -53,27 +51,15 @@ var MeldOperation = Class.extend(Obj, {
 
         /**
          * @private
-         * @type {MeldKey}
+         * @type {string}
          */
-        this.meldKey                = meldKey;
+        this.path           = path;
 
         /**
          * @private
-         * @type {string}
+         * @type {*}
          */
-        this.previousOperationUuid  = previousOperationUuid;
-
-        /**
-         * @private
-         * @type {string}
-         */
-        this.type                   = type;
-
-        /**
-         * @private
-         * @type {string}
-         */
-        this.uuid                   = UuidGenerator.generateUuid();
+        this.setValue       = setValue;
     },
 
 
@@ -82,38 +68,17 @@ var MeldOperation = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {MeldKey}
-     */
-    getMeldKey: function() {
-        return this.meldKey;
-    },
-
-    /**
      * @return {string}
      */
-    getPreviousOperationUuid: function() {
-        return this.previousOperationUuid;
+    getPath: function() {
+        return this.path;
     },
 
     /**
-     * @param {string} previousOperationUuid
+     * @return {*}
      */
-    setPreviousOperationUuid: function(previousOperationUuid) {
-        this.previousOperationUuid = previousOperationUuid;
-    },
-
-    /**
-     * @return {string}
-     */
-    getType: function() {
-        return this.type;
-    },
-
-    /**
-     * @return {string}
-     */
-    getUuid: function() {
-        return this.uuid;
+    getSetValue: function() {
+        return this.setValue;
     },
 
 
@@ -126,68 +91,48 @@ var MeldOperation = Class.extend(Obj, {
      * @return {*}
      */
     clone: function(deep) {
-        //abstract
+        return new RemoveFromSetOperation(this.getMeldKey(), this.getPath(), Obj.clone(this.getSetValue(), deep));
     },
 
 
     //-------------------------------------------------------------------------------
-    // Public Methods
+    // MeldOperation Implementation
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {MeldBucket} meldBucket
-     * @return {Meld}
-     */
-    commit: function(meldBucket) {
-        var _this = this;
-        var meld = meldBucket.getMeld(this.meldKey);
-        var revisionIndex = meld.getRevisionIndex(this.previousOperationUuid);
-        if (revisionIndex < 0 || revisionIndex > _this.operationList.getCount()) {
-            throw new Error("operation revision not in history");
-        }
-        var concurrentOperationList = meld.getOperationList().subList(revisionIndex);
-        concurrentOperationList.forEach(function(concurrentOperation) {
-            _this.transform(concurrentOperation);
-        });
-        var modifiedMeld = this.apply(meldBucket);
-        meld.getOperationList().add(this);
-        return modifiedMeld;
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // Abstract Methods
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @abstract
      * @param {MeldBucket} meldBucket
      * @return {Meld}
      */
     apply: function(meldBucket) {
-
+        var meldDocument = meldBucket.getMeld(this.getMeldKey());
+        if (meldDocument) {
+            meldDocument.removeFromSet(this.getPath(), this.getSetValue());
+        }
+        return meldDocument;
     },
 
     /**
-     * @abstract
      * @param {MeldOperation} meldOperation
      */
     transform: function(meldOperation) {
-
+        //TODO
     }
 });
 
 
 //-------------------------------------------------------------------------------
-// Interfaces
+// Static Variables
 //-------------------------------------------------------------------------------
 
-Class.implement(MeldOperation, IClone);
-//Class.implement(MeldOperation, IObjectable);
+/**
+ * @static
+ * @const {string}
+ */
+RemoveFromSetOperation.TYPE = "RemoveFromSetOperation";
 
 
 //-------------------------------------------------------------------------------
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbug.MeldOperation', MeldOperation);
+bugpack.export('meldbug.RemoveFromSetOperation', RemoveFromSetOperation);
