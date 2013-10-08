@@ -79,6 +79,21 @@ var MeldMirrorStore = Class.extend(Obj, {
 
     /**
      * @param {MeldKey} meldKey
+     * @param {string} reason
+     * @param {CallManager} callManager
+     */
+    addMeldKeyAndReasonForCallManager: function(meldKey, reason, callManager) {
+        var meldMirror = this.getMeldMirrorForCallManager(callManager);
+        if (meldMirror) {
+            meldMirror.addReasonToMeldKey(reason, meldKey);
+            this.addMeldKeyForMirror(meldKey, meldMirror);
+        } else {
+            throw new Error("Could not find MeldMirror for CallManager - callManager:", callManager);
+        }
+    },
+
+    /**
+     * @param {MeldKey} meldKey
      * @param {MeldMirror} meldMirror
      */
     addMeldKeyForMirror: function(meldKey, meldMirror) {
@@ -130,6 +145,24 @@ var MeldMirrorStore = Class.extend(Obj, {
 
     /**
      * @param {MeldKey} meldKey
+     * @param {string} reason
+     * @param {CallManager} callManager
+     */
+    removeMeldKeyAndReasonForCallManager: function(meldKey, reason, callManager) {
+        var meldMirror = this.getMeldMirrorForCallManager(callManager);
+        if (meldMirror) {
+            meldMirror.removeReasonFromMeldKey(reason, meldKey);
+            if(meldMirror.reasonSetForMeldKeyIsEmpty(meldKey)) {
+                this.removeMeldKeyFromMirror(meldKey, meldMirror);
+            }
+        } else {
+            throw new Error("Could not find MeldMirror for CallManager - callManager:", callManager);
+        }
+    },
+
+    /**
+     * @param {MeldKey} meldKey
+     * @param {string} reason
      * @param {MeldMirror} meldMirror
      */
     removeMeldKeyForMirror: function(meldKey, meldMirror) {

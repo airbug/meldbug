@@ -67,6 +67,12 @@ var MeldMirror = Class.extend(Obj, {
 
         /**
          * @private
+         * @type {Map.<MeldKey, Set>}
+         */
+        this.meldKeyToReasonSetMap          = new Map();
+
+        /**
+         * @private
          * @type {MeldMirrorDocument}
          */
         this.meldMirrorDocument             = new MeldMirrorDocument();
@@ -103,6 +109,19 @@ var MeldMirror = Class.extend(Obj, {
     // Public Methods
     //-------------------------------------------------------------------------------
 
+    /**
+     * @param {string} reason
+     * @param {MeldKey} meldKey
+     */
+    addReasonToMeldKey: function(reason, meldKey){
+        var reasonSet = this.meldKeyToReasonSetMap.get(meldKey);
+        if(reasonSet){
+            reasonSet.add(reason);
+        } else {
+            reasonSet = new Set([reason]);
+            this.meldKeyToReasonSetMap.put(meldKey, reasonSet);
+        }
+    },
 
     /**
      * @param {MeldTransaction} meldTransaction
@@ -122,6 +141,26 @@ var MeldMirror = Class.extend(Obj, {
      */
     containsMeldByKey: function(meldKey) {
         return this.meldMirrorDocument.containsMeldByKey(meldKey);
+    },
+
+    /**
+     * @param {string} reason
+     * @param {MeldKey} meldKey
+     */
+    removeReasonFromMeldKey: function(reason, meldKey){
+        var reasonSet = this.meldKeyToReasonSetMap.get(meldKey);
+        if(reasonSet){
+            reasonSet.remove(reason);
+        }
+    },
+
+    reasonSetForMeldKeyIsEmpty: function(meldKey){
+        var reasonSet = this.meldKeyToReasonSetMap.get(meldKey);
+        if(reasonSet){
+            return reasonSet.isEmpty();
+        } else {
+            return true;
+        }
     }
 });
 
