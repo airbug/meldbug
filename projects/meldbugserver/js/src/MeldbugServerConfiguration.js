@@ -52,12 +52,12 @@ var PropertyAnnotation              = bugpack.require('bugioc.PropertyAnnotation
 var BugMeta                         = bugpack.require('bugmeta.BugMeta');
 var MeldBucket                      = bugpack.require('meldbug.MeldBucket');
 var MeldBuilder                     = bugpack.require('meldbug.MeldBuilder');
-var MeldManagerFactory              = bugpack.require('meldbug.MeldManagerFactory');
-var MeldMirrorManager               = bugpack.require('meldbug.MeldMirrorManager');
-var MeldMirrorService               = bugpack.require('meldbug.MeldMirrorService');
 var MeldStore                       = bugpack.require('meldbug.MeldStore');
 var MeldbugClientApi                = bugpack.require('meldbugserver.MeldbugClientApi');
 var MeldbugClientConsumerManager    = bugpack.require('meldbugserver.MeldbugClientConsumerManager');
+var MeldManagerFactory              = bugpack.require('meldbugserver.MeldManagerFactory');
+var MeldMirrorManager               = bugpack.require('meldbugserver.MeldMirrorManager');
+var MeldMirrorService               = bugpack.require('meldbugserver.MeldMirrorService');
 var MeldbugServerService            = bugpack.require('meldbugserver.MeldbugServerService');
 
 

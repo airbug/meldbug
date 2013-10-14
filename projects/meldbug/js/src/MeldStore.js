@@ -7,8 +7,8 @@
 //@Export('MeldStore')
 
 //@Require('Class')
-//@Require('EventDispatcher')
 //@Require('List')
+//@Require('Obj')
 
 
 //-------------------------------------------------------------------------------
@@ -23,8 +23,8 @@ var bugpack             = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var Class               = bugpack.require('Class');
-var EventDispatcher     = bugpack.require('EventDispatcher');
 var List                = bugpack.require('List');
+var Obj                 = bugpack.require('Obj');
 
 
 //-------------------------------------------------------------------------------
