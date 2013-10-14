@@ -28,7 +28,7 @@ var Class               = bugpack.require('Class');
 var List                = bugpack.require('List');
 var Obj                 = bugpack.require('Obj');
 var Set                 = bugpack.require('Set');
-var MeldMirrorDocument  = bugpack.require('meldbug.MeldMirrorDocument');
+var MeldMirrorDocument  = bugpack.require('meldbugserver.MeldMirrorDocument');
 
 
 //-------------------------------------------------------------------------------

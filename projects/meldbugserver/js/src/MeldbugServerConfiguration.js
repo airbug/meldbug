@@ -19,12 +19,10 @@
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldBuilder')
 //@Require('meldbug.MeldStore')
-//@Require('meldbugserver.MeldbugClientApi')
 //@Require('meldbugserver.MeldbugClientConsumerManager')
 //@Require('meldbugserver.MeldManagerFactory')
-//@Require('meldbugserver.MeldMirrorManager')
 //@Require('meldbugserver.MeldMirrorService')
-//@Require('meldbugserver.MeldbugServerService')
+//@Require('meldbugserver.MeldMirrorStore')
 
 
 //-------------------------------------------------------------------------------
@@ -53,12 +51,10 @@ var BugMeta                         = bugpack.require('bugmeta.BugMeta');
 var MeldBucket                      = bugpack.require('meldbug.MeldBucket');
 var MeldBuilder                     = bugpack.require('meldbug.MeldBuilder');
 var MeldStore                       = bugpack.require('meldbug.MeldStore');
-var MeldbugClientApi                = bugpack.require('meldbugserver.MeldbugClientApi');
 var MeldbugClientConsumerManager    = bugpack.require('meldbugserver.MeldbugClientConsumerManager');
 var MeldManagerFactory              = bugpack.require('meldbugserver.MeldManagerFactory');
-var MeldMirrorManager               = bugpack.require('meldbugserver.MeldMirrorManager');
 var MeldMirrorService               = bugpack.require('meldbugserver.MeldMirrorService');
-var MeldbugServerService            = bugpack.require('meldbugserver.MeldbugServerService');
+var MeldMirrorStore                 = bugpack.require('meldbugserver.MeldMirrorStore');
 
 
 //-------------------------------------------------------------------------------
@@ -113,28 +109,11 @@ var MeldbugServerConfiguration = Class.extend(Obj, {
     },
 
     /**
-     * @param {MeldbugClientConsumerManager} meldbugClientConsumerManager
-     * @return {MeldbugClientApi}
-     */
-    meldbugClientApi: function(meldbugClientConsumerManager) {
-        return new MeldbugClientApi(meldbugClientConsumerManager);
-    },
-
-    /**
      * @param {MeldBuilder} meldBuilder
      * @return {MeldbugClientConsumerManager}
      */
     meldbugClientConsumerManager: function(meldBuilder) {
         return new MeldbugClientConsumerManager(meldBuilder);
-    },
-
-    /**
-     * @param {MeldbugClientConsumerManager} meldbugClientConsumerManager
-     * @param {MeldbugClientApi} meldbugClientApi
-     * @return {MeldbugServerService}
-     */
-    meldbugServerService: function(meldbugObjectManager, meldbugClientConsumerManager,  meldbugClientApi) {
-        return new MeldbugServerService(meldbugObjectManager, meldbugClientConsumerManager, meldbugClientApi);
     },
 
     /**
@@ -159,19 +138,20 @@ var MeldbugServerConfiguration = Class.extend(Obj, {
     },
 
     /**
-     * @return {MeldMirrorManager}
+     * @param {BugCallServer} bugCallServer
+     * @param {MeldMirrorStore} meldMirrorStore
+     * @param {MeldbugClientConsumerManager} meldbugClientConsumerManager
+     * @return {MeldMirrorService}
      */
-    meldMirrorManager: function() {
-        return new MeldMirrorManager();
+    meldMirrorService: function(bugCallServer, meldMirrorStore, meldbugClientConsumerManager) {
+        return new MeldMirrorService(bugCallServer, meldMirrorStore, meldbugClientConsumerManager);
     },
 
     /**
-     * @param {BugCallServer} bugCallServer
-     * @param {MeldMirrorManager} meldMirrorManager
-     * @return {MeldMirrorService}
+     * @return {MeldMirrorStore}
      */
-    meldMirrorService: function(bugCallServer, meldMirrorManager) {
-        return new MeldMirrorService(bugCallServer, meldMirrorManager);
+    meldMirrorStore: function() {
+        return new MeldMirrorStore();
     },
 
     /**
@@ -197,29 +177,23 @@ Class.implement(MeldbugServerConfiguration, IConfiguration);
 
 bugmeta.annotate(MeldbugServerConfiguration).with(
     configuration().modules([
-        module("meldbugClientApi")
-            .args([
-                arg().ref("meldbugClientConsumerManager")
-            ]),
         module("meldbugClientConsumerManager")
             .args([
                 arg().ref("meldBuilder")
             ]),
-        module("meldbugServerService")
-            .args([
-                arg().ref("meldbugObjectManager"),
-                arg().ref("meldbugClientConsumerManager"),
-                arg().ref("meldbugClientApi")
-            ]),
         module("meldBuilder"),
         module("meldBucket"),
-        module("meldManagerFactory"),
-        module("meldMirrorManager"),
+        module("meldManagerFactory")
+            .args([
+                arg().ref("meldStore")
+            ]),
         module("meldMirrorService")
             .args([
                 arg().ref("bugCallServer"),
-                arg().ref("meldMirrorManager")
+                arg().ref("meldMirrorStore"),
+                arg().ref("meldbugClientConsumerManager")
             ]),
+        module("meldMirrorStore"),
         module("meldStore")
             .args([
                 arg().ref("meldBucket")

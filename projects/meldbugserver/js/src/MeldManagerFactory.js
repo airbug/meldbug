@@ -8,7 +8,7 @@
 
 //@Require('Class')
 //@Require('Obj')
-//@Require('meldbug.MeldManager')
+//@Require('meldbugserver.MeldManager')
 
 
 //-------------------------------------------------------------------------------
@@ -24,7 +24,7 @@ var bugpack         = require('bugpack').context();
 
 var Class           = bugpack.require('Class');
 var Obj             = bugpack.require('Obj');
-var MeldManager     = bugpack.require('meldbug.MeldManager');
+var MeldManager     = bugpack.require('meldbugserver.MeldManager');
 
 
 //-------------------------------------------------------------------------------
