@@ -9,7 +9,6 @@
 
 //@Require('Class')
 //@Require('Obj')
-//@Require('bugflow.BugFlow')
 //@Require('bugioc.ArgAnnotation')
 //@Require('bugioc.ConfigurationAnnotation')
 //@Require('bugioc.IConfiguration')
@@ -30,9 +29,6 @@
 //-------------------------------------------------------------------------------
 
 var bugpack                         = require('bugpack').context();
-var connect                         = require('connect');
-var express                         = require('express');
-var path                            = require('path');
 
 
 //-------------------------------------------------------------------------------
@@ -41,7 +37,6 @@ var path                            = require('path');
 
 var Class                           = bugpack.require('Class');
 var Obj                             = bugpack.require('Obj');
-var BugFlow                         = bugpack.require('bugflow.BugFlow');
 var ArgAnnotation                   = bugpack.require('bugioc.ArgAnnotation');
 var ConfigurationAnnotation         = bugpack.require('bugioc.ConfigurationAnnotation');
 var IConfiguration                  = bugpack.require('bugioc.IConfiguration');
@@ -67,32 +62,12 @@ var configuration                   = ConfigurationAnnotation.configuration;
 var module                          = ModuleAnnotation.module;
 var property                        = PropertyAnnotation.property;
 
-var $parallel                       = BugFlow.$parallel;
-var $series                         = BugFlow.$series;
-var $task                           = BugFlow.$task;
-
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
 var MeldbugServerConfiguration = Class.extend(Obj, {
-
-    //-------------------------------------------------------------------------------
-    // Constructor
-    //-------------------------------------------------------------------------------
-
-    _constructor: function() {
-
-        this._super();
-
-
-        //-------------------------------------------------------------------------------
-        // Variables
-        //-------------------------------------------------------------------------------
-
-
-    },
 
 
     //-------------------------------------------------------------------------------
