@@ -303,8 +303,30 @@ var MeldBuilder = Class.extend(Obj, {
         var _this = this;
         var marshalled = undefined;
         if (TypeUtil.isObject(data)) {
-            var objectType = TypeUtil.toType(data);
-            if (objectType === "Object") {
+            if (Class.doesExtend(data, Set)) {
+                var marshalledSet = [];
+                data.forEach(function(value) {
+                    marshalledSet.push(_this.marshalData(value));
+                });
+                marshalled = {
+                    type: "Set",
+                    value: marshalledSet
+                };
+            } else if (Class.doesExtend(data, Pair)) {
+                var marshalledPair = {
+                    a: this.marshalData(data.getA()),
+                    b: this.marshalData(data.getB())
+                };
+                marshalled = {
+                    type: "Pair",
+                    value: marshalledPair
+                };
+            } else if (Class.doesExtend(data, Date)) {
+                marshalled = {
+                    type: "Date",
+                    value: data.toString()
+                };
+            } else {
                 var marshalledObject = {};
                 Obj.forIn(data, function(key, value) {
                     marshalledObject[key] = _this.marshalData(value);
@@ -313,34 +335,6 @@ var MeldBuilder = Class.extend(Obj, {
                     type: MeldBuilder.TYPES.OBJECT,
                     value: marshalledObject
                 };
-            } else if (objectType === "Set") {
-                var marshalledSet = [];
-                data.forEach(function(value) {
-                    marshalledSet.push(_this.marshalData(value));
-                });
-                marshalled = {
-                    type: objectType,
-                    value: marshalledSet
-                };
-            } else if (objectType === "Pair") {
-                var marshalledPair = {
-                    a: this.marshalData(data.getA()),
-                    b: this.marshalData(data.getB())
-                };
-                marshalled = {
-                    type: objectType,
-                    value: marshalledPair
-                };
-            } else if (objectType === "Date") {
-                marshalled = {
-                    type: MeldBuilder.TYPES.DATE,
-                    value: data.toString()
-                };
-            } else {
-
-                //TODO BRN: Add a bugmeta system for classes beyond the base ones so that classes can self register
-
-                throw new Error("Unsupported data type cannot be marshalled. objectType:" + objectType + " data:", data);
             }
         } else if (TypeUtil.isArray(data)) {
             var marshalledArray = [];
@@ -400,9 +394,6 @@ var MeldBuilder = Class.extend(Obj, {
             case MeldBuilder.TYPES.BOOLEAN:
                 unmarshalled = marshalledData.value;
                 break;
-            case MeldBuilder.TYPES.DATE:
-                unmarshalled = new Date(marshalledData.value);
-                break;
             case MeldBuilder.TYPES.NULL:
                 unmarshalled = marshalledData.value;
                 break;
@@ -420,6 +411,9 @@ var MeldBuilder = Class.extend(Obj, {
                 break;
             case MeldBuilder.TYPES.UNDEFINED:
                 unmarshalled = marshalledData.value;
+                break;
+            case "Date":
+                unmarshalled = new Date(marshalledData.value);
                 break;
             case "Pair":
                 unmarshalled = new Pair(marshalledData.value.a, marshalledData.value.b);
