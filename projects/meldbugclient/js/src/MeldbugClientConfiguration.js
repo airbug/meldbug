@@ -11,7 +11,6 @@
 //@Require('Obj')
 //@Require('bugioc.ArgAnnotation')
 //@Require('bugioc.ConfigurationAnnotation')
-//@Require('bugioc.IConfiguration')
 //@Require('bugioc.ModuleAnnotation')
 //@Require('bugmeta.BugMeta')
 //@Require('meldbug.MeldBucket')
@@ -26,9 +25,6 @@
 //-------------------------------------------------------------------------------
 
 var bugpack                     = require('bugpack').context();
-var connect                     = require('connect');
-var express                     = require('express');
-var path                        = require('path');
 
 
 //-------------------------------------------------------------------------------
@@ -39,7 +35,6 @@ var Class                       = bugpack.require('Class');
 var Obj                         = bugpack.require('Obj');
 var ArgAnnotation               = bugpack.require('bugioc.ArgAnnotation');
 var ConfigurationAnnotation     = bugpack.require('bugioc.ConfigurationAnnotation');
-var IConfiguration              = bugpack.require('bugioc.IConfiguration');
 var ModuleAnnotation            = bugpack.require('bugioc.ModuleAnnotation');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 var MeldBucket                  = bugpack.require('meldbug.MeldBucket');
@@ -105,13 +100,6 @@ var MeldbugClientConfiguration = Class.extend(Obj, {
         return new MeldbugClientService(meldStore);
     }
 });
-
-
-//-------------------------------------------------------------------------------
-// Interfaces
-//-------------------------------------------------------------------------------
-
-Class.implement(MeldbugClientConfiguration, IConfiguration);
 
 
 //-------------------------------------------------------------------------------
