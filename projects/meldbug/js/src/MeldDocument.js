@@ -10,6 +10,7 @@
 //@Require('Event')
 //@Require('Set')
 //@Require('TypeUtil')
+//@Require('bugdelta.DeltaBuilder')
 //@Require('bugdelta.DeltaDocument')
 //@Require('meldbug.AddToSetOperation')
 //@Require('meldbug.Meld')
@@ -34,6 +35,7 @@ var Class                               = bugpack.require('Class');
 var Event                               = bugpack.require('Event');
 var Set                                 = bugpack.require('Set');
 var TypeUtil                            = bugpack.require('TypeUtil');
+var DeltaBuilder                        = bugpack.require('bugdelta.DeltaBuilder');
 var DeltaDocument                       = bugpack.require('bugdelta.DeltaDocument');
 var AddToSetOperation                   = bugpack.require('meldbug.AddToSetOperation');
 var Meld                                = bugpack.require('meldbug.Meld');
@@ -67,9 +69,15 @@ var MeldDocument = Class.extend(Meld, {
 
         /**
          * @private
+         * @type {DeltaBuilder}
+         */
+        this.deltaBuilder           = new DeltaBuilder();
+
+        /**
+         * @private
          * @type {DeltaDocument}
          */
-        this.deltaDocument            = new DeltaDocument(data);
+        this.deltaDocument          = new DeltaDocument(data);
     },
 
 
@@ -122,12 +130,9 @@ var MeldDocument = Class.extend(Meld, {
      *
      */
     commit: function() {
-        var _this = this;
+        var delta = this.deltaBuilder.buildDelta(this.deltaDocument, this.deltaDocument.getPreviousDocument());
         this.dispatchEvent(new Event(MeldDocument.EventTypes.PROPERTY_CHANGES, {
-
-            //TODO BRN: Fix this!
-
-            changeMap: this.deltaDocument.getPropertyChangeMap()
+            delta: delta
         }));
         this.deltaDocument.commitDelta();
     },
