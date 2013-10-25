@@ -7,7 +7,7 @@
 //@Export('MeldStoreDelegate')
 
 //@Require('Class')
-//@Require('Obj')
+//@Require('EventDispatcher')
 //@Require('Set')
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldDocument')
@@ -26,20 +26,20 @@ var bugpack         = require('bugpack').context();
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class                       = bugpack.require('Class');
-var Obj                         = bugpack.require('Obj');
-var Set                         = bugpack.require('Set');
-var MeldBucket                = bugpack.require('meldbug.MeldBucket');
-var MeldDocument                  = bugpack.require('meldbug.MeldDocument');
-var RemoveObjectPropertyOperation     = bugpack.require('meldbug.RemoveObjectPropertyOperation');
-var SetObjectPropertyOperation        = bugpack.require('meldbug.SetObjectPropertyOperation');
+var Class                           = bugpack.require('Class');
+var EventDispatcher                 = bugpack.require('EventDispatcher');
+var Set                             = bugpack.require('Set');
+var MeldBucket                      = bugpack.require('meldbug.MeldBucket');
+var MeldDocument                    = bugpack.require('meldbug.MeldDocument');
+var RemoveObjectPropertyOperation   = bugpack.require('meldbug.RemoveObjectPropertyOperation');
+var SetObjectPropertyOperation      = bugpack.require('meldbug.SetObjectPropertyOperation');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldStoreDelegate = Class.extend(Obj, {
+var MeldStoreDelegate = Class.extend(EventDispatcher, {
 
     //-------------------------------------------------------------------------------
     // Constructor

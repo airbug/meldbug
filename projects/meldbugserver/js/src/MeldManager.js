@@ -153,6 +153,7 @@ var MeldManager = Class.extend(Obj, {
      * @param {string} reason
      */
     meldCallManagerWithKeyAndReason: function(callManager, meldKey, reason) {
+        console.log("Inside MeldManager#meldCallManagerWithKeyAndReason");
         this.meldMirrorStore.addMeldKeyAndReasonForCallManager(meldKey, reason, callManager);
     },
 

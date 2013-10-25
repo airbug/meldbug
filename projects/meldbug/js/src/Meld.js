@@ -164,9 +164,11 @@ var Meld = Class.extend(EventDispatcher, {
      * @return {number}
      */
     findOperationIndex: function(operationUuid) {
+        console.log("Meld#findOperationIndex");
         for (var i = this.meldOperationList.getCount() - 1; i >= 0; i--) {
             /** @type {MeldOperation} */
             var operation = this.meldOperationList.getAt(i);
+            console.log("operation:", operation);
             if (operation.getUuid() === operationUuid) {
                 return i;
             }
@@ -214,7 +216,12 @@ var Meld = Class.extend(EventDispatcher, {
      * @param {MeldOperation} meldOperation
      */
     meldOperation: function(meldOperation) {
-        meldOperation.setPreviousOperationUuid(this.getLastMeldOperation().getUuid());
+        //Updated needs double checking
+        var lastMeldOperation = this.getLastMeldOperation();
+        if(lastMeldOperation){
+            var lastMeldOperationUuid = lastMeldOperation.getUuid();
+            meldOperation.setPreviousOperationUuid(lastMeldOperationUuid);
+        }
         meldOperation.commit(this.meldBucket);
         this.dispatchEvent(new MeldEvent(MeldEvent.EventTypes.OPERATION, this.meldKey, {
             meldOperation: meldOperation

@@ -137,18 +137,20 @@ var MeldOperation = Class.extend(Obj, {
      * @return {Meld}
      */
     commit: function(meldBucket) {
+        // Updated needs double checking
         var _this = this;
         var meld = meldBucket.getMeld(this.meldKey);
         var revisionIndex = meld.getRevisionIndex(this.previousOperationUuid);
-        if (revisionIndex < 0 || revisionIndex > _this.operationList.getCount()) {
+        var operationList = meld.getMeldOperationList();
+        if (revisionIndex < 0 || revisionIndex > operationList.getCount()) {
             throw new Error("operation revision not in history");
         }
-        var concurrentOperationList = meld.getOperationList().subList(revisionIndex);
+        var concurrentOperationList = meld.getMeldOperationList().subList(revisionIndex);
         concurrentOperationList.forEach(function(concurrentOperation) {
             _this.transform(concurrentOperation);
         });
         var modifiedMeld = this.apply(meldBucket);
-        meld.getOperationList().add(this);
+        meld.getMeldOperationList().add(this);
         return modifiedMeld;
     },
 
@@ -163,7 +165,7 @@ var MeldOperation = Class.extend(Obj, {
      * @return {Meld}
      */
     apply: function(meldBucket) {
-
+        //TODO
     },
 
     /**
@@ -171,7 +173,7 @@ var MeldOperation = Class.extend(Obj, {
      * @param {MeldOperation} meldOperation
      */
     transform: function(meldOperation) {
-
+        //TODO
     }
 });
 
