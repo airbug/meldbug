@@ -119,17 +119,26 @@ var MeldManager = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {function(Error)} callback
+     * @param {function(Throwable)} callback
      */
     commitTransaction: function(callback) {
+        var _this = this;
 
         // Setup listeners on meldStore that listen for operations. When an operation occurs,
         // perform the same changes against meldMirrorManagers that need to know about this changes
 
         this.meldStore.addEventListener(MeldEvent.EventTypes.OPERATION, this.handleMeldStoreOperation, this);
-        this.meldStore.commitMeldTransaction(this.meldTransaction);
-        this.meldStore.removeEventListener(MeldEvent.EventTypes.OPERATION, this.handleMeldStoreOperation, this);
-        this.commitMeldMirrorTransactions(callback);
+        this.meldStore.commitMeldTransaction(this.meldTransaction, function(throwable) {
+            _this.meldStore.removeEventListener(MeldEvent.EventTypes.OPERATION, _this.handleMeldStoreOperation, _this);
+            if (!throwable) {
+                _this.commitMeldMirrorTransactions(callback);
+            } else {
+
+                //TODO BRN: What kind of error handling do we need to do here?
+
+                callback(throwable);
+            }
+        });
     },
 
     /**

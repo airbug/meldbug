@@ -78,7 +78,7 @@ var MeldStore = Class.extend(EventDispatcher, {
 
     /**
      * @param {MeldTransaction} meldTransaction
-     * @param {function(Error)} callback
+     * @param {function(Throwable)} callback
      */
     commitMeldTransaction: function(meldTransaction, callback) {
         var _this = this;
@@ -93,7 +93,9 @@ var MeldStore = Class.extend(EventDispatcher, {
             meld.commit();
         });
 
-        callback();
+        if (callback) {
+            callback();
+        }
     },
 
     /**
