@@ -166,7 +166,7 @@ var MeldMirrorStore = Class.extend(Obj, {
      * @param {string} reason
      * @param {MeldMirror} meldMirror
      */
-    removeMeldKeyForMirror: function(meldKey, meldMirror) {
+    removeMeldKeyFromMirror: function(meldKey, meldMirror) {
         this.meldKeyToMeldMirror.removeKeyValuePair(meldKey, meldMirror);
     }
 });

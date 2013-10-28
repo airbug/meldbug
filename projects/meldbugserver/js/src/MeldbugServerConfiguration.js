@@ -108,8 +108,8 @@ var MeldbugServerConfiguration = Class.extend(Obj, {
     /**
      * @return {MeldManagerFactory}
      */
-    meldManagerFactory: function(meldStore) {
-        return new MeldManagerFactory(meldStore);
+    meldManagerFactory: function(meldStore, meldMirrorStore) {
+        return new MeldManagerFactory(meldStore, meldMirrorStore);
     },
 
     /**
@@ -160,7 +160,8 @@ bugmeta.annotate(MeldbugServerConfiguration).with(
         module("meldBucket"),
         module("meldManagerFactory")
             .args([
-                arg().ref("meldStore")
+                arg().ref("meldStore"),
+                arg().ref("meldMirrorStore")
             ]),
         module("meldMirrorService")
             .args([

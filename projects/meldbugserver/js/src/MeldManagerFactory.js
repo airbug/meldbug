@@ -40,7 +40,7 @@ var MeldManagerFactory = Class.extend(Obj, {
     /**
      *
      */
-    _constructor: function(meldStore) {
+    _constructor: function(meldStore, meldMirrorStore) {
 
         this._super();
 
@@ -51,9 +51,15 @@ var MeldManagerFactory = Class.extend(Obj, {
 
         /**
          * @private
+         * @type {MeldMirrorStore}
+         */
+        this.meldMirrorStore    = meldMirrorStore;
+
+        /**
+         * @private
          * @type {MeldStore}
          */
-        this.meldStore  = meldStore;
+        this.meldStore          = meldStore;
     },
 
 
@@ -65,7 +71,7 @@ var MeldManagerFactory = Class.extend(Obj, {
      * @return {MeldManager}
      */
     factoryManager: function() {
-        return new MeldManager(this.meldStore);
+        return new MeldManager(this.meldStore, this.meldMirrorStore);
     }
 });
 

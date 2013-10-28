@@ -82,10 +82,12 @@ var MeldMirrorService = Class.extend(Obj, {
      * @param {CallManager} callManager
      */
     createConsumer: function(callManager) {
+        console.log("Inside MeldMirrorService#createConsumer");
         if (!this.meldbugClientConsumerManager.hasConsumerForCallManager(callManager)) {
             var consumer = this.meldbugClientConsumerManager.factoryConsumer(this.bugCallServer, callManager);
             this.meldbugClientConsumerManager.addConsumer(consumer);
         } else {
+            console.error("CallManager is already contained in the MeldbugClientConsumerManager:", callManager);
             throw new Error("CallManager is already contained in the MeldbugClientConsumerManager:", callManager);
         }
     },
@@ -99,6 +101,7 @@ var MeldMirrorService = Class.extend(Obj, {
             var meldMirror = this.factoryMeldMirror(callManager, this.meldbugClientConsumerManager.getConsumerForCallManager(callManager));
             this.meldMirrorStore.addMeldMirror(meldMirror);
         } else {
+            console.error("CallManager is already contained in the MeldMirrorManager:", callManager);
             throw new Error("CallManager is already contained in the MeldMirrorManager:", callManager);
         }
     },
@@ -157,6 +160,7 @@ var MeldMirrorService = Class.extend(Obj, {
      * @param {CallEvent} event
      */
     hearBugCallServerCallOpened: function(event) {
+        console.log("Inside MeldMirrorService#hearBugCallServerCallOpened");
         var data            = event.getData();
         var callManager     = data.callManager;
         this.createConsumer(callManager);
