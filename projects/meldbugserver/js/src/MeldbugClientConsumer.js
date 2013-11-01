@@ -72,8 +72,6 @@ var MeldbugClientConsumer = Class.extend(Obj, {
          * @type {MeldBuilder}
          */
         this.meldBuilder    = meldBuilder;
-
-        this.initialize();
     },
 
 
@@ -120,8 +118,8 @@ var MeldbugClientConsumer = Class.extend(Obj, {
                         //TODO BRN: Handle errors...
                     }
                 } else {
-                    if (Class.doesExtend(error, Exception)) {
-                        var exception = error;
+                    if (Class.doesExtend(throwable, Exception)) {
+                        var exception = throwable;
 
                         //TEST
                         console.error(exception);
@@ -138,22 +136,10 @@ var MeldbugClientConsumer = Class.extend(Obj, {
                             callback(exception);
                         }
                     } else {
-                        callback(error);
+                        callback(throwable);
                     }
                 }
             });
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // Private Instance Methods
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @private
-     */
-    initialize: function() {
-        this.callManager.addEventPropagator(this);
     }
 });
 
