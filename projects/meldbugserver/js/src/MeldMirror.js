@@ -69,7 +69,7 @@ var MeldMirror = Class.extend(Obj, {
 
         /**
          * @private
-         * @type {Map.<MeldKey, Set>}
+         * @type {Map.<MeldKey, Set.<string>>}
          */
         this.meldKeyToReasonSetMap          = new Map();
 
@@ -117,7 +117,7 @@ var MeldMirror = Class.extend(Obj, {
      */
     addReasonToMeldKey: function(reason, meldKey){
         var reasonSet = this.meldKeyToReasonSetMap.get(meldKey);
-        if(reasonSet){
+        if (reasonSet) {
             reasonSet.add(reason);
         } else {
             reasonSet = new Set([reason]);
