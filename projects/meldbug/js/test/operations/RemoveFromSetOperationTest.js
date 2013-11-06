@@ -124,48 +124,50 @@ bugmeta.annotate(removeFromSetOperationGetSetValueTest).with(
     test().name("RemoveFromSetOperation - #getSetValue Test")
 );
 
-// var removeFromSetOperationApplyTest = {
+var removeFromSetOperationApplyTest = {
 
-//     //-------------------------------------------------------------------------------
-//     // Setup Test
-//     //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
+    // Setup Test
+    //-------------------------------------------------------------------------------
 
-//     setup: function(test) {
-//         this.id             = "testId";
-//         this.meldType       = "testType";
-//         this.filter         = "basic";
-//         this.meldKey        = new MeldKey(this.meldType, this.id, this.filter);
-//         this.meldBucket     = new MeldBucket();
-//         this.testData       = {"testPath": new Set()};
-//         this.meldDocument   = new MeldDocument(this.meldKey, this.testData);
-//         this.testPath       = "testPath";
-//         this.setValue       = "testSetValue";
-//         this.setValueTwo    = "testSetValueTwo";
-//         this.setValueThree  = "testSetValueThree";
-//         this.meldDocument.addToSet(this.testPath, this.setValue);
-//         this.meldDocument.addToSet(this.testPath, this.setValueTwo);
-//         this.meldDocument.addToSet(this.testPath, this.setValueThree);
-//         this.meldBucket.addMeld(this.meldDocument);
-//         this.removeFromSetOperation = new RemoveFromSetOperation(this.meldKey, this.testPath, this.setValue);
-//     },
+    setup: function(test) {
+        this.id             = "testId";
+        this.meldType       = "testType";
+        this.filter         = "basic";
+        this.meldKey        = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldBucket     = new MeldBucket();
+        this.testData       = {"testPath": new Set()};
+        this.meldDocument   = new MeldDocument(this.meldKey, this.testData);
+        this.testPath       = "testPath";
+        this.setValue       = "testSetValue";
+        this.setValueTwo    = "testSetValueTwo";
+        this.setValueThree  = "testSetValueThree";
+        this.meldDocument.addToSet(this.testPath, this.setValue);
+        this.meldDocument.addToSet(this.testPath, this.setValueTwo);
+        this.meldDocument.addToSet(this.testPath, this.setValueThree);
+        this.meldBucket.addMeld(this.meldDocument);
+        this.removeFromSetOperation = new RemoveFromSetOperation(this.meldKey, this.testPath, this.setValue);
+    },
 
 
-//     //-------------------------------------------------------------------------------
-//     // Run Test
-//     //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
+    // Run Test
+    //-------------------------------------------------------------------------------
 
-//     test: function(test) {
-//         this.editedMeld     = this.removeFromSetOperation.apply(this.meldBucket);
-//         test.assertTrue(Class.doesExtend(this.editedMeld, Meld),
-//             "Assert removeFromSetOperation#apply returns a Meld object");
-//         test.assertFalse(this.editedMeld.getPath(this.testPath).contains(this.setValue),
-//             "Assert 'testSetValue' was removed");
-//         test.assertTrue(this.editedMeld.getPath(this.testPath).contains(this.setValueTwo),
-//             "Assert 'testSetValueTwo was not removed");
-//         test.assertTrue(this.editedMeld.getPath(this.testPath).contains(this.setValueThree),
-//             "Assert 'testSetValueThree' was not removed");
-//     }
-// };
-// bugmeta.annotate(removeFromSetOperationApplyTest).with(
-//     test().name("RemoveFromSetOperation - #apply Test")
-// );
+    test: function(test) {
+        this.editedMeld     = this.removeFromSetOperation.apply(this.meldBucket);
+        test.assertTrue(Class.doesExtend(this.editedMeld, Meld),
+            "Assert removeFromSetOperation#apply returns a Meld object");
+        test.assertTrue(Class.doesExtend(this.editedMeld, MeldDocument),
+            "Assert removeFromSetOperation#apply returns a MeldDocument object");
+        test.assertFalse(this.editedMeld.deltaDocument.getPath(this.testPath).contains(this.setValue),
+            "Assert 'testSetValue' was removed");
+        test.assertTrue(this.editedMeld.deltaDocument.getPath(this.testPath).contains(this.setValueTwo),
+            "Assert 'testSetValueTwo was not removed");
+        test.assertTrue(this.editedMeld.deltaDocument.getPath(this.testPath).contains(this.setValueThree),
+            "Assert 'testSetValueThree' was not removed");
+    }
+};
+bugmeta.annotate(removeFromSetOperationApplyTest).with(
+    test().name("RemoveFromSetOperation - #apply Test")
+);
