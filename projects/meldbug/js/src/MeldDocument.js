@@ -122,7 +122,7 @@ var MeldDocument = Class.extend(Meld, {
         if (Class.doesExtend(value, Set)) {
             value.add(setValue)
         } else {
-            throw new Error("Value at path '" + path + "' is not an Set");
+            throw new Error("Value at path '" + path + "' is not a Set");
         }
     },
 
@@ -187,7 +187,7 @@ var MeldDocument = Class.extend(Meld, {
         if (Class.doesExtend(value, Set)) {
             value.remove(setValue)
         } else {
-            throw new Error("Value at path '" + path + "' is not an Set");
+            throw new Error("Value at path '" + path + "' is not a Set");
         }
     },
 
@@ -221,7 +221,7 @@ var MeldDocument = Class.extend(Meld, {
         if (TypeUtil.isObject(value)) {
             value[propertyName] = propertyValue;
         } else {
-            throw new Error("Value at path '" + path + "' is not an Set");
+            throw new Error("Value at path '" + path + "' is not a Set");
         }
     },
 
