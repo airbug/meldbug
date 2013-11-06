@@ -105,6 +105,8 @@ var meldOperationGetPreviousOperationUuidTest = {
         this.previousOperationUuid  = null;
         this.meldOperationType      = "";
         this.meldOperation          = new MeldOperation(this.meldKey, this.meldOperationType, this.previousOperationUuid);
+        this.previousOperationUuidTwo = "nonNullOperationUuid";
+        this.meldOperationTwo       = new MeldOperation(this.meldKey, this.meldOperationType, this.previousOperationUuidTwo);
     },
 
 
@@ -114,6 +116,8 @@ var meldOperationGetPreviousOperationUuidTest = {
 
     test: function(test) {
         test.assertEqual(this.previousOperationUuid, this.meldOperation.getPreviousOperationUuid(),
+            "Assert meldOperation#getPreviousOperationUuid retrieves correct previousOperationUuid");
+        test.assertEqual(this.previousOperationUuidTwo, this.meldOperationTwo.getPreviousOperationUuid(),
             "Assert meldOperation#getPreviousOperationUuid retrieves correct previousOperationUuid");
     }
 };
@@ -184,11 +188,7 @@ bugmeta.annotate(meldOperationSetPreviousOperationUuidTest).with(
 //     //-------------------------------------------------------------------------------
 
 //     test: function(test) {
-//         test.assertFalse(this.meldBucket.containsMeld(this.meld),
-//             "Assert meldBucket does not contain meld");
-//         this.meldBucket.addMeld(this.meld);
-//         test.assertTrue(this.meldBucket.containsMeld(this.meld),
-//             "Assert the meld has been added");
+
 //     }
 // };
 // bugmeta.annotate(meldOperationCommitTest).with(

@@ -55,6 +55,7 @@ var MeldBucketOperation = Class.extend(MeldOperation, {
     //-------------------------------------------------------------------------------
 
     /**
+     * @override
      * @param {MeldBucket} meldBucket
      * @return {Meld}
      */
