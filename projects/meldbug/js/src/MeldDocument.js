@@ -118,7 +118,7 @@ var MeldDocument = Class.extend(Meld, {
      * @param {*} setValue
      */
     addToSet: function(path, setValue) {
-        var value = this.deltaDocument.getPath(this.path);
+        var value = this.deltaDocument.getPath(path);
         if (Class.doesExtend(value, Set)) {
             value.add(setValue)
         } else {
@@ -183,7 +183,7 @@ var MeldDocument = Class.extend(Meld, {
      * @param {*} setValue
      */
     removeFromSet: function(path, setValue) {
-        var value = this.deltaDocument.getPath(this.path);
+        var value = this.deltaDocument.getPath(path);
         if (Class.doesExtend(value, Set)) {
             value.remove(setValue)
         } else {
@@ -196,7 +196,7 @@ var MeldDocument = Class.extend(Meld, {
      * @param {string} propertyName
      */
     removeObjectProperty: function(path, propertyName) {
-        var value = this.deltaDocument.getPath(this.path);
+        var value = this.deltaDocument.getPath(path);
         if (TypeUtil.isObject(value)) {
             delete value[propertyName];
         } else {
