@@ -63,11 +63,6 @@ var removeFromSetOperationGetPathTest = {
         this.meldDocument   = new MeldDocument(this.meldKey, {"testPath": new Set()});
         this.testPath       = "testPath";
         this.setValue       = "testSetValue";
-        this.setValueTwo    = "testSetValueTwo";
-        this.setValueThree  = "testSetValueThree";
-        this.meldDocument.addToSet(this.testPath, this.setValue);
-        this.meldDocument.addToSet(this.testPath, this.setValueTwo);
-        this.meldDocument.addToSet(this.testPath, this.setValueThree);
         this.meldBucket.addMeld(this.meldDocument);
         this.removeFromSetOperation = new RemoveFromSetOperation(this.meldKey, this.testPath, this.setValue);
     },
@@ -101,11 +96,6 @@ var removeFromSetOperationGetSetValueTest = {
         this.meldDocument   = new MeldDocument(this.meldKey, {"testPath": new Set()});
         this.testPath       = "testPath";
         this.setValue       = "testSetValue";
-        this.setValueTwo    = "testSetValueTwo";
-        this.setValueThree  = "testSetValueThree";
-        this.meldDocument.addToSet(this.testPath, this.setValue);
-        this.meldDocument.addToSet(this.testPath, this.setValueTwo);
-        this.meldDocument.addToSet(this.testPath, this.setValueThree);
         this.meldBucket.addMeld(this.meldDocument);
         this.removeFromSetOperation = new RemoveFromSetOperation(this.meldKey, this.testPath, this.setValue);
     },
