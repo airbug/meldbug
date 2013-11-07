@@ -233,11 +233,13 @@ var removeFromSetOperationCloneTest = {
         this.setValue       = "testSetValue";
         this.setValueTwo    = "testSetValueTwo";
         this.setValueThree  = "testSetValueThree";
+        this.previousOperationUuid = "previousOperationUuid123"
         this.meldDocument.addToSet(this.testPath, this.setValue);
         this.meldDocument.addToSet(this.testPath, this.setValueTwo);
         this.meldDocument.addToSet(this.testPath, this.setValueThree);
         this.meldBucket.addMeld(this.meldDocument);
         this.removeFromSetOperation = new RemoveFromSetOperation(this.meldKey, this.testPath, this.setValue);
+        this.removeFromSetOperation.setPreviousOperationUuid(this.previousOperationUuid);
         this.clone          = this.removeFromSetOperation.clone();
     },
 
@@ -249,6 +251,12 @@ var removeFromSetOperationCloneTest = {
     test: function(test) {
         test.assertTrue(Class.doesExtend(this.clone, RemoveFromSetOperation),
             "Assert that the clone is an instance of RemoveFromSetOperation");
+        test.assertEqual(this.clone.getUuid(), this.removeFromSetOperation.getUuid(),
+            "Assert the clone's uuid is the same as the original's uuid");
+        test.assertEqual(this.clone.getPreviousOperationUuid(), this.removeFromSetOperation.getPreviousOperationUuid(),
+            "Assert the clone's previousOperationUuid is the same as the original's previousOperationUuid");
+        test.assertEqual(this.clone.getType(), this.removeFromSetOperation.getType(),
+            "Assert the clone's type is the same as the original's type");
         test.assertEqual(this.clone.getMeldKey(), this.removeFromSetOperation.getMeldKey(),
             "Assert that the clone's meldKey is equal to the original's meldKey");
         test.assertEqual(this.clone.getPath(), this.removeFromSetOperation.getPath(),

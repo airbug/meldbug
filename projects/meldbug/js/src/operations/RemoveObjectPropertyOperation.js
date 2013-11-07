@@ -89,7 +89,10 @@ var RemoveObjectPropertyOperation = Class.extend(MeldOperation, {
      * @return {*}
      */
     clone: function(deep) {
-        return new RemoveObjectPropertyOperation(this.getMeldKey(), this.getPath(), this.getPropertyName());
+        var clone = new RemoveObjectPropertyOperation(this.getMeldKey(), this.getPath(), this.getPropertyName());
+        clone.setUuid(this.getUuid());
+        clone.setPreviousOperationUuid(this.getPreviousOperationUuid());
+        return clone;
     },
 
 

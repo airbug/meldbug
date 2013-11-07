@@ -165,7 +165,7 @@ var removeObjectPropertyOperationApplyTest = {
             "Assert complexTestPath value is correct");
         test.assertEqual(this.meldDocument.deltaDocument.getPath(this.complexTestPath)[this.testPropertyNameTwo], this.testPropertyValueTwo,
             "Assert testPropertyNameTwo property exists and is equal to 987654321");
-        
+
         this.editedMeld     = this.removeObjectPropertyOperation.apply(this.meldBucket);
         test.assertTrue(Class.doesExtend(this.editedMeld, Meld),
             "Assert removeFromSetOperation#apply returns a Meld object");
@@ -173,7 +173,7 @@ var removeObjectPropertyOperationApplyTest = {
             "Assert removeFromSetOperation#apply returns a MeldDocument object");
         test.assertFalse(this.editedMeld.deltaDocument.getPath(this.testPath)[this.testPropertyName],
             "Assert testPropertyName property was removed");
-        
+
         this.editedMeldTwo  = this.removeObjectPropertyOperationComplex.apply(this.meldBucket);
         test.assertTrue(Class.doesExtend(this.editedMeldTwo, Meld),
             "Assert removeFromSetOperation#apply returns a Meld object");
@@ -234,34 +234,50 @@ bugmeta.annotate(removeObjectPropertyOperationCommitTest).with(
 );
 
 
-// var removeObjectPropertyOperationCloneTest = {
+var removeObjectPropertyOperationCloneTest = {
 
-//     //-------------------------------------------------------------------------------
-//     // Setup Test
-//     //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
+    // Setup Test
+    //-------------------------------------------------------------------------------
 
-//     setup: function(test) {
+    setup: function(test) {
+        this.id                 = "testId";
+        this.meldType           = "testType";
+        this.filter             = "basic";
+        this.testPath           = "testPath";
+        this.testPropertyName   = "testPropertyName";
+        this.testPropertyValue  = 123456789;
+        this.previousOperationUuid = "previousOperationUuid123"
+        this.meldKey            = new MeldKey(this.meldType, this.id, this.filter);
+        this.removeObjectPropertyOperation = new RemoveObjectPropertyOperation(this.meldKey, this.testPath, this.testPropertyName);
+        this.removeObjectPropertyOperation.setPreviousOperationUuid("previousOperationUuid123");
+    },
 
-//     },
 
+    //-------------------------------------------------------------------------------
+    // Run Test
+    //-------------------------------------------------------------------------------
 
-//     //-------------------------------------------------------------------------------
-//     // Run Test
-//     //-------------------------------------------------------------------------------
-
-//     test: function(test) {
-//         test.assertTrue(Class.doesExtend(this.clone, RemoveFromSetOperation),
-//             "Assert that the clone is an instance of RemoveFromSetOperation");
-//         test.assertEqual(this.clone.getMeldKey(), this.removeFromSetOperation.getMeldKey(),
-//             "Assert that the clone's meldKey is equal to the original's meldKey");
-//         test.assertEqual(this.clone.getPath(), this.removeFromSetOperation.getPath(),
-//             "Assert that the clone's path is equal to the original's path");
-//         test.assertEqual(this.clone.getSetValue(), this.removeFromSetOperation.getSetValue(),
-//             "Assert that the clone's setValue is equal to the original's setValue");
-//         test.assertNotEqual(this.clone, this.removeFromSetOperation,
-//             "Assert that the clone is not the same object as the original");
-//     }
-// };
-// bugmeta.annotate(removeObjectPropertyOperationCloneTest).with(
-//     test().name("RemoveObjectPropertyOperation - #clone Test")
-// );
+    test: function(test) {
+        this.clone = this.removeObjectPropertyOperation.clone();
+        test.assertTrue(Class.doesExtend(this.clone, RemoveObjectPropertyOperation),
+            "Assert the clone is an instance of RemoveObjectPropertyOperation");
+        test.assertEqual(this.clone.getUuid(), this.removeObjectPropertyOperation.getUuid(),
+            "Assert the clone's uuid is the same as the original's uuid");
+        test.assertEqual(this.clone.getType(), this.removeObjectPropertyOperation.getType(),
+            "Assert the clone's type is the same as the original's type");
+        test.assertEqual(this.clone.getPreviousOperationUuid(), this.removeObjectPropertyOperation.getPreviousOperationUuid(),
+            "Assert the clone's previousOperationUuid is the same as the original's previousOperationUuid");
+        test.assertEqual(this.clone.getMeldKey(), this.removeObjectPropertyOperation.getMeldKey(),
+            "Assert the clone's meldKey is equal to the original's meldKey");
+        test.assertEqual(this.clone.getPath(), this.removeObjectPropertyOperation.getPath(),
+            "Assert the clone's path is equal to the original's path");
+        test.assertEqual(this.clone.getPropertyName(), this.removeObjectPropertyOperation.getPropertyName(),
+            "Assert the clone's propertyName is equal to the original's propertyName");
+        test.assertNotEqual(this.clone, this.removeObjectPropertyOperation,
+            "Assert the clone is not the same object as the original");
+    }
+};
+bugmeta.annotate(removeObjectPropertyOperationCloneTest).with(
+    test().name("RemoveObjectPropertyOperation - #clone Test")
+);
