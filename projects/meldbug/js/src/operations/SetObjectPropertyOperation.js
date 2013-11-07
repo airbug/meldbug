@@ -98,7 +98,10 @@ var SetObjectPropertyOperation = Class.extend(MeldOperation, {
      * @return {*}
      */
     clone: function(deep) {
-        return new SetObjectPropertyOperation(this.meldKey, this.path, this.propertyName, Obj.clone(this.propertyValue, deep));
+        var clone = new SetObjectPropertyOperation(this.meldKey, this.path, this.propertyName, Obj.clone(this.propertyValue, deep));
+        clone.setUuid(this.uuid);
+        clone.setPreviousOperationUuid(this.previousOperationUuid);
+        return clone;
     },
 
 

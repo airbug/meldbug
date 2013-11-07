@@ -78,7 +78,10 @@ var SetDocumentOperation = Class.extend(MeldOperation, {
      * @return {*}
      */
     clone: function(deep) {
-        return new SetDocumentOperation(this.meldKey, Obj.clone(this.data, deep));
+        var clone = new SetDocumentOperation(this.meldKey, Obj.clone(this.data, deep));
+        clone.setUuid(this.uuid);
+        clone.setPreviousOperationUuid(this.previousOperationUuid);
+        return clone;
     },
 
 

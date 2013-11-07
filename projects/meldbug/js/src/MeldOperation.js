@@ -114,6 +114,13 @@ var MeldOperation = Class.extend(Obj, {
         return this.uuid;
     },
 
+    /**
+     * @protected
+     */
+    setUuid: function(uuid) {
+        this.uuid = uuid;
+    },
+
 
     //-------------------------------------------------------------------------------
     // IClone Implementation

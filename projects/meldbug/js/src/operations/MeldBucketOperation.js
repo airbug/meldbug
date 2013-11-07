@@ -38,9 +38,9 @@ var MeldBucketOperation = Class.extend(MeldOperation, {
     /**
      *
      */
-    _constructor: function(meldKey, type) {
+    _constructor: function(meldKey) {
 
-        this._super(meldKey, type);
+        this._super(meldKey, MeldBucketOperation.TYPE);
 
 
         //-------------------------------------------------------------------------------
@@ -54,6 +54,13 @@ var MeldBucketOperation = Class.extend(MeldOperation, {
     // Public Methods
     //-------------------------------------------------------------------------------
 
+    clone: function(deep) {
+        var clone = new MeldBucketOperation(this.meldKey);
+        clone.setUuid(this.uuid);
+        clone.setPreviousOperationUuid(this.previousOperationUuid);
+        return clone;
+    },
+
     /**
      * @override
      * @param {MeldBucket} meldBucket
@@ -64,6 +71,15 @@ var MeldBucketOperation = Class.extend(MeldOperation, {
     }
 });
 
+//-------------------------------------------------------------------------------
+// Static Variables
+//-------------------------------------------------------------------------------
+
+/**
+ * @static
+ * @const {string}
+ */
+MeldBucketOperation.TYPE = "MeldBucketOperation";
 
 //-------------------------------------------------------------------------------
 // Exports

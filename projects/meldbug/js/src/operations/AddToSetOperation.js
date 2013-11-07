@@ -91,7 +91,10 @@ var AddToSetOperation = Class.extend(MeldOperation, {
      * @return {*}
      */
     clone: function(deep) {
-        return new AddToSetOperation(this.getMeldKey(), this.getPath(), Obj.clone(this.getSetValue(), deep));
+        var clone = new AddToSetOperation(this.getMeldKey(), this.getPath(), Obj.clone(this.getSetValue(), deep));
+        clone.setUuid(this.uuid);
+        clone.setPreviousOperationUuid(this.previousOperationUuid);
+        return clone;
     },
 
 

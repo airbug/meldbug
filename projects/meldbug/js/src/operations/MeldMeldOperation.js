@@ -76,7 +76,10 @@ var MeldMeldOperation = Class.extend(MeldBucketOperation, {
      * @return {*}
      */
     clone: function(deep) {
-        return new MeldMeldOperation(this.meldKey, this.meld.clone(deep));
+        var clone = new MeldMeldOperation(this.meldKey, this.meld.clone(deep));
+        clone.setUuid(this.uuid);
+        clone.setPreviousOperationUuid(this.previousOperationUuid);
+        return clone;
     },
 
 
