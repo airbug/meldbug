@@ -47,6 +47,43 @@ var test                    = TestAnnotation.test;
 // Declare Tests
 //-------------------------------------------------------------------------------
 
+var meldOperationInstantiationTest = {
+
+    //-------------------------------------------------------------------------------
+    // Setup Test
+    //-------------------------------------------------------------------------------
+
+    setup: function(test) {
+        this.id                         = "testId";
+        this.meldType                   = "TestType";
+        this.filter                     = "basic";
+        this.testUuid                   = "testUuid";
+        this.testPreviousOperationUuid  = "testPreviousOperationUuid";
+        this.meldKey                    = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldOperationType          = "testMeldOperationType";
+        this.meldOperation              = new MeldOperation(this.meldKey, this.meldOperationType, this.testPreviousOperationUuid);
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Run Test
+    //-------------------------------------------------------------------------------
+
+    test: function(test) {
+        test.assertTrue(!!this.meldOperation.uuid,
+            "Assert meldOperation uuid is defined and not null");
+        test.assertEqual(this.meldOperation.meldKey, this.meldKey,
+            "Assert meldOperation.meldKey is the meldKey passed in at construction");
+        test.assertEqual(this.meldOperation.type, this.meldOperationType,
+            "Assert meldOperation.type is the type passed in at construction");
+        test.assertEqual(this.meldOperation.previousOperationUuid, this.testPreviousOperationUuid,
+            "Assert meldOperation.previousOperationUuid is the previousOperationUuid passed in at construction");
+    }
+};
+bugmeta.annotate(meldOperationInstantiationTest).with(
+    test().name("MeldOperation - instantiation Test")
+);
+
 var meldOperationGetMeldKeyTest = {
 
     //-------------------------------------------------------------------------------
@@ -57,9 +94,7 @@ var meldOperationGetMeldKeyTest = {
         this.id                     = "testId";
         this.meldType               = "TestType";
         this.filter                 = "basic";
-        this.meldBucket             = new MeldBucket();
         this.meldKey                = new MeldKey(this.meldType, this.id, this.filter);
-        this.meld                   = new Meld(this.meldKey, this.meldType);
         this.previousOperationUuid  = null;
         this.meldOperationType      = "";
         this.meldOperation          = new MeldOperation(this.meldKey, this.meldOperationType, this.previousOperationUuid);
@@ -89,9 +124,7 @@ var meldOperationGetPreviousOperationUuidTest = {
         this.id                     = "testId";
         this.meldType               = "TestType";
         this.filter                 = "basic";
-        this.meldBucket             = new MeldBucket();
         this.meldKey                = new MeldKey(this.meldType, this.id, this.filter);
-        this.meld                   = new Meld(this.meldKey, this.meldType);
         this.previousOperationUuid  = null;
         this.meldOperationType      = "";
         this.meldOperation          = new MeldOperation(this.meldKey, this.meldOperationType, this.previousOperationUuid);
@@ -115,6 +148,36 @@ bugmeta.annotate(meldOperationGetPreviousOperationUuidTest).with(
     test().name("MeldOperation - #getPreviousOperationUuid Test")
 );
 
+var meldOperationGetUuidTest = {
+
+    //-------------------------------------------------------------------------------
+    // Setup Test
+    //-------------------------------------------------------------------------------
+
+    setup: function(test) {
+        this.id                     = "testId";
+        this.meldType               = "TestType";
+        this.filter                 = "basic";
+        this.testUuid               = "testUuid";
+        this.meldKey                = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldOperationType      = "";
+        this.meldOperation          = new MeldOperation(this.meldKey, this.meldOperationType, null);
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Run Test
+    //-------------------------------------------------------------------------------
+
+    test: function(test) {
+        test.assertEqual(this.meldOperation.uuid, this.meldOperation.getUuid(),
+            "Assert meldOperation#getUuid retrieves correct uuid");
+    }
+};
+bugmeta.annotate(meldOperationGetUuidTest).with(
+    test().name("MeldOperation - #getUuid Test")
+);
+
 var meldOperationSetPreviousOperationUuidTest = {
 
     //-------------------------------------------------------------------------------
@@ -125,9 +188,7 @@ var meldOperationSetPreviousOperationUuidTest = {
         this.id                     = "testId";
         this.meldType               = "TestType";
         this.filter                 = "basic";
-        this.meldBucket             = new MeldBucket();
         this.meldKey                = new MeldKey(this.meldType, this.id, this.filter);
-        this.meld                   = new Meld(this.meldKey, this.meldType);
         this.previousOperationUuid  = null;
         this.meldOperationType      = "";
         this.meldOperation          = new MeldOperation(this.meldKey, this.meldOperationType, this.previousOperationUuid);
@@ -151,6 +212,38 @@ var meldOperationSetPreviousOperationUuidTest = {
 };
 bugmeta.annotate(meldOperationSetPreviousOperationUuidTest).with(
     test().name("MeldOperation - #setPreviousOperationUuid Test")
+);
+
+var meldOperationSetUuidTest = {
+
+    //-------------------------------------------------------------------------------
+    // Setup Test
+    //-------------------------------------------------------------------------------
+
+    setup: function(test) {
+        this.id                     = "testId";
+        this.meldType               = "TestType";
+        this.filter                 = "basic";
+        this.meldKey                = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldOperationType      = "";
+        this.meldOperation          = new MeldOperation(this.meldKey, this.meldOperationType, this.previousOperationUuid);
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Run Test
+    //-------------------------------------------------------------------------------
+
+    test: function(test) {
+        this.newUuid = "newUuid";
+        this.meldOperation.setUuid(this.newUuid);
+
+        test.assertEqual(this.meldOperation.uuid, this.newUuid,
+            "Assert meldOperation.uuid is set to the new uuid");
+    }
+};
+bugmeta.annotate(meldOperationSetUuidTest).with(
+    test().name("MeldOperation - #setUuid Test")
 );
 
 var meldOperationApplyTest = {
