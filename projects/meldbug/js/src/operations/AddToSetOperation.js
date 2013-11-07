@@ -100,6 +100,7 @@ var AddToSetOperation = Class.extend(MeldOperation, {
     //-------------------------------------------------------------------------------
 
     /**
+     * @override
      * @param {MeldBucket} meldBucket
      * @return {Meld}
      */

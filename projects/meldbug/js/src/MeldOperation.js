@@ -165,7 +165,7 @@ var MeldOperation = Class.extend(Obj, {
      * @return {Meld}
      */
     apply: function(meldBucket) {
-        //TODO
+        return meldBucket.getMeld(this.meldKey);
     },
 
     /**

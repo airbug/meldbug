@@ -107,6 +107,7 @@ var SetObjectPropertyOperation = Class.extend(MeldOperation, {
     //-------------------------------------------------------------------------------
 
     /**
+     * @override
      * @param {MeldBucket} meldBucket
      * @return {Meld}
      */
