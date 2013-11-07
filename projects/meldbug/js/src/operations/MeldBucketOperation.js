@@ -38,9 +38,9 @@ var MeldBucketOperation = Class.extend(MeldOperation, {
     /**
      *
      */
-    _constructor: function(meldKey) {
+    _constructor: function(meldKey, type) {
 
-        this._super(meldKey, MeldBucketOperation.TYPE);
+        this._super(meldKey, type);
 
 
         //-------------------------------------------------------------------------------
@@ -70,16 +70,6 @@ var MeldBucketOperation = Class.extend(MeldOperation, {
         return this.apply(meldBucket);
     }
 });
-
-//-------------------------------------------------------------------------------
-// Static Variables
-//-------------------------------------------------------------------------------
-
-/**
- * @static
- * @const {string}
- */
-MeldBucketOperation.TYPE = "MeldBucketOperation";
 
 //-------------------------------------------------------------------------------
 // Exports
