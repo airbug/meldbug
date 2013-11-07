@@ -36,6 +36,7 @@ var bugpack                 = require('bugpack').context();
 // BugPack
 //-------------------------------------------------------------------------------
 
+var Class                   = bugpack.require('Class');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
 var TestAnnotation          = bugpack.require('bugunit-annotate.TestAnnotation');
 var Meld                    = bugpack.require('meldbug.Meld');
@@ -197,7 +198,6 @@ var meldOperationApplyTest = {
 
     test: function(test) {
         this.editedMeld         = this.meldOperation.apply(this.meldBucket);
-        var meldOperationList   = this.editedMeldTwo.getMeldOperationList();
 
         test.assertTrue(Class.doesExtend(this.editedMeld, Meld),
             "Assert meldOperation#apply returns a Meld object");
