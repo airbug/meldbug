@@ -5,24 +5,13 @@
 //@TestFile
 
 //@Require('Class')
-//@Require('EventDispatcher')
-//@Require('Map')
 //@Require('bugmeta.BugMeta')
 //@Require('bugunit-annotate.TestAnnotation')
 //@Require('meldbug.Meld')
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldDocument')
-//@Require('meldbug.MeldEvent')
 //@Require('meldbug.MeldKey')
 //@Require('meldbug.MeldOperation')
-//@Require('meldbug.RemoveMeldOperation')
-
-
-//@Require('Class')
-//@Require('Obj')
-//@Require('UuidGenerator')
-//@Requre('meldbug.MeldOperation')
-
 
 
 //-------------------------------------------------------------------------------
@@ -42,10 +31,8 @@ var TestAnnotation          = bugpack.require('bugunit-annotate.TestAnnotation')
 var Meld                    = bugpack.require('meldbug.Meld');
 var MeldBucket              = bugpack.require('meldbug.MeldBucket');
 var MeldDocument            = bugpack.require('meldbug.MeldDocument');
-var MeldEvent               = bugpack.require('meldbug.MeldEvent');
 var MeldKey                 = bugpack.require('meldbug.MeldKey');
 var MeldOperation           = bugpack.require('meldbug.MeldOperation');
-var RemoveMeldOperation     = bugpack.require('meldbug.RemoveMeldOperation');
 
 
 //-------------------------------------------------------------------------------
