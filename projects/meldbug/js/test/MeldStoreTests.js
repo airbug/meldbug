@@ -7,6 +7,7 @@
 //@Require('meldbug.Meld')
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldKey')
+//@Require('meldbug.MeldMeldOperation')
 //@Require('meldbug.MeldStore')
 //@Require('meldbug.MeldTransaction')
 //@Require('bugmeta.BugMeta')
@@ -28,6 +29,7 @@ var mongoose                = require('mongoose');
 var Meld                    = bugpack.require('meldbug.Meld');
 var MeldBucket              = bugpack.require('meldbug.MeldBucket');
 var MeldKey                 = bugpack.require('meldbug.MeldKey');
+var MeldMeldOperation       = bugpack.require('meldbug.MeldMeldOperation');
 var MeldStore               = bugpack.require('meldbug.MeldStore');
 var MeldTransaction         = bugpack.require('meldbug.MeldTransaction');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
@@ -75,18 +77,21 @@ bugmeta.annotate(meldStoreInstantiationTest).with(
 
 var meldStoreCommitMeldTransactionTest = {
 
+    async: true,
+
     //-------------------------------------------------------------------------------
     // Setup Test
     //-------------------------------------------------------------------------------
 
     setup: function(test) {
         var _this = this;
-        var meldKey                 = new MeldKey("array", "basic", "id");
-        this.meld                   = new Meld(meldKey, "type");
+        this.testMeldKey            = new MeldKey("array", "basic", "id");
+        this.testMeld               = new Meld(this.testMeldKey, "type");
         this.testMeldBucket         = new MeldBucket();
         this.testMeldStore          = new MeldStore(this.testMeldBucket);
         this.testMeldTransaction    = new MeldTransaction();
-
+        this.testMeldMeldOperation  = new MeldMeldOperation(this.testMeldKey, this.testMeld);
+        this.testMeldTransaction.addMeldOperation(this.testMeldMeldOperation);
     },
 
 
@@ -96,11 +101,17 @@ var meldStoreCommitMeldTransactionTest = {
 
     test: function(test) {
         var _this = this;
-        // test getMeldBucket
-        // test commitMeldTransaction
-        // test containsMeldByKey
-        // test getMeld
-        // test getEachMeld
+        this.testMeldStore.commitMeldTransaction(this.testMeldTransaction, function(throwable) {
+            if (throwable) {
+                test.error(throwable);
+            } else {
+                test.assertTrue(_this.testMeldStore.containsMeldByKey(_this.testMeldKey),
+                    "Assert testMeldStore contains MeldKey");
+                test.assertEqual(_this.testMeldStore.getMeld(_this.testMeldKey), _this.testMeld,
+                    "Assert the Meld returned by testMeldStore.getMeld() is testMeld");
+            }
+            test.complete();
+        });
     }
 };
 bugmeta.annotate(meldStoreCommitMeldTransactionTest).with(
