@@ -42,7 +42,7 @@ var BugFlow                             = bugpack.require('bugflow.BugFlow');
 var MeldEvent                           = bugpack.require('meldbug.MeldEvent');
 var MeldKey                             = bugpack.require('meldbug.MeldKey');
 var MeldMeldOperation                   = bugpack.require('meldbug.MeldMeldOperation');
-var MeldDocument                          = bugpack.require('meldbug.MeldDocument');
+var MeldDocument                        = bugpack.require('meldbug.MeldDocument');
 var MeldStoreDelegate                   = bugpack.require('meldbug.MeldStoreDelegate');
 var MeldTransaction                     = bugpack.require('meldbug.MeldTransaction');
 var RemoveObjectPropertyOperation       = bugpack.require('meldbug.RemoveObjectPropertyOperation');
@@ -126,6 +126,9 @@ var MeldManager = Class.extend(Obj, {
 
         // Setup listeners on meldStore that listen for operations. When an operation occurs,
         // perform the same changes against meldMirrorManagers that need to know about this changes
+
+        //TEST
+        console.log("MeldManager#commitTransaction - transaction:", this.meldTransaction.getMeldOperationList().toArray());
 
         this.meldStore.addEventListener(MeldEvent.EventTypes.OPERATION, this.handleMeldStoreOperation, this);
         this.meldStore.commitMeldTransaction(this.meldTransaction, function(throwable) {
