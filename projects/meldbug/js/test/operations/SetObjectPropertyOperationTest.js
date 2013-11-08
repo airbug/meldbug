@@ -73,6 +73,8 @@ var setObjectPropertyOperationInstantiationTest = {
             "Assert setObjectPropertyOperation's meldKey property is set to the meldKey given at construction");
         test.assertEqual(this.setObjectPropertyOperation.path, this.testPath,
             "Assert setObjectPropertyOperation's path property is set to the path given at construction");
+        test.assertEqual(this.setObjectPropertyOperation.type, SetObjectPropertyOperation.TYPE,
+            "Assert setObjectPropertyOperation's type is set to the value of SetObjectPropertyOperation.TYPE");
         test.assertEqual(this.setObjectPropertyOperation.propertyName, this.testPropertyName,
             "Assert setObjectPropertyOperation's propertyName property is set to the propertyName given at construction");
         test.assertEqual(this.setObjectPropertyOperation.propertyValue, this.testPropertyValue,

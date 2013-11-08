@@ -48,6 +48,41 @@ var test                    = TestAnnotation.test;
 //-------------------------------------------------------------------------------
 // Declare Tests
 //-------------------------------------------------------------------------------
+
+var removeObjectPropertyOperationInstantiationTest = {
+
+    //-------------------------------------------------------------------------------
+    // Setup Test
+    //-------------------------------------------------------------------------------
+
+    setup: function(test) {
+        this.meldKey                = new MeldKey("TestType", "testId", "basic");
+        this.testPath               = "testPath";
+        this.testPropertyName       = "testPropertyName";
+        this.testPropertyValue      = "testPropertyValue";
+        this.removeObjectPropertyOperation      = new RemoveObjectPropertyOperation(this.meldKey, this.testPath, this.testPropertyName, this.testPropertyValue);
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Run Test
+    //-------------------------------------------------------------------------------
+
+    test: function(test) {
+        test.assertEqual(this.removeObjectPropertyOperation.meldKey, this.meldKey,
+            "Assert removeObjectPropertyOperation's meldKey property is set to the meldKey given at construction");
+        test.assertEqual(this.removeObjectPropertyOperation.path, this.testPath,
+            "Assert removeObjectPropertyOperation's path property is set to the path given at construction");
+        test.assertEqual(this.removeObjectPropertyOperation.type, RemoveObjectPropertyOperation.TYPE,
+            "Assert removeObjectPropertyOperation's type is set to the value of RemoveObjectPropertyOperation.TYPE");
+        test.assertEqual(this.removeObjectPropertyOperation.propertyName, this.testPropertyName,
+            "Assert removeObjectPropertyOperation's propertyName property is set to the propertyName given at construction");
+    }
+};
+bugmeta.annotate(removeObjectPropertyOperationInstantiationTest).with(
+    test().name("RemoveObjectPropertyOperation - instantiation Test")
+);
+
 var removeObjectPropertyOperationGetPathTest = {
 
     //-------------------------------------------------------------------------------
