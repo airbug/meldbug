@@ -53,6 +53,12 @@ var SetObjectPropertyOperation = Class.extend(MeldOperation, {
          * @private
          * @type {string}
          */
+        this.path           = path;
+
+        /**
+         * @private
+         * @type {string}
+         */
         this.propertyName   = propertyName;
 
         /**
