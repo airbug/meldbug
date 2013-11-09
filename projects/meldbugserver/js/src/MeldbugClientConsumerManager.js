@@ -105,7 +105,7 @@ var MeldbugClientConsumerManager = Class.extend(Obj, {
      * @param {CallManager} callManager
      */
     removeConsumerForCallManager: function(callManager) {
-         this.callManagerToConsumerMap.remove(callManager);
+        this.callManagerToConsumerMap.remove(callManager);
     }
 });
 
