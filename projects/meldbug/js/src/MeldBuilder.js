@@ -282,7 +282,7 @@ var MeldBuilder = Class.extend(Obj, {
     unbuildMeldTransaction: function(meldTransaction) {
         var _this = this;
         var meldOperationList = [];
-        this.meldOperationList.forEach(function(meldOperation) {
+        meldTransaction.getMeldOperationList().forEach(function(meldOperation) {
             meldOperationList.push(_this.unbuildMeldOperation(meldOperation));
         });
         return {
