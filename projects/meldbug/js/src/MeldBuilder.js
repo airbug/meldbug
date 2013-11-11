@@ -118,7 +118,7 @@ var MeldBuilder = Class.extend(Obj, {
      */
     buildMeldDocument: function(meldDocumentData) {
         var meldKey                 = this.buildMeldKey(meldDocumentData.meldKey);
-        var meldData                = this.unmarshallData(meldDocumentData.data);
+        var meldData                = this.unmarshalData(meldDocumentData.data);
         var meldDocument            = new MeldDocument(meldKey, meldData);
         var meldOperationList       = this.buildMeldOperationList(meldDocumentData.meldOperationList);
         meldDocument.setMeldOperationList(meldOperationList);
@@ -132,6 +132,7 @@ var MeldBuilder = Class.extend(Obj, {
     unbuildMeldDocument: function(meldDocument) {
         return {
             meldKey: meldDocument.getMeldKey(),
+            meldType: MeldDocument.TYPE,
             data: this.marshalData(meldDocument.getData()),
             meldOperationList: this.unbuildMeldOperationList(meldDocument.getMeldOperationList())
         };

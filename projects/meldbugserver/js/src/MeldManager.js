@@ -130,9 +130,8 @@ var MeldManager = Class.extend(Obj, {
         //TEST
         console.log("MeldManager#commitTransaction - transaction:", this.meldTransaction.getMeldOperationList().toArray());
 
-        this.meldStore.addEventListener(MeldEvent.EventTypes.OPERATION, this.handleMeldStoreOperation, this);
+        this.buildMeldMirrorTransactions();
         this.meldStore.commitMeldTransaction(this.meldTransaction, function(throwable) {
-            _this.meldStore.removeEventListener(MeldEvent.EventTypes.OPERATION, _this.handleMeldStoreOperation, _this);
             if (!throwable) {
                 _this.commitMeldMirrorTransactions(callback);
             } else {
@@ -198,9 +197,32 @@ var MeldManager = Class.extend(Obj, {
 
     /**
      * @private
+     */
+    buildMeldMirrorTransactions: function() {
+        var _this = this;
+        this.meldTransaction.getMeldOperationList().forEach(function(meldOperation) {
+            meldOperation               = meldOperation.clone(true);
+            var meldMirrorManagerSet    = _this.generateMeldMirrorManagersForMeldKey(meldOperation.getMeldKey());
+            meldMirrorManagerSet.forEach(function(meldMirrorManager) {
+                if (meldOperation.getType() === MeldMeldOperation.TYPE) {
+                    if (!meldMirrorManager.containsMeldByKey(meldOperation.getMeldKey())) {
+                        meldMirrorManager.addMeldOperation(meldOperation);
+                    }
+                } else {
+                    meldMirrorManager.addMeldOperation(meldOperation);
+                }
+            });
+        });
+    },
+
+    /**
+     * @private
      * @param {function(Error)} callback
      */
     commitMeldMirrorTransactions: function(callback) {
+        //TEST
+        console.log("MeldManager#commitMeldMirrorTransactions - this.meldMirrorToMeldMirrorManagerMap.getValueArray():", this.meldMirrorToMeldMirrorManagerMap.getValueArray());
+
         $forEachParallel(this.meldMirrorToMeldMirrorManagerMap.getValueArray(), function(flow, meldMirrorManager) {
             meldMirrorManager.commitTransaction(function(error) {
                 flow.complete(error);
@@ -250,18 +272,6 @@ var MeldManager = Class.extend(Obj, {
      */
     generateTransaction: function() {
         this.meldTransaction = new MeldTransaction();
-        /*if (!this.meldTransaction) {
-            var lastMeldOperation               = this.getLastMeldOperation();
-            var startingMeldTransactionUuid     = "";
-            if (lastMeldOperation) {
-                startingMeldTransactionUuid = lastMeldOperation.getUuid();
-            }
-            this.meldTransaction = new MeldTransaction(this.meldId, startingMeldTransactionUuid);
-            this.dispatchEvent(new Event(Meld.EventTypes.TRANSACTION, {
-                transaction: this.meldTransaction
-            }))
-        }
-        return this.meldTransaction;*/
     },
 
     /**
@@ -287,29 +297,8 @@ var MeldManager = Class.extend(Obj, {
 
         var meldOperation = meldEvent.getData().meldOperation.clone(true);
         this.meldTransaction.addMeldOperation(meldOperation);
-    },
-
-    /**
-     * @private
-     * @param {MeldEvent} meldEvent
-     */
-    handleMeldStoreOperation: function(meldEvent) {
-        /** @type {MeldOperation} */
-        var meldOperation           = meldEvent.getData().meldOperation.clone(true);
-        var meldMirrorManagerSet    = this.generateMeldMirrorManagersForMeldKey(meldOperation.getMeldKey());
-
-        meldMirrorManagerSet.forEach(function(meldMirrorManager) {
-            if (meldOperation.getType() === MeldMeldOperation.TYPE) {
-                if (!meldMirrorManager.containsMeldByKey(meldOperation.getMeldKey())) {
-                    meldMirrorManager.addMeldOperation(meldOperation);
-                }
-            } else {
-                meldMirrorManager.addMeldOperation(meldOperation);
-            }
-        });
     }
 });
-
 
 
 //-------------------------------------------------------------------------------

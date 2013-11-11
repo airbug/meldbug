@@ -93,7 +93,14 @@ var MeldMeldOperation = Class.extend(MeldBucketOperation, {
      * @return {Meld}
      */
     apply: function(meldBucket) {
-        meldBucket.addMeld(this.meld);
+
+        //NOTE BRN: It it possible for a MeldMeldOperation to be run against the store when one already exists.
+        // This is because  a MeldMeldOperation is always added when an entity is melded so that mirrors that don't
+        // have the meld will be given it.
+
+        if (!meldBucket.containsMeld(this.meld)) {
+            meldBucket.addMeld(this.meld);
+        }
         return this.meld;
     },
 

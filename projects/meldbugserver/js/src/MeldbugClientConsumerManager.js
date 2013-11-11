@@ -82,7 +82,7 @@ var MeldbugClientConsumerManager = Class.extend(Obj, {
      * @return {MeldbugClientConsumer}
      */
     factoryConsumer: function(bugCallServer, callManager) {
-        return new MeldbugClientConsumer(bugCallServer, callManager);
+        return new MeldbugClientConsumer(bugCallServer, callManager, this.meldBuilder);
     },
 
     /**
