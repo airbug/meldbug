@@ -11,6 +11,7 @@
 //@Require('Obj')
 //@Require('bugioc.ArgAnnotation')
 //@Require('bugioc.ConfigurationAnnotation')
+//@Require('bugioc.IConfiguration')
 //@Require('bugioc.ModuleAnnotation')
 //@Require('bugmeta.BugMeta')
 //@Require('meldbug.MeldBucket')
@@ -35,6 +36,7 @@ var Class                       = bugpack.require('Class');
 var Obj                         = bugpack.require('Obj');
 var ArgAnnotation               = bugpack.require('bugioc.ArgAnnotation');
 var ConfigurationAnnotation     = bugpack.require('bugioc.ConfigurationAnnotation');
+var IConfiguration              = bugpack.require('bugioc.IConfiguration');
 var ModuleAnnotation            = bugpack.require('bugioc.ModuleAnnotation');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 var MeldBucket                  = bugpack.require('meldbug.MeldBucket');
@@ -60,7 +62,44 @@ var module                  = ModuleAnnotation.module;
 //-------------------------------------------------------------------------------
 
 var MeldbugClientConfiguration = Class.extend(Obj, {
+    
+    //-------------------------------------------------------------------------------
+    // Constructor
+    //-------------------------------------------------------------------------------
 
+    _constructor: function() {
+
+        this._super();
+
+
+        //-------------------------------------------------------------------------------
+        // Declare Variables
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @private
+         * @type {MeldbugClientController}
+         */
+        this._meldbugClientController             = null;
+    },
+
+    //-------------------------------------------------------------------------------
+    // Configuration Lifecycle
+    //-------------------------------------------------------------------------------
+
+     /**
+      * @param {function(Error)}
+      */
+    initializeConfiguration: function(callback) {
+        var meldbugClientController = this._meldbugClientController;
+        console.log("MeldbugClientConfiguration#initializeConfiguration ");
+        meldbugClientController.configure(function(error) {
+            if (error) {
+                throw new Error("Error configuring meldbugClientController routes " + error);
+            }
+        });
+    },
+    
     /**
      * @return {MeldBuilder}
      */
@@ -88,8 +127,9 @@ var MeldbugClientConfiguration = Class.extend(Obj, {
      * @param {MeldbugClientService} meldbugClientService
      * @return {*}
      */
-    meldbugClientController: function(bugCallRouter, meldbugClientService) {
-        return new MeldbugClientController(bugCallRouter, meldbugClientService);
+    meldbugClientController: function(bugCallRouter, meldbugClientService, meldBuilder) {
+        this._meldbugClientController = new MeldbugClientController(bugCallRouter, meldbugClientService, meldBuilder);
+        return this._meldbugClientController;
     },
 
     /**
@@ -103,6 +143,13 @@ var MeldbugClientConfiguration = Class.extend(Obj, {
 
 
 //-------------------------------------------------------------------------------
+// Interfaces
+//-------------------------------------------------------------------------------
+
+Class.implement(MeldbugClientConfiguration, IConfiguration);
+
+
+//-------------------------------------------------------------------------------
 // BugMeta
 //-------------------------------------------------------------------------------
 
@@ -111,7 +158,8 @@ bugmeta.annotate(MeldbugClientConfiguration).with(
         module("meldbugClientController")
             .args([
                 arg().ref("bugCallRouter"),
-                arg().ref("meldbugClientService")
+                arg().ref("meldbugClientService"),
+                arg().ref("meldBuilder")
             ]),
         module("meldbugClientService")
             .args([
