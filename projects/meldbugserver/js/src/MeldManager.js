@@ -247,9 +247,11 @@ var MeldManager = Class.extend(Obj, {
         var _this = this;
         var meldMirrorManagerSet = new Set();
         var meldMirrorSet = this.meldMirrorStore.getMeldMirrorSetForMeldKey(meldKey);
-        meldMirrorSet.forEach(function(meldMirror) {
-            meldMirrorManagerSet.add(_this.generateMeldMirrorManager(meldMirror));
-        });
+        if (meldMirrorSet) {
+            meldMirrorSet.forEach(function(meldMirror) {
+                meldMirrorManagerSet.add(_this.generateMeldMirrorManager(meldMirror));
+            });
+        }
         return meldMirrorManagerSet;
     },
 

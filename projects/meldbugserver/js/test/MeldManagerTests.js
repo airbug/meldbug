@@ -15,9 +15,9 @@
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldStore')
 //@Require('bugcall.CallEvent')
+//@Require('meldbugserver.MeldbugClientConsumerManager')
 //@Require('meldbugserver.MeldManager')
 //@Require('meldbugserver.MeldManagerFactory')
-//@Require('meldbugserver.MeldbugClientConsumerManager')
 //@Require('meldbugserver.MeldMirrorService')
 //@Require('meldbugserver.MeldMirrorStore')
 //@Require('meldbugserver.DummyBugCallServer')
@@ -46,12 +46,11 @@ var MeldKey                         = bugpack.require('meldbug.MeldKey');
 var MeldBucket                      = bugpack.require('meldbug.MeldBucket');
 var MeldStore                       = bugpack.require('meldbug.MeldStore');
 var CallEvent                       = bugpack.require('bugcall.CallEvent');
-var MeldMirrorStore                 = bugpack.require('meldbugserver.MeldMirrorStore');
-var MeldMirrorService               = bugpack.require('meldbugserver.MeldMirrorService');
+var MeldbugClientConsumerManager    = bugpack.require('meldbugserver.MeldbugClientConsumerManager');
 var MeldManager                     = bugpack.require('meldbugserver.MeldManager');
 var MeldManagerFactory              = bugpack.require('meldbugserver.MeldManagerFactory');
 var MeldMirrorService               = bugpack.require('meldbugserver.MeldMirrorService');
-var MeldbugClientConsumerManager    = bugpack.require('meldbugserver.MeldbugClientConsumerManager');
+var MeldMirrorStore                 = bugpack.require('meldbugserver.MeldMirrorStore');
 var DummyBugCallServer              = bugpack.require('meldbugserver.DummyBugCallServer');
 var BugMeta                         = bugpack.require('bugmeta.BugMeta');
 var TestAnnotation                  = bugpack.require('bugunit-annotate.TestAnnotation');
