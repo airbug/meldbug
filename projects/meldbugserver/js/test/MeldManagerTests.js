@@ -24,7 +24,6 @@
 //@Require('bugmeta.BugMeta')
 //@Require('bugunit-annotate.TestAnnotation')
 
-
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
@@ -109,3 +108,354 @@ bugmeta.annotate(meldManagerTest).with(
     test().name("Meld Manager Tests")
 );
 
+// var meldManagerInstantiationTest = {
+
+//     //-------------------------------------------------------------------------------
+//     // Setup Test
+//     //-------------------------------------------------------------------------------
+
+//     setup: function(test) {
+
+//     },
+
+//     //-------------------------------------------------------------------------------
+//     // Run Test
+//     //-------------------------------------------------------------------------------
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldManagerInstantiationTest).with(
+//     test().name("MeldManager - instantiation Test");
+// );
+
+// var meldManagerCommitTransactionTest = {
+
+//     //-------------------------------------------------------------------------------
+//     // Setup Test
+//     //-------------------------------------------------------------------------------
+
+//     setup: function(test) {
+
+//     },
+
+//     //-------------------------------------------------------------------------------
+//     // Run Test
+//     //-------------------------------------------------------------------------------
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldManagerCommitTransactionTest).with(
+//     test().name("MeldManager - #commitTransaction Test");
+// );
+
+// var meldManagerContainsMeldByKeyTest = {
+
+//     //-------------------------------------------------------------------------------
+//     // Setup Test
+//     //-------------------------------------------------------------------------------
+
+//     setup: function(test) {
+
+//     },
+
+//     //-------------------------------------------------------------------------------
+//     // Run Test
+//     //-------------------------------------------------------------------------------
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldManagerContainsMeldByKeyTest).with(
+//     test().name("MeldManager - #containsMeldByKey Test");
+// );
+
+// var meldManagerGetMeldTest = {
+
+//     //-------------------------------------------------------------------------------
+//     // Setup Test
+//     //-------------------------------------------------------------------------------
+
+//     setup: function(test) {
+
+//     },
+
+//     //-------------------------------------------------------------------------------
+//     // Run Test
+//     //-------------------------------------------------------------------------------
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldManagerGetMeldTest).with(
+//     test().name("MeldManager - #getMeld Test");
+// );
+
+// var meldManagerMeldCallManagerWithKeyAndReasonTest = {
+
+//     //-------------------------------------------------------------------------------
+//     // Setup Test
+//     //-------------------------------------------------------------------------------
+
+//     setup: function(test) {
+
+//     },
+
+//     //-------------------------------------------------------------------------------
+//     // Run Test
+//     //-------------------------------------------------------------------------------
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldManagerMeldCallManagerWithKeyAndReasonTest).with(
+//     test().name("MeldManager - #meldCallManagerWithKeyAndReason Test");
+// );
+
+// var meldManagerMeldMeldTest = {
+
+//     //-------------------------------------------------------------------------------
+//     // Setup Test
+//     //-------------------------------------------------------------------------------
+
+//     setup: function(test) {
+
+//     },
+
+//     //-------------------------------------------------------------------------------
+//     // Run Test
+//     //-------------------------------------------------------------------------------
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldManagerMeldMeldTest).with(
+//     test().name("MeldManager - #meldMeld Test");
+// );
+
+// var meldManagerRemoveMeldTest = {
+
+//     //-------------------------------------------------------------------------------
+//     // Setup Test
+//     //-------------------------------------------------------------------------------
+
+//     setup: function(test) {
+
+//     },
+
+//     //-------------------------------------------------------------------------------
+//     // Run Test
+//     //-------------------------------------------------------------------------------
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldManagerRemoveMeldTest).with(
+//     test().name("MeldManager - #removeMeld Test");
+// );
+
+// var meldManagerUnmeldCallManagerWithKeyAndReasonTest = {
+
+//     //-------------------------------------------------------------------------------
+//     // Setup Test
+//     //-------------------------------------------------------------------------------
+
+//     setup: function(test) {
+
+//     },
+
+//     //-------------------------------------------------------------------------------
+//     // Run Test
+//     //-------------------------------------------------------------------------------
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldManagerUnmeldCallManagerWithKeyAndReasonTest).with(
+//     test().name("MeldManager - #unmeldCallManagerWithKeyAndReason Test");
+// );
+
+// var meldManagerBuildMeldMirrorTransactionsTest = {
+
+//     //-------------------------------------------------------------------------------
+//     // Setup Test
+//     //-------------------------------------------------------------------------------
+
+//     setup: function(test) {
+
+//     },
+
+//     //-------------------------------------------------------------------------------
+//     // Run Test
+//     //-------------------------------------------------------------------------------
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldManagerBuildMeldMirrorTransactionsTest).with(
+//     test().name("MeldManager - #buildMeldMirrorTransactions Test");
+// );
+
+// var meldManagerCommitMeldMirrorTransactionsTest = {
+
+//     //-------------------------------------------------------------------------------
+//     // Setup Test
+//     //-------------------------------------------------------------------------------
+
+//     setup: function(test) {
+
+//     },
+
+//     //-------------------------------------------------------------------------------
+//     // Run Test
+//     //-------------------------------------------------------------------------------
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldManagerCommitMeldMirrorTransactionsTest).with(
+//     test().name("MeldManager - #commitMeldMirrorTransactions Test");
+// );
+
+// var meldManagerFactoryMeldMirrorManagerTest = {
+
+//     //-------------------------------------------------------------------------------
+//     // Setup Test
+//     //-------------------------------------------------------------------------------
+
+//     setup: function(test) {
+
+//     },
+
+//     //-------------------------------------------------------------------------------
+//     // Run Test
+//     //-------------------------------------------------------------------------------
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldManagerFactoryMeldMirrorManagerTest).with(
+//     test().name("MeldManager - #factoryMeldMirrorManager Test");
+// );
+
+// var meldManagerGenerateMeldMirrorManagerForMeldKeyTest = {
+
+//     //-------------------------------------------------------------------------------
+//     // Setup Test
+//     //-------------------------------------------------------------------------------
+
+//     setup: function(test) {
+
+//     },
+
+//     //-------------------------------------------------------------------------------
+//     // Run Test
+//     //-------------------------------------------------------------------------------
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldManagerGenerateMeldMirrorManagerForMeldKeyTest).with(
+//     test().name("MeldManager - #generateMeldMirrorManagersForMeldKey Test");
+// );
+
+// var meldManagerGenerateMeldMirrorManagerTest = {
+
+//     //-------------------------------------------------------------------------------
+//     // Setup Test
+//     //-------------------------------------------------------------------------------
+
+//     setup: function(test) {
+
+//     },
+
+//     //-------------------------------------------------------------------------------
+//     // Run Test
+//     //-------------------------------------------------------------------------------
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldManagerGenerateMeldMirrorManagerTest).with(
+//     test().name("MeldManager - #generateMeldMirrorManager Test");
+// );
+
+// var meldManagerGenerateTransactionTest = {
+
+//     //-------------------------------------------------------------------------------
+//     // Setup Test
+//     //-------------------------------------------------------------------------------
+
+//     setup: function(test) {
+
+//     },
+
+//     //-------------------------------------------------------------------------------
+//     // Run Test
+//     //-------------------------------------------------------------------------------
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldManagerGenerateTransactionTest).with(
+//     test().name("MeldManager - #generateTransaction Test");
+// );
+
+// var meldManagerInitializeTest = {
+
+//     //-------------------------------------------------------------------------------
+//     // Setup Test
+//     //-------------------------------------------------------------------------------
+
+//     setup: function(test) {
+
+//     },
+
+//     //-------------------------------------------------------------------------------
+//     // Run Test
+//     //-------------------------------------------------------------------------------
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldManagerInitializeTest).with(
+//     test().name("MeldManager - #initialize Test");
+// );
+
+// var meldManagerHandleMeldOperationTest = {
+
+//     //-------------------------------------------------------------------------------
+//     // Setup Test
+//     //-------------------------------------------------------------------------------
+
+//     setup: function(test) {
+
+//     },
+
+//     //-------------------------------------------------------------------------------
+//     // Run Test
+//     //-------------------------------------------------------------------------------
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldManagerHandleMeldOperationTest).with(
+//     test().name("MeldManager - #handleMeldOperation Test");
+// );

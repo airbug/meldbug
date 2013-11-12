@@ -6,7 +6,6 @@
 
 //@Require('bugmeta.BugMeta')
 //@Require('bugunit-annotate.TestAnnotation')
-//@Require('meldbugserver.MeldMirrorService')
 
 //-------------------------------------------------------------------------------
 // Common Modules
@@ -21,7 +20,6 @@ var bugpack                         = require('bugpack').context();
 
 var BugMeta                         = bugpack.require('bugmeta.BugMeta');
 var TestAnnotation                  = bugpack.require('bugunit-annotate.TestAnnotation');
-var MeldMirrorService               = bugpack.require('meldbugserver.MeldMirrorService');
 
 
 //-------------------------------------------------------------------------------
@@ -36,7 +34,7 @@ var test                            = TestAnnotation.test;
 // Declare Tests
 //-------------------------------------------------------------------------------
 
-// var  meldMirrorServiceInstantiationTest = {
+// var  meldMirrorManagerInstantiationTest = {
 
 //     //-------------------------------------------------------------------------------
 //     // Setup Test
@@ -54,11 +52,11 @@ var test                            = TestAnnotation.test;
 
 //     }
 // };
-// bugmeta.annotate(meldMirrorServiceInstantiationTest).with(
-//     test().name("MeldMirrorService - instantiation Test");
+// bugmeta.annotate(meldMirrorManagerInstantiationTest).with(
+//     test().name("MeldMirrorManager - #instantiation Test");
 // );
 
-// var  meldMirrorServiceCreateConsumerTest = {
+// var  meldMirrorManagerAddMeldOperationTest = {
 
 //     //-------------------------------------------------------------------------------
 //     // Setup Test
@@ -76,11 +74,11 @@ var test                            = TestAnnotation.test;
 
 //     }
 // };
-// bugmeta.annotate(meldMirrorServiceCreateConsumerTest).with(
-//     test().name("MeldMirrorService - #createConsumer Test");
+// bugmeta.annotate(meldMirrorManagerAddMeldOperationTest).with(
+//     test().name("MeldMirrorManager - #addMeldOperation Test");
 // );
 
-// var  meldMirrorServiceCreateMeldMirrorTest = {
+// var  meldMirrorManagerCommitTransactionTest = {
 
 //     //-------------------------------------------------------------------------------
 //     // Setup Test
@@ -98,11 +96,11 @@ var test                            = TestAnnotation.test;
 
 //     }
 // };
-// bugmeta.annotate(meldMirrorServiceCreateMeldMirrorTest).with(
-//     test().name("MeldMirrorService - #createMeldMirror Test");
+// bugmeta.annotate(meldMirrorManagerCommitTransactionTest).with(
+//     test().name("MeldMirrorManager - #commitTransaction Test");
 // );
 
-// var  meldMirrorServiceFactoryMeldMirrorTest = {
+// var  meldMirrorManagerContainsMeldByKeyTest = {
 
 //     //-------------------------------------------------------------------------------
 //     // Setup Test
@@ -120,11 +118,11 @@ var test                            = TestAnnotation.test;
 
 //     }
 // };
-// bugmeta.annotate(meldMirrorServiceFactoryMeldMirrorTest).with(
-//     test().name("MeldMirrorService - #factoryMeldMirror Test");
+// bugmeta.annotate(meldMirrorManagerContainsMeldByKeyTest).with(
+//     test().name("MeldMirrorManager - #containsMeldByKey Test");
 // );
 
-// var  meldMirrorServiceInitializeTest = {
+// var  meldMirrorManagerGenerateTransactionTest = {
 
 //     //-------------------------------------------------------------------------------
 //     // Setup Test
@@ -142,11 +140,11 @@ var test                            = TestAnnotation.test;
 
 //     }
 // };
-// bugmeta.annotate(meldMirrorServiceInitializeTest).with(
-//     test().name("MeldMirrorService - #initialize Test");
+// bugmeta.annotate(meldMirrorManagerGenerateTransactionTest).with(
+//     test().name("MeldMirrorManager - #generateTransaction Test");
 // );
 
-// var  meldMirrorServiceRemoveConsumerForCallManagerTest = {
+// var  meldMirrorManagerInitializeTest = {
 
 //     //-------------------------------------------------------------------------------
 //     // Setup Test
@@ -164,72 +162,6 @@ var test                            = TestAnnotation.test;
 
 //     }
 // };
-// bugmeta.annotate(meldMirrorServiceRemoveConsumerForCallManagerTest).with(
-//     test().name("MeldMirrorService - #removeConsumerForCallManager Test");
-// );
-
-// var  meldMirrorServiceRemoveMeldMirrorForCallManagerTest = {
-
-//     //-------------------------------------------------------------------------------
-//     // Setup Test
-//     //-------------------------------------------------------------------------------
-
-//     setup: function(test) {
-
-//     },
-
-//     //-------------------------------------------------------------------------------
-//     // Run Test
-//     //-------------------------------------------------------------------------------
-
-//     test: function(test) {
-
-//     }
-// };
-// bugmeta.annotate(meldMirrorServiceRemoveMeldMirrorForCallManagerTest).with(
-//     test().name("MeldMirrorService - #removeMeldMirrorForCallManager Test");
-// );
-
-// var  meldMirrorServiceHearBugCallServerCallClosedTest = {
-
-//     //-------------------------------------------------------------------------------
-//     // Setup Test
-//     //-------------------------------------------------------------------------------
-
-//     setup: function(test) {
-
-//     },
-
-//     //-------------------------------------------------------------------------------
-//     // Run Test
-//     //-------------------------------------------------------------------------------
-
-//     test: function(test) {
-
-//     }
-// };
-// bugmeta.annotate(meldMirrorServiceHearBugCallServerCallClosedTest).with(
-//     test().name("MeldMirrorService - #hearBugCallServerCallClosed Test");
-// );
-
-// var  meldMirrorServiceHearBugCallServerCallOpenedTest = {
-
-//     //-------------------------------------------------------------------------------
-//     // Setup Test
-//     //-------------------------------------------------------------------------------
-
-//     setup: function(test) {
-
-//     },
-
-//     //-------------------------------------------------------------------------------
-//     // Run Test
-//     //-------------------------------------------------------------------------------
-
-//     test: function(test) {
-
-//     }
-// };
-// bugmeta.annotate(meldMirrorServiceHearBugCallServerCallOpenedTest).with(
-//     test().name("MeldMirrorService - #hearBugCallServerCallOpened Test");
+// bugmeta.annotate(meldMirrorManagerInitializeTest).with(
+//     test().name("MeldMirrorManager - #initialize Test");
 // );
