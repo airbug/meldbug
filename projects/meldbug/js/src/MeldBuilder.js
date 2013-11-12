@@ -389,7 +389,7 @@ var MeldBuilder = Class.extend(Obj, {
             case MeldBuilder.TYPES.ARRAY:
                 unmarshalled = [];
                 marshalledData.value.forEach(function(value) {
-                    unmarshalled.push(this.unmarshalData(value));
+                    unmarshalled.push(_this.unmarshalData(value));
                 });
                 break;
             case MeldBuilder.TYPES.BOOLEAN:

@@ -8,6 +8,7 @@
 //@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldKey')
 //@Require('meldbug.MeldMeldOperation')
+//@Require('meldbug.MeldTransaction')
 //@Require('bugmeta.BugMeta')
 //@Require('bugunit-annotate.TestAnnotation')
 
@@ -27,6 +28,7 @@ var MeldBuilder         = bugpack.require('meldbug.MeldBuilder');
 var MeldDocument        = bugpack.require('meldbug.MeldDocument');
 var MeldKey             = bugpack.require('meldbug.MeldKey');
 var MeldMeldOperation   = bugpack.require('meldbug.MeldMeldOperation');
+var MeldTransaction     = bugpack.require('meldbug.MeldTransaction');
 var BugMeta             = bugpack.require('bugmeta.BugMeta');
 var TestAnnotation      = bugpack.require('bugunit-annotate.TestAnnotation');
 
@@ -292,3 +294,48 @@ var meldBuilderUnbuildMeldOperationTest = {
 bugmeta.annotate(meldBuilderUnbuildMeldOperationTest).with(
     test().name("MeldBuilder #unbuildMeldOperation Test")
 );
+
+// var meldBuilderBuildMeldTransactionTest = {
+
+//     setup: function(test) {
+//         this.meldTransaction = new MeldTransaction();
+//         this.meldBuilder = new MeldBuilder();
+//     },
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldBuilderBuildMeldTransactionTest).with(
+//     test().name("MeldBuilder #buildMeldTransaction Test")
+// );
+
+// var meldBuilderUnbuildMeldTransactionTest = {
+
+//     setup: function(test) {
+//         this.meldTransaction = new MeldTransaction();
+//         this.meldBuilder = new MeldBuilder();
+//     },
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldBuilderUnbuildMeldTransactionTest).with(
+//     test().name("MeldBuilder #unbuildMeldTransaction Test")
+// );
+
+// var meldBuilderUnmarshalDataTest = {
+
+//     setup: function(test) {
+//         this.meldBuilder = new MeldBuilder();
+//     },
+
+//     test: function(test) {
+
+//     }
+// };
+// bugmeta.annotate(meldBuilderUnmarshalDataTest).with(
+//     test().name("MeldBuilder #unmarshalData Test")
+// );
+//
