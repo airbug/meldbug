@@ -72,7 +72,7 @@ var MeldbugClientService = Class.extend(EventDispatcher, {
      * @private
      * @param {MeldTransaction} meldTransaction
      */
-    commitMeldTransaction: function(meldTransaction) {
+    commitMeldTransaction: function(meldTransaction, callback) {
         var _this = this;
         $task(function(flow) {
             _this.meldStore.commitMeldTransaction(meldTransaction, function(error) {
