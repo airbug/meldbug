@@ -71,6 +71,7 @@ var MeldbugClientService = Class.extend(EventDispatcher, {
     /**
      * @private
      * @param {MeldTransaction} meldTransaction
+     * @param {function(Throwable)} callback
      */
     commitMeldTransaction: function(meldTransaction, callback) {
         var _this = this;

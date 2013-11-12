@@ -72,11 +72,17 @@ var MeldbugClientController = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     *
+     * @param {function(Throwable)} callback
      */
     configure: function(callback) {
         var _this = this;
         this.bugCallRouter.addAll({
+            
+            /**
+             * @param {IncomingRequest} request
+             * @param {CallResponder} responder
+             * @param {function(Throwable)} callback
+             */
             commitMeldTransaction: function(request, responder, callback) {
                 var data                = request.getData();
                 var meldTransaction     = _this.meldBuilder.buildMeldTransaction(data.meldTransaction);
