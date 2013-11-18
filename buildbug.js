@@ -66,6 +66,7 @@ buildProperties({
             "../bugunit/projects/bugunit/js/scripts"
         ],
         testPaths: [
+            "../bugjs/projects/bugcall/js/test",
             "../bugjs/projects/bugflow/js/test",
             "../bugjs/projects/bugjs/js/test",
             "../bugjs/projects/bugtrace/js/test"
@@ -85,7 +86,7 @@ buildProperties({
             "../bugjs/projects/bugfs/js/src",
             "../bugjs/projects/bugioc/js/src",
             "../bugjs/projects/bugjs/js/src",
-            "../bugjs/projects/bugroutes/js/src",
+            "../bugjs/projects/bugroute/bugjars/bugcall/js/src",
             "../bugjs/projects/bugtrace/js/src",
             "../bugjs/projects/express/js/src",
             "../bugjs/projects/socketio/bugjars/client/js/src",
