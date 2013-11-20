@@ -8,6 +8,7 @@
 
 //@Require('Class')
 //@Require('EventDispatcher')
+//@Require('Obj')
 //@Require('Set')
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldDocument')
@@ -28,6 +29,7 @@ var bugpack         = require('bugpack').context();
 
 var Class                           = bugpack.require('Class');
 var EventDispatcher                 = bugpack.require('EventDispatcher');
+var Obj                             = bugpack.require('Obj');
 var Set                             = bugpack.require('Set');
 var MeldBucket                      = bugpack.require('meldbug.MeldBucket');
 var MeldDocument                    = bugpack.require('meldbug.MeldDocument');
@@ -61,7 +63,7 @@ var MeldStoreDelegate = Class.extend(EventDispatcher, {
          * @private
          * @type {MeldBucket}
          */
-        this.meldBucket           = new MeldBucket();
+        this.meldBucket             = new MeldBucket();
 
         /**
          * @private
@@ -106,6 +108,12 @@ var MeldStoreDelegate = Class.extend(EventDispatcher, {
      */
     meldMeld: function(meld) {
         this.ensureMeldKeyRetrieved(meld.getMeldKey());
+        if (this.meldBucket.containsMeldByKey(meld.getMeldKey())) {
+            var currentMeld = this.meldBucket.getMeld(meld.getMeldKey());
+            if (!Obj.equals(currentMeld, meld)) {
+                throw new Error("MeldStoreDelegate already contains an instance of MeldDocument. Cannot meld a new instance of the same MeldDocument. - meldKey:", meld.getMeldKey().toKey);
+            }
+        }
         this.meldBucket.meldMeld(meld);
     },
 
