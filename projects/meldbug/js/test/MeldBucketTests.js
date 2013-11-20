@@ -85,6 +85,7 @@ var meldBucketContainsMeldByKeyTest = {
     setup: function(test) {
         this.meldBucket = new MeldBucket();
         this.meldKey    = new MeldKey("TestType", "testId", "basic");
+        this.meldKeyTwo = new MeldKey("OtherType", "otherId", "basic");
         this.meld       = new Meld(this.meldKey, this.meldType);
         this.meldBucket.addMeld(this.meld);
     },
@@ -96,8 +97,14 @@ var meldBucketContainsMeldByKeyTest = {
     test: function(test) {
         test.assertTrue(this.meldBucket.containsMeldByKey(this.meldKey),
             "Assert #containsMeld returns true for a meld that has been added to the meldBucket");
+        test.assertTrue(this.meldBucket.containsMeldByKey(this.meldKey.clone()),
+            "Assert #containsMeld returns true for a meld that has been added to the meldBucket when retrieved using a clone of the meldKey");
+        test.assertFalse(this.meldBucket.containsMeldByKey(this.meldKeyTwo),
+            "Assert #containsMeld returns false for a meld that has not been added to the meldBucket");
         test.assertEqual(this.meldBucket.getMeld(this.meldKey), this.meld,
             "Assert the correct meld is in the meldBucket");
+        test.assertEqual(this.meldBucket.getMeld(this.meldKey.clone()), this.meld,
+            "Assert the correct meld is retrieved using a meldKey clone");
     }
 };
 bugmeta.annotate(meldBucketContainsMeldByKeyTest).with(
@@ -131,6 +138,33 @@ var meldBucketAddMeldTest = {
 };
 bugmeta.annotate(meldBucketAddMeldTest).with(
     test().name("MeldBucket - #addMeld Test")
+);
+
+var meldBucketGetMeldTest = {
+
+    //-------------------------------------------------------------------------------
+    // Setup Test
+    //-------------------------------------------------------------------------------
+
+    setup: function(test) {
+        this.meldBucket = new MeldBucket();
+        this.meldKey    = new MeldKey("TestType", "testId", "basic");
+        this.meld       = new Meld(this.meldKey, this.meldType);
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Run Test
+    //-------------------------------------------------------------------------------
+
+    test: function(test) {
+        this.meldBucket.addMeld(this.meld);
+        test.assertEqual(this.meldBucket.getMeld(this.meldKey), this.meld,
+            "Assert getMeld returns the correct meld");
+    }
+};
+bugmeta.annotate(meldBucketGetMeldTest).with(
+    test().name("MeldBucket - #getMeld Test")
 );
 
 var meldBucketRemoveMeldTest = {
