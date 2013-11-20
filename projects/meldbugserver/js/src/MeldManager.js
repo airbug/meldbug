@@ -150,7 +150,7 @@ var MeldManager = Class.extend(Obj, {
 
     /**
      * @param {MeldKey} meldKey
-     * @return {MeldDocument}
+     * @return {Meld}
      */
     getMeld: function(meldKey) {
         return this.meldStoreDelegate.getMeld(meldKey);

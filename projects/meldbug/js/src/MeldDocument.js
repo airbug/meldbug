@@ -49,6 +49,10 @@ var SetObjectPropertyOperation          = bugpack.require('meldbug.SetObjectProp
 // Declare Class
 //-------------------------------------------------------------------------------
 
+/**
+ * @constructor
+ * @extends {Meld}
+ */
 var MeldDocument = Class.extend(Meld, {
 
     //-------------------------------------------------------------------------------
@@ -56,7 +60,9 @@ var MeldDocument = Class.extend(Meld, {
     //-------------------------------------------------------------------------------
 
     /**
-     *
+     * @constructs
+     * @param {MeldKey} meldKey
+     * @param {*} data
      */
     _constructor: function(meldKey, data) {
 

@@ -253,7 +253,7 @@ var MeldBuilder = Class.extend(Obj, {
     },
 
     /**
-     * @param {List.<>MeldOperation} meldOperationList
+     * @param {List.<MeldOperation>} meldOperationList
      * @return {Array.<*>}
      */
     unbuildMeldOperationList: function(meldOperationList) {
