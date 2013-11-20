@@ -151,49 +151,71 @@ bugmeta.annotate(meldManagerTest).with(
 //     test().name("MeldManager - #commitTransaction Test");
 // );
 
-// var meldManagerContainsMeldByKeyTest = {
+var meldManagerContainsMeldByKeyTest = {
 
-//     //-------------------------------------------------------------------------------
-//     // Setup Test
-//     //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
+    // Setup Test
+    //-------------------------------------------------------------------------------
 
-//     setup: function(test) {
+    setup: function(test) {
+            this.meldBucket         = new MeldBucket();
+            this.meldKey            = new MeldKey("TestType", "testId", "basic");
+            this.meldKeyTwo         = new MeldKey("OtherType", "otherId", "basic");
+            this.meld               = new MeldDocument(this.meldKey, {});
+            this.meldStore          = new MeldStore(this.meldBucket);
+            this.meldMirrorStore    = new MeldMirrorStore();
+            this.meldManager        = new MeldManager(this.meldStore, this.meldMirrorStore);
+            this.meldManager.meldMeld(this.meld);
+    },
 
-//     },
+    //-------------------------------------------------------------------------------
+    // Run Test
+    //-------------------------------------------------------------------------------
 
-//     //-------------------------------------------------------------------------------
-//     // Run Test
-//     //-------------------------------------------------------------------------------
+    test: function(test) {
+        test.assertTrue(this.meldManager.containsMeldByKey(this.meldKey),
+            "Assert #containsMeldByKey returns true for a meldKey in the meldStore");
+        test.assertFalse(this.meldManager.containsMeldByKey(this.meldKeyTwo),
+            "Assert #containsMeldByKey returns false for a meldKey not in the meldStore");
+    }
+};
+bugmeta.annotate(meldManagerContainsMeldByKeyTest).with(
+     test().name("MeldManager - #containsMeldByKey Test")
+);
 
-//     test: function(test) {
+var meldManagerGetMeldTest = {
 
-//     }
-// };
-// bugmeta.annotate(meldManagerContainsMeldByKeyTest).with(
-//     test().name("MeldManager - #containsMeldByKey Test");
-// );
-
-// var meldManagerGetMeldTest = {
-
-//     //-------------------------------------------------------------------------------
-//     // Setup Test
-//     //-------------------------------------------------------------------------------
-
-//     setup: function(test) {
-
-//     },
-
-//     //-------------------------------------------------------------------------------
-//     // Run Test
-//     //-------------------------------------------------------------------------------
-
-//     test: function(test) {
-
-//     }
-// };
-// bugmeta.annotate(meldManagerGetMeldTest).with(
-//     test().name("MeldManager - #getMeld Test");
-// );
+    //-------------------------------------------------------------------------------
+    // Setup Test
+    //-------------------------------------------------------------------------------
+    setup: function(test) {
+        this.meldBucket         = new MeldBucket();
+        this.meldKey            = new MeldKey("TestType", "testId", "basic");
+        this.meldKeyTwo         = new MeldKey("OtherType", "otherId", "basic");
+        this.data               = {testSet: new Set(['value1', 'value2']) };
+        this.meld               = new MeldDocument(this.meldKey, this.data);
+        this.meldStore          = new MeldStore(this.meldBucket);
+        this.meldMirrorStore    = new MeldMirrorStore();
+        this.meldManager        = new MeldManager(this.meldStore, this.meldMirrorStore);
+        this.meldManager.meldMeld(this.meld);
+    },
+    //-------------------------------------------------------------------------------
+    // Run Test
+    //-------------------------------------------------------------------------------
+    test: function(test) {
+        var meld    = this.meldManager.getMeld(this.meldKey);
+        var meldKey = meld.getMeldKey();
+        test.assertTrue((meldKey.getId() === this.meldKey.getId() && meldKey.getFilterType() === this.meldKey.getFilterType() && meldKey.getDataType() === this.meldKey.getDataType()),
+            "Assert the meldClone has a meldKey with the same type, id and filter");
+        test.assertEqual(meld.getData(), this.data,
+            "Assert the meldClone has the same data");
+        test.assertEqual(meld.getMeldType(), MeldDocument.TYPE,
+            "Assert the meldClone is of the same meldType");
+    }
+}
+bugmeta.annotate(meldManagerGetMeldTest).with(
+    test().name("MeldManager - #getMeld Test")
+);
 
 // var meldManagerMeldCallManagerWithKeyAndReasonTest = {
 

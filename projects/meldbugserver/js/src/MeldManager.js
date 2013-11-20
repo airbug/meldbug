@@ -127,9 +127,6 @@ var MeldManager = Class.extend(Obj, {
         // Setup listeners on meldStore that listen for operations. When an operation occurs,
         // perform the same changes against meldMirrorManagers that need to know about this changes
 
-        //TEST
-        console.log("MeldManager#commitTransaction - transaction:", this.meldTransaction.getMeldOperationList().toArray());
-
         this.buildMeldMirrorTransactions();
         this.meldStore.commitMeldTransaction(this.meldTransaction, function(throwable) {
             if (!throwable) {
@@ -147,7 +144,7 @@ var MeldManager = Class.extend(Obj, {
      * @param {MeldKey} meldKey
      */
     containsMeldByKey: function(meldKey) {
-        this.meldStoreDelegate.containsMeldByKey(meldKey);
+        return this.meldStoreDelegate.containsMeldByKey(meldKey);
     },
 
     /**
@@ -155,7 +152,7 @@ var MeldManager = Class.extend(Obj, {
      * @return {MeldDocument}
      */
     getMeld: function(meldKey) {
-        return this.meldStoreDelegate.get(meldKey);
+        return this.meldStoreDelegate.getMeld(meldKey);
     },
 
     /**
