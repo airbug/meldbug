@@ -126,7 +126,7 @@ bugmeta.annotate(meldManagerTest).with(
 //     }
 // };
 // bugmeta.annotate(meldManagerInstantiationTest).with(
-//     test().name("MeldManager - instantiation Test");
+//     test().name("MeldManager - instantiation Test")
 // );
 
 // var meldManagerCommitTransactionTest = {
@@ -148,7 +148,7 @@ bugmeta.annotate(meldManagerTest).with(
 //     }
 // };
 // bugmeta.annotate(meldManagerCommitTransactionTest).with(
-//     test().name("MeldManager - #commitTransaction Test");
+//     test().name("MeldManager - #commitTransaction Test")
 // );
 
 var meldManagerContainsMeldByKeyTest = {
@@ -236,7 +236,7 @@ bugmeta.annotate(meldManagerGetMeldTest).with(
 //     }
 // };
 // bugmeta.annotate(meldManagerMeldCallManagerWithKeyAndReasonTest).with(
-//     test().name("MeldManager - #meldCallManagerWithKeyAndReason Test");
+//     test().name("MeldManager - #meldCallManagerWithKeyAndReason Test")
 // );
 
 // var meldManagerMeldMeldTest = {
@@ -258,7 +258,7 @@ bugmeta.annotate(meldManagerGetMeldTest).with(
 //     }
 // };
 // bugmeta.annotate(meldManagerMeldMeldTest).with(
-//     test().name("MeldManager - #meldMeld Test");
+//     test().name("MeldManager - #meldMeld Test")
 // );
 
 // var meldManagerRemoveMeldTest = {
@@ -280,7 +280,7 @@ bugmeta.annotate(meldManagerGetMeldTest).with(
 //     }
 // };
 // bugmeta.annotate(meldManagerRemoveMeldTest).with(
-//     test().name("MeldManager - #removeMeld Test");
+//     test().name("MeldManager - #removeMeld Test")
 // );
 
 // var meldManagerUnmeldCallManagerWithKeyAndReasonTest = {
@@ -302,7 +302,7 @@ bugmeta.annotate(meldManagerGetMeldTest).with(
 //     }
 // };
 // bugmeta.annotate(meldManagerUnmeldCallManagerWithKeyAndReasonTest).with(
-//     test().name("MeldManager - #unmeldCallManagerWithKeyAndReason Test");
+//     test().name("MeldManager - #unmeldCallManagerWithKeyAndReason Test")
 // );
 
 // var meldManagerBuildMeldMirrorTransactionsTest = {
@@ -324,7 +324,7 @@ bugmeta.annotate(meldManagerGetMeldTest).with(
 //     }
 // };
 // bugmeta.annotate(meldManagerBuildMeldMirrorTransactionsTest).with(
-//     test().name("MeldManager - #buildMeldMirrorTransactions Test");
+//     test().name("MeldManager - #buildMeldMirrorTransactions Test")
 // );
 
 // var meldManagerCommitMeldMirrorTransactionsTest = {
@@ -346,7 +346,7 @@ bugmeta.annotate(meldManagerGetMeldTest).with(
 //     }
 // };
 // bugmeta.annotate(meldManagerCommitMeldMirrorTransactionsTest).with(
-//     test().name("MeldManager - #commitMeldMirrorTransactions Test");
+//     test().name("MeldManager - #commitMeldMirrorTransactions Test")
 // );
 
 // var meldManagerFactoryMeldMirrorManagerTest = {
@@ -368,7 +368,7 @@ bugmeta.annotate(meldManagerGetMeldTest).with(
 //     }
 // };
 // bugmeta.annotate(meldManagerFactoryMeldMirrorManagerTest).with(
-//     test().name("MeldManager - #factoryMeldMirrorManager Test");
+//     test().name("MeldManager - #factoryMeldMirrorManager Test")
 // );
 
 // var meldManagerGenerateMeldMirrorManagerForMeldKeyTest = {
@@ -390,7 +390,7 @@ bugmeta.annotate(meldManagerGetMeldTest).with(
 //     }
 // };
 // bugmeta.annotate(meldManagerGenerateMeldMirrorManagerForMeldKeyTest).with(
-//     test().name("MeldManager - #generateMeldMirrorManagersForMeldKey Test");
+//     test().name("MeldManager - #generateMeldMirrorManagersForMeldKey Test")
 // );
 
 // var meldManagerGenerateMeldMirrorManagerTest = {
@@ -412,7 +412,7 @@ bugmeta.annotate(meldManagerGetMeldTest).with(
 //     }
 // };
 // bugmeta.annotate(meldManagerGenerateMeldMirrorManagerTest).with(
-//     test().name("MeldManager - #generateMeldMirrorManager Test");
+//     test().name("MeldManager - #generateMeldMirrorManager Test")
 // );
 
 // var meldManagerGenerateTransactionTest = {
@@ -434,7 +434,7 @@ bugmeta.annotate(meldManagerGetMeldTest).with(
 //     }
 // };
 // bugmeta.annotate(meldManagerGenerateTransactionTest).with(
-//     test().name("MeldManager - #generateTransaction Test");
+//     test().name("MeldManager - #generateTransaction Test")
 // );
 
 // var meldManagerInitializeTest = {
@@ -456,7 +456,7 @@ bugmeta.annotate(meldManagerGetMeldTest).with(
 //     }
 // };
 // bugmeta.annotate(meldManagerInitializeTest).with(
-//     test().name("MeldManager - #initialize Test");
+//     test().name("MeldManager - #initialize Test")
 // );
 
 // var meldManagerHandleMeldOperationTest = {
@@ -478,5 +478,5 @@ bugmeta.annotate(meldManagerGetMeldTest).with(
 //     }
 // };
 // bugmeta.annotate(meldManagerHandleMeldOperationTest).with(
-//     test().name("MeldManager - #handleMeldOperation Test");
+//     test().name("MeldManager - #handleMeldOperation Test")
 // );
