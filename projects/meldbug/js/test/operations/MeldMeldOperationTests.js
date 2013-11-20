@@ -102,12 +102,12 @@ var meldMeldOperationApplyTest = {
         test.assertFalse(this.testMeldTwo.getMeldBucket(),
             "Assert meld does not initially have its meldBucket property set");
         var meldTwo = this.duplicateOperation.apply(this.meldBucket);
-        test.assertTrue(meldTwo.getMeldBucket(),
-            "Assert duplicate MeldMeldOperations have the meldBucket set on them after apply");
+        test.assertFalse(meldTwo.getMeldBucket(),
+            "Assert duplicate MeldMeldOperations do NOT have the meldBucket set on them after apply");
 
         test.assertTrue(this.meldBucket.containsMeld(this.testMeld),
             "Assert the meldBucket contains the meld by meldKey");
-        test.assertEqual(this.meldBucket.getMeld(this.meldKey), this.testMeld,  //failing getMeld is returning undefined
+        test.assertEqual(this.meldBucket.getMeld(this.meldKey), this.testMeld,
             "Assert the meldBucket contains the original MeldDocument");
         test.assertNotEqual(this.meldBucket.getMeld(this.meldKey), this.testMeldTwo,
             "Assert the meldBucket does not contain the duplicate MeldDocument");

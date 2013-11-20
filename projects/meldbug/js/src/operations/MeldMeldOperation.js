@@ -101,10 +101,6 @@ var MeldMeldOperation = Class.extend(MeldBucketOperation, {
         if (!meldBucket.containsMeld(this.meld)) {
             meldBucket.addMeld(this.meld);
         }
-
-        if (!this.meld.getMeldBucket()) {
-            this.meld.setMeldBucket(meldBucket);
-        }
         return this.meld;
     },
 
