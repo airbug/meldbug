@@ -142,6 +142,7 @@ var MeldManager = Class.extend(Obj, {
 
     /**
      * @param {MeldKey} meldKey
+     * @return {boolean}
      */
     containsMeldByKey: function(meldKey) {
         return this.meldStoreDelegate.containsMeldByKey(meldKey);
