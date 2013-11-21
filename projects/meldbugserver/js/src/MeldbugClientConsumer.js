@@ -106,16 +106,25 @@ var MeldbugClientConsumer = Class.extend(Obj, {
                 if (!throwable) {
 
                     //TEST
-                    console.log("COMMIT_MELD_TRANSACTION callResponse:", callResponse);
-
+                    console.log("COMMIT_MELD_TRANSACTION");
+                    console.log("callResponse Type:", callResponse.getType());
                     if (callResponse.getType() === MeldDefines.ResponseTypes.SUCCESS) {
                         callback();
                     } else if (callResponse.getType() === MeldDefines.ResponseTypes.EXCEPTION) {
-                        console.error("unhandled exception response:", callResponse);
+                        console.error("unhandled error response:", callResponse);
+                        var error = callResponse.callResponse.getData().error;
+                        console.log("error:", error);
+
                         //TODO BRN: Handle exceptions...
+                        callback(error);
+
                     } else if (callResponse.getType() === MeldDefines.ResponseTypes.ERROR) {
-                        console.error("undhandled error response:", callResponse);
+                        console.error("unhandled error response:", callResponse);
+                        var error = callResponse.callResponse.getData().error;
+                        console.log("error:", error);
+
                         //TODO BRN: Handle errors...
+                        callback(error);
                     }
                 } else {
                     if (Class.doesExtend(throwable, Exception)) {
