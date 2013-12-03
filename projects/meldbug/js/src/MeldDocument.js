@@ -12,8 +12,12 @@
 //@Require('TypeUtil')
 //@Require('bugdelta.DeltaBuilder')
 //@Require('bugdelta.DeltaDocument')
+//@Require('bugdelta.DeltaDocumentChange')
+//@Require('bugdelta.ObjectChange')
+//@Require('bugdelta.SetChange')
 //@Require('meldbug.AddToSetOperation')
 //@Require('meldbug.Meld')
+//@Require('meldbug.MeldDocumentEvent')
 //@Require('meldbug.RemoveFromSetOperation')
 //@Require('meldbug.RemoveObjectPropertyOperation')
 //@Require('meldbug.SetDocumentOperation')
@@ -37,8 +41,12 @@ var Set                                 = bugpack.require('Set');
 var TypeUtil                            = bugpack.require('TypeUtil');
 var DeltaBuilder                        = bugpack.require('bugdelta.DeltaBuilder');
 var DeltaDocument                       = bugpack.require('bugdelta.DeltaDocument');
+var DeltaDocumentChange                 = bugpack.require('bugdelta.DeltaDocumentChange');
+var ObjectChange                        = bugpack.require('bugdelta.ObjectChange');
+var SetChange                           = bugpack.require('bugdelta.SetChange');
 var AddToSetOperation                   = bugpack.require('meldbug.AddToSetOperation');
 var Meld                                = bugpack.require('meldbug.Meld');
+var MeldDocumentEvent                   = bugpack.require('meldbug.MeldDocumentEvent');
 var RemoveFromSetOperation              = bugpack.require('meldbug.RemoveFromSetOperation');
 var RemoveObjectPropertyOperation       = bugpack.require('meldbug.RemoveObjectPropertyOperation');
 var SetDocumentOperation                = bugpack.require('meldbug.SetDocumentOperation');
@@ -136,10 +144,9 @@ var MeldDocument = Class.extend(Meld, {
      *
      */
     commit: function() {
+        /** @type {Delta} */
         var delta = this.deltaBuilder.buildDelta(this.deltaDocument, this.deltaDocument.getPreviousDocument());
-        this.dispatchEvent(new Event(MeldDocument.EventTypes.PROPERTY_CHANGES, {
-            delta: delta
-        }));
+        this.processDelta(delta);
         this.deltaDocument.commitDelta();
     },
 
@@ -236,7 +243,7 @@ var MeldDocument = Class.extend(Meld, {
      * @param {*} setValue
      */
     unmeldFromSet: function(path, setValue) {
-        var operation = new RemoveFromSetOperation(this.meldKey, path, setValue);
+        var operation = new RemoveFromSetOperation(this.getMeldKey(), path, setValue);
         this.meldOperation(operation);
     },
 
@@ -245,8 +252,64 @@ var MeldDocument = Class.extend(Meld, {
      * @param {string} propertyName
      */
     unmeldObjectProperty: function(path, propertyName) {
-        var operation = new RemoveObjectPropertyOperation(this.meldKey, path, propertyName);
+        var operation = new RemoveObjectPropertyOperation(this.getMeldKey(), path, propertyName);
         this.meldOperation(operation);
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Private Methods
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @private
+     * @param {Delta} delta
+     */
+    processDelta: function(delta) {
+        var _this = this;
+        this.dispatchEvent(new MeldDocumentEvent(MeldDocumentEvent.EventTypes.CHANGES, {
+            delta: delta
+        }));
+        delta.getDeltaChangeList().forEach(function(deltaChange) {
+            _this.processDeltaChange(deltaChange);
+        });
+    },
+
+    /**
+     * @private
+     * @param {DeltaChange} deltaChange
+     */
+    processDeltaChange: function(deltaChange) {
+        var _this = this;
+        switch (deltaChange.getChangeType()) {
+            case DeltaDocumentChange.ChangeTypes.DATA_SET:
+                _this.dispatchEvent(new MeldDocumentEvent(MeldDocumentEvent.EventTypes.RESET));
+                break;
+            case ObjectChange.ChangeTypes.PROPERTY_REMOVED:
+                _this.dispatchEvent(new MeldDocumentEvent(MeldDocumentEvent.EventTypes.CHANGE, {
+                    deltaChange: deltaChange,
+                    changeType: MeldDocument.ChangeTypes.PROPERTY_REMOVED
+                }));
+                break;
+            case ObjectChange.ChangeTypes.PROPERTY_SET:
+                _this.dispatchEvent(new MeldDocumentEvent(MeldDocumentEvent.EventTypes.CHANGE, {
+                    deltaChange: deltaChange,
+                    changeType: MeldDocument.ChangeTypes.PROPERTY_SET
+                }));
+                break;
+            case SetChange.ChangeTypes.ADDED_TO_SET:
+                _this.dispatchEvent(new MeldDocumentEvent(MeldDocumentEvent.EventTypes.CHANGE, {
+                    deltaChange: deltaChange,
+                    changeType: MeldDocument.ChangeTypes.ADDED_TO_SET
+                }));
+                break;
+            case SetChange.ChangeTypes.REMOVED_FROM_SET:
+                _this.dispatchEvent(new MeldDocumentEvent(MeldDocumentEvent.EventTypes.CHANGE, {
+                    deltaChange: deltaChange,
+                    changeType: MeldDocument.ChangeTypes.REMOVED_FROM_SET
+                }));
+                break;
+        }
     }
 });
 
@@ -257,17 +320,20 @@ var MeldDocument = Class.extend(Meld, {
 
 /**
  * @static
- * @type {Object}
+ * @const {string}
  */
-MeldDocument.EventTypes = {
-    PROPERTY_CHANGES: "MeldDocument:PropertyChanges"
-};
+MeldDocument.TYPE = "MeldDocument";
 
 /**
  * @static
  * @const {string}
  */
-MeldDocument.TYPE = "MeldDocument";
+MeldDocument.ChangeTypes = {
+    ADDED_TO_SET: "MeldDocument:AddedToSet",
+    PROPERTY_REMOVED: "MeldDocument:PropertyRemoved",
+    PROPERTY_SET: "MeldDocument:PropertySet",
+    REMOVED_FROM_SET: "MeldDocument:RemovedFromSet"
+};
 
 
 //-------------------------------------------------------------------------------
