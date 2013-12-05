@@ -322,11 +322,6 @@ var MeldBuilder = Class.extend(Obj, {
                     type: "Pair",
                     value: marshalledPair
                 };
-            } else if (Class.doesExtend(data, Date)) {
-                marshalled = {
-                    type: "Date",
-                    value: data.toString()
-                };
             } else {
                 var marshalledObject = {};
                 Obj.forIn(data, function(key, value) {
@@ -350,6 +345,11 @@ var MeldBuilder = Class.extend(Obj, {
             marshalled = {
                 type: MeldBuilder.TYPES.BOOLEAN,
                 value: data
+            };
+        } else if (TypeUtil.isDate(data)) {
+            marshalled = {
+                type: MeldBuilder.TYPES.DATE,
+                value: data.toString()
             };
         } else if (TypeUtil.isNull(data)) {
             marshalled = {
@@ -395,6 +395,9 @@ var MeldBuilder = Class.extend(Obj, {
             case MeldBuilder.TYPES.BOOLEAN:
                 unmarshalled = marshalledData.value;
                 break;
+            case MeldBuilder.TYPES.DATE:
+                unmarshalled = new Date(marshalledData.value);
+                break;
             case MeldBuilder.TYPES.NULL:
                 unmarshalled = marshalledData.value;
                 break;
@@ -412,9 +415,6 @@ var MeldBuilder = Class.extend(Obj, {
                 break;
             case MeldBuilder.TYPES.UNDEFINED:
                 unmarshalled = marshalledData.value;
-                break;
-            case "Date":
-                unmarshalled = new Date(marshalledData.value);
                 break;
             case "Pair":
                 unmarshalled = new Pair(marshalledData.value.a, marshalledData.value.b);
