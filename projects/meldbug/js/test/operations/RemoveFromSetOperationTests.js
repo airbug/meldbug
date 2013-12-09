@@ -57,8 +57,7 @@ var removeFromSetOperationGetPathTest = {
     setup: function(test) {
         this.id             = "testId";
         this.meldType       = "testType";
-        this.filter         = "basic";
-        this.meldKey        = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey        = new MeldKey(this.meldType, this.id);
         this.meldBucket     = new MeldBucket();
         this.meldDocument   = new MeldDocument(this.meldKey, {"testPath": new Set()});
         this.testPath       = "testPath";
@@ -90,8 +89,7 @@ var removeFromSetOperationGetSetValueTest = {
     setup: function(test) {
         this.id             = "testId";
         this.meldType       = "testType";
-        this.filter         = "basic";
-        this.meldKey        = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey        = new MeldKey(this.meldType, this.id);
         this.meldBucket     = new MeldBucket();
         this.meldDocument   = new MeldDocument(this.meldKey, {"testPath": new Set()});
         this.testPath       = "testPath";
@@ -123,8 +121,7 @@ var removeFromSetOperationApplyTest = {
     setup: function(test) {
         this.id             = "testId";
         this.meldType       = "testType";
-        this.filter         = "basic";
-        this.meldKey        = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey        = new MeldKey(this.meldType, this.id);
         this.meldBucket     = new MeldBucket();
         this.testData       = {"testPath": new Set()};
         this.meldDocument   = new MeldDocument(this.meldKey, this.testData);
@@ -171,8 +168,7 @@ var removeFromSetOperationCommitTest = {
     setup: function(test) {
         this.id             = "testId";
         this.meldType       = "testType";
-        this.filter         = "basic";
-        this.meldKey        = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey        = new MeldKey(this.meldType, this.id);
         this.meldBucket     = new MeldBucket();
         this.testData       = {"testPath": new Set()};
         this.meldDocument   = new MeldDocument(this.meldKey, this.testData);
@@ -224,8 +220,7 @@ var removeFromSetOperationCloneTest = {
     setup: function(test) {
         this.id             = "testId";
         this.meldType       = "testType";
-        this.filter         = "basic";
-        this.meldKey        = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey        = new MeldKey(this.meldType, this.id);
         this.meldBucket     = new MeldBucket();
         this.testData       = {"testPath": new Set()};
         this.meldDocument   = new MeldDocument(this.meldKey, this.testData);

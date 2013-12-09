@@ -91,6 +91,8 @@ var MeldbugClientController = Class.extend(Obj, {
                     if (!throwable) {
                         response    = responder.response(MeldDefines.ResponseTypes.SUCCESS);
                     } else {
+                        console.log(throwable.message);
+                        console.log(throwable.stack);
                         if (Class.doesExtend(throwable, Exception)) {
                             response    = responder.response(MeldDefines.ResponseTypes.EXCEPTION, {
                                 exception: throwable.toObject()

@@ -114,10 +114,12 @@ var MeldBucket = Class.extend(EventDispatcher, {
      * @return {Meld}
      */
     removeMeld: function(meldKey) {
-        var meld = this.meldKeyToMeldMap.remove(meldKey);
-        meld.setMeldBucket(undefined);
-        meld.setParentPropagator(undefined);
-        return meld;
+        if (this.containsMeldByKey(meldKey)) {
+            var meld = this.meldKeyToMeldMap.remove(meldKey);
+            meld.setMeldBucket(null);
+            meld.setParentPropagator(null);
+            return meld;
+        }
     },
 
     /**

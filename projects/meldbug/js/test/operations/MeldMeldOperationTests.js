@@ -51,7 +51,7 @@ var meldMeldOperationInstantiationTest = {
 
     setup: function(test) {
         this.testMeld           = {};
-        this.meldKey            = new MeldKey("TestType", "testId", "basic");
+        this.meldKey            = new MeldKey("TestType", "testId");
         this.meldMeldOperation  = new MeldMeldOperation(this.meldKey, this.testMeld);
     },
 
@@ -80,7 +80,7 @@ var meldMeldOperationApplyTest = {
     //-------------------------------------------------------------------------------
 
     setup: function(test) {
-        this.meldKey            = new MeldKey("TestType", "testId", "basic");
+        this.meldKey            = new MeldKey("TestType", "testId");
         this.meldBucket         = new MeldBucket();
         this.testMeld           = new MeldDocument(this.meldKey, {});
         this.testMeldTwo        = new MeldDocument(this.meldKey, {});

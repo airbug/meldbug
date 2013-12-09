@@ -81,9 +81,10 @@ var meldStoreDelegateEnsureMeldKeyRetrievedTest = {
     //-------------------------------------------------------------------------------
 
     setup: function(test) {
+
         this.meldBucket             = new MeldBucket();
         this.meldStore              = new MeldStore(this.meldBucket);
-        this.meldKey                = new MeldKey("TestType", "testId", "basic");
+        this.meldKey                = new MeldKey("TestType", "testId");
         this.meld                   = new Meld(this.meldKey, this.meldType);
         this.meldStoreDelegate      = new MeldStoreDelegate(this.meldStore);
         this.meldBucket.addMeld(this.meld);
@@ -116,7 +117,7 @@ bugmeta.annotate(meldStoreDelegateEnsureMeldKeyRetrievedTest).with(
 //     setup: function(test) {
 //         this.meldBucket             = new MeldBucket();
 //         this.meldStore              = new MeldStore(this.meldBucket);
-//         this.meldKey                = new MeldKey("TestType", "testId", "basic");
+//         this.meldKey                = new MeldKey("TestType", "testId");
 //         this.meld                   = new Meld(this.meldKey, this.meldType);
 //         this.meldStoreDelegate      = new MeldStoreDelegate(this.meldStore);
 //     },
@@ -151,8 +152,8 @@ var meldStoreDelegateGetMeldTest = {
 
     setup: function(test) {
         this.meldBucket         = new MeldBucket();
-        this.meldKey            = new MeldKey("TestType", "testId", "basic");
-        this.meldKeyTwo         = new MeldKey("OtherType", "otherId", "basic");
+        this.meldKey            = new MeldKey("TestType", "testId");
+        this.meldKeyTwo         = new MeldKey("OtherType", "otherId");
         this.meld               = new Meld(this.meldKey, this.meldType);
         this.meldBucket.addMeld(this.meld);
         this.meldStore          = new MeldStore(this.meldBucket);
@@ -168,7 +169,7 @@ var meldStoreDelegateGetMeldTest = {
         var meldKey = meld.getMeldKey();
         test.assertNotEqual(meld, this.meld,
             "Assert meld returned by #getMeld is not equal to the original meld. It should be a clone.");
-        test.assertTrue((meldKey.getId() === this.meldKey.getId() && meldKey.getFilterType() === this.meldKey.getFilterType() && meldKey.getDataType() === this.meldKey.getDataType()),
+        test.assertTrue((meldKey.getId() === this.meldKey.getId() && meldKey.getDataType() === this.meldKey.getDataType()),
             "Assert the meldClone has a meldKey with the same type, id and filter");
     }
 };
@@ -184,8 +185,8 @@ var meldStoreDelegateContainsMeldByKeyTest = {
 
     setup: function(test) {
         this.meldBucket         = new MeldBucket();
-        this.meldKey            = new MeldKey("TestType", "testId", "basic");
-        this.meldKeyTwo         = new MeldKey("OtherType", "otherId", "basic");
+        this.meldKey            = new MeldKey("TestType", "testId");
+        this.meldKeyTwo         = new MeldKey("OtherType", "otherId");
         this.meld               = new Meld(this.meldKey, this.meldType);
         this.meldBucket.addMeld(this.meld);
         this.meldStore          = new MeldStore(this.meldBucket);

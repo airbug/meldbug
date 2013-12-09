@@ -56,7 +56,7 @@ var meldBucketContainsMeldTest = {
 
     setup: function(test) {
         this.meldBucket = new MeldBucket();
-        this.meldKey    = new MeldKey("TestType", "testId", "basic");
+        this.meldKey    = new MeldKey("TestType", "testId");
         this.meld       = new Meld(this.meldKey, this.meldType);
         this.meldBucket.addMeld(this.meld);
     },
@@ -84,8 +84,8 @@ var meldBucketContainsMeldByKeyTest = {
 
     setup: function(test) {
         this.meldBucket = new MeldBucket();
-        this.meldKey    = new MeldKey("TestType", "testId", "basic");
-        this.meldKeyTwo = new MeldKey("OtherType", "otherId", "basic");
+        this.meldKey    = new MeldKey("TestType", "testId");
+        this.meldKeyTwo = new MeldKey("OtherType", "otherId");
         this.meld       = new Meld(this.meldKey, this.meldType);
         this.meldBucket.addMeld(this.meld);
     },
@@ -119,7 +119,7 @@ var meldBucketAddMeldTest = {
 
     setup: function(test) {
         this.meldBucket = new MeldBucket();
-        this.meldKey    = new MeldKey("TestType", "testId", "basic");
+        this.meldKey    = new MeldKey("TestType", "testId");
         this.meld       = new Meld(this.meldKey, this.meldType);
     },
 
@@ -148,7 +148,7 @@ var meldBucketGetMeldTest = {
 
     setup: function(test) {
         this.meldBucket = new MeldBucket();
-        this.meldKey    = new MeldKey("TestType", "testId", "basic");
+        this.meldKey    = new MeldKey("TestType", "testId");
         this.meld       = new Meld(this.meldKey, this.meldType);
     },
 
@@ -175,7 +175,7 @@ var meldBucketRemoveMeldTest = {
 
     setup: function(test) {
         this.meldBucket = new MeldBucket();
-        this.meldKey    = new MeldKey("TestType", "testId", "basic");
+        this.meldKey    = new MeldKey("TestType", "testId");
         this.meld       = new Meld(this.meldKey, this.meldType);
 
     },
@@ -208,7 +208,7 @@ var meldBucketMeldOperationTest = {
 
     setup: function(test){
         this.meldBucket             = new MeldBucket();
-        this.meldKey                = new MeldKey("TestType", "testIdTwo", "basic");
+        this.meldKey                = new MeldKey("TestType", "testIdTwo");
         this.meld                   = new Meld(this.meldKey, this.meldType);
         this.meldMeldOperation      = new MeldMeldOperation(this.meldKey, this.meld);
         this.removeMeldOperation    = new RemoveMeldOperation(this.meldKey);
@@ -254,7 +254,7 @@ var meldBucketMeldMeldTest = {
 
     setup: function(test) {
         this.meldBucket = new MeldBucket();
-        this.meldKey    = new MeldKey("TestType", "testId", "basic");
+        this.meldKey    = new MeldKey("TestType", "testId");
         this.meld       = new Meld(this.meldKey, this.meldType);
     },
 
@@ -283,7 +283,7 @@ var meldBucketUnmeldMeldTest = {
 
     setup: function(test) {
         this.meldBucket = new MeldBucket();
-        this.meldKey    = new MeldKey("TestType", "testId", "basic");
+        this.meldKey    = new MeldKey("TestType", "testId");
         this.meld       = new Meld(this.meldKey, this.meldType);
         this.meldBucket.meldMeld(this.meld);
     },

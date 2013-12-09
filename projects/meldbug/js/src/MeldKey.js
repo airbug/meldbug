@@ -40,7 +40,7 @@ var MeldKey = Class.extend(Obj, {
     /**
      *
      */
-    _constructor: function(dataType, id, filterType) {
+    _constructor: function(dataType, id) {
 
         this._super();
 
@@ -54,12 +54,6 @@ var MeldKey = Class.extend(Obj, {
          * @type {string}
          */
         this.dataType           = dataType;
-
-        /**
-         * @private
-         * @type {string}
-         */
-        this.filterType         = filterType;
 
         /**
          * @private
@@ -83,13 +77,6 @@ var MeldKey = Class.extend(Obj, {
     /**
      * @return {string}
      */
-    getFilterType: function() {
-        return this.filterType;
-    },
-
-    /**
-     * @return {string}
-     */
     getId: function() {
         return this.id;
     },
@@ -105,7 +92,7 @@ var MeldKey = Class.extend(Obj, {
      */
     equals: function(value) {
         if (Class.doesExtend(value, MeldKey)) {
-            return (value.getId() === this.getId() && value.getDataType() === this.getDataType() && value.getFilterType() === this.getFilterType());
+            return (value.getId() === this.getId() && value.getDataType() === this.getDataType());
         }
         return false;
     },
@@ -114,8 +101,7 @@ var MeldKey = Class.extend(Obj, {
         if (!this._hashCode) {
             this._hashCode = Obj.hashCode("[MeldKey]" +
                 Obj.hashCode(this.id) + "_" +
-                Obj.hashCode(this.dataType) + "_" +
-                Obj.hashCode(this.filterType));
+                Obj.hashCode(this.dataType));
         }
         return this._hashCode;
     },
@@ -131,8 +117,7 @@ var MeldKey = Class.extend(Obj, {
     toObject: function() {
         return {
             id: this.id,
-            dataType: this.dataType,
-            filterType: this.filterType
+            dataType: this.dataType
         };
     },
 
@@ -145,7 +130,7 @@ var MeldKey = Class.extend(Obj, {
      * @return {string}
      */
     toKey: function() {
-        return this.id + "_" + this.dataType + "_" + this.filterType;
+        return this.dataType + "_" + this.id;
     }
 });
 

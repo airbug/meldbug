@@ -48,8 +48,7 @@ var meldEventGetMeldKeyTest = {
     setup: function(test) {
         this.id         = "testId";
         this.meldType   = "TestType";
-        this.filter     = "basic";
-        this.meldKey    = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey    = new MeldKey(this.meldType, this.id);
         this.data       = {testData: "testValue"};
         this.meldEvent  = new MeldEvent(this.eventType, this.meldKey, this.data);
 

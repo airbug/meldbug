@@ -85,7 +85,7 @@ var meldStoreCommitMeldTransactionTest = {
 
     setup: function(test) {
         var _this = this;
-        this.testMeldKey            = new MeldKey("array", "basic", "id");
+        this.testMeldKey            = new MeldKey("array", "id");
         this.testMeld               = new Meld(this.testMeldKey, "type");
         this.testMeldBucket         = new MeldBucket();
         this.testMeldStore          = new MeldStore(this.testMeldBucket);

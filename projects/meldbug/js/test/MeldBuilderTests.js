@@ -54,7 +54,6 @@ var meldBuilderGenerateMeldKeyTest = {
     setup: function(test) {
         this.testDataType = "testDataType";
         this.testId = "testId";
-        this.testFilterType = "testFilterType";
         this.testMeldBuilder = new MeldBuilder();
     },
 
@@ -64,11 +63,9 @@ var meldBuilderGenerateMeldKeyTest = {
     //-------------------------------------------------------------------------------
 
     test: function(test) {
-        var meldKey = this.testMeldBuilder.generateMeldKey(this.testDataType, this.testId, this.testFilterType);
+        var meldKey = this.testMeldBuilder.generateMeldKey(this.testDataType, this.testId);
         test.assertEqual(meldKey.getDataType(), this.testDataType,
             "Assert meldKey's dataType is testDataType");
-        test.assertEqual(meldKey.getFilterType(), this.testFilterType,
-            "Assert meldKey's filterType is testFilterType");
         test.assertEqual(meldKey.getId(), this.testId,
             "Assert meldKey's id is testId");
     }
@@ -132,8 +129,7 @@ var meldBuilderBuildMeldKeyTest = {
     setup: function(test) {
         this.testMeldKeyData = {
             dataType: "testDataType",
-            id: "testId",
-            filterType: "testFilterType"
+            id: "testId"
         };
         this.testMeldBuilder = new MeldBuilder();
     },
@@ -147,8 +143,6 @@ var meldBuilderBuildMeldKeyTest = {
         var meldKey = this.testMeldBuilder.buildMeldKey(this.testMeldKeyData);
         test.assertEqual(meldKey.getDataType(), this.testMeldKeyData.dataType,
             "Assert meldKey's dataType is testMeldKeyData.dataType");
-        test.assertEqual(meldKey.getFilterType(), this.testMeldKeyData.filterType,
-            "Assert meldKey's filterType is testMeldKeyData.filterType");
         test.assertEqual(meldKey.getId(), this.testMeldKeyData.id,
             "Assert meldKey's id is testId");
     }
@@ -166,8 +160,7 @@ var meldBuilderUnbuildMeldKeyTest = {
     setup: function(test) {
         this.testDataType = "testDataType";
         this.testId = "testId";
-        this.testFilterType = "testFilterType";
-        this.testMeldKey    = new MeldKey(this.testDataType, this.testId, this.testFilterType);
+        this.testMeldKey    = new MeldKey(this.testDataType, this.testId);
         this.testMeldBuilder = new MeldBuilder();
     },
 
@@ -180,8 +173,6 @@ var meldBuilderUnbuildMeldKeyTest = {
         var meldKeyData = this.testMeldBuilder.unbuildMeldKey(this.testMeldKey);
         test.assertEqual(meldKeyData.dataType, this.testDataType,
             "Assert meldKeyData's dataType is testDataType");
-        test.assertEqual(meldKeyData.filterType, this.testFilterType,
-            "Assert meldKeyData's filterType is testFilterType");
         test.assertEqual(meldKeyData.id, this.testId,
             "Assert meldKeyData's id is testId");
     }
@@ -201,15 +192,13 @@ var meldBuilderBuildMeldOperationTest = {
         this.testMeldMeldOperationData = {
             meldKey: {
                 dataType: "testDataType",
-                id: "testId",
-                filterType: "testFilterType"
+                id: "testId"
             },
             type: MeldMeldOperation.TYPE,
             meld: {
                 meldKey: {
                     dataType: "testDataType",
-                    id: "testId",
-                    filterType: "testFilterType"
+                    id: "testId"
                 },
                 meldType: MeldDocument.TYPE,
                 data: {
@@ -236,8 +225,6 @@ var meldBuilderBuildMeldOperationTest = {
         var meldOperation = this.testMeldBuilder.buildMeldOperation(this.testMeldMeldOperationData);
         test.assertEqual(meldOperation.getMeldKey().getDataType(), this.testMeldMeldOperationData.meldKey.dataType,
             "Assert meldOperation.meldKey's dataType is testMeldMeldOperationData.meldKey.dataType");
-        test.assertEqual(meldOperation.getMeldKey().getFilterType(), this.testMeldMeldOperationData.meldKey.filterType,
-            "Assert meldOperation.meldKey's filterType is testMeldMeldOperationData.meldKey.filterType");
         test.assertEqual(meldOperation.getMeldKey().getId(), this.testMeldMeldOperationData.meldKey.id,
             "Assert meldOperation.meldKey's id is testMeldMeldOperationData.meldKey.id");
     }
@@ -255,8 +242,7 @@ var meldBuilderUnbuildMeldOperationTest = {
     setup: function(test) {
         this.testDataType = "testDataType";
         this.testId = "testId";
-        this.testFilterType = "testFilterType";
-        this.testMeldKey    = new MeldKey(this.testDataType, this.testId, this.testFilterType);
+        this.testMeldKey    = new MeldKey(this.testDataType, this.testId);
         this.testData       = {
             key: "value"
         };
@@ -274,8 +260,6 @@ var meldBuilderUnbuildMeldOperationTest = {
         var meldMeldOperationData = this.testMeldBuilder.unbuildMeldOperation(this.testMeldMeldOperation);
         test.assertEqual(meldMeldOperationData.meldKey.dataType, this.testDataType,
             "Assert meldMeldOperationData.meldKey's dataType is testDataType");
-        test.assertEqual(meldMeldOperationData.meldKey.filterType, this.testFilterType,
-            "Assert meldMeldOperationData.meldKey's filterType is testFilterType");
         test.assertEqual(meldMeldOperationData.meldKey.id, this.testId,
             "Assert meldMeldOperationData.meldKey's id is testId");
         test.assertEqual(meldMeldOperationData.type, MeldMeldOperation.TYPE,

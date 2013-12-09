@@ -80,7 +80,7 @@ var meldManagerTest = {
         this.bugCallServer                  = new DummyBugCallServer();
         this.callManager                    = { };
         this.data                           = { testSet: new Set(['value1', 'value2']) };
-        this.meldKey                        = new MeldKey("array", "basic", "id");
+        this.meldKey                        = new MeldKey("array", "id");
         this.meldDocument                   = new MeldDocument(this.meldKey, this.data);
         this.meldBucket                     = new MeldBucket();
         this.meldStore                      = new MeldStore(this.meldBucket);
@@ -159,8 +159,8 @@ var meldManagerContainsMeldByKeyTest = {
 
     setup: function(test) {
             this.meldBucket         = new MeldBucket();
-            this.meldKey            = new MeldKey("TestType", "testId", "basic");
-            this.meldKeyTwo         = new MeldKey("OtherType", "otherId", "basic");
+            this.meldKey            = new MeldKey("TestType", "testId");
+            this.meldKeyTwo         = new MeldKey("OtherType", "otherId");
             this.meld               = new MeldDocument(this.meldKey, {});
             this.meldStore          = new MeldStore(this.meldBucket);
             this.meldMirrorStore    = new MeldMirrorStore();
@@ -190,8 +190,8 @@ var meldManagerGetMeldTest = {
     //-------------------------------------------------------------------------------
     setup: function(test) {
         this.meldBucket         = new MeldBucket();
-        this.meldKey            = new MeldKey("TestType", "testId", "basic");
-        this.meldKeyTwo         = new MeldKey("OtherType", "otherId", "basic");
+        this.meldKey            = new MeldKey("TestType", "testId");
+        this.meldKeyTwo         = new MeldKey("OtherType", "otherId");
         this.data               = {testSet: new Set(['value1', 'value2']) };
         this.meld               = new MeldDocument(this.meldKey, this.data);
         this.meldStore          = new MeldStore(this.meldBucket);
@@ -205,7 +205,7 @@ var meldManagerGetMeldTest = {
     test: function(test) {
         var meld    = this.meldManager.getMeld(this.meldKey);
         var meldKey = meld.getMeldKey();
-        test.assertTrue((meldKey.getId() === this.meldKey.getId() && meldKey.getFilterType() === this.meldKey.getFilterType() && meldKey.getDataType() === this.meldKey.getDataType()),
+        test.assertTrue((meldKey.getId() === this.meldKey.getId() && meldKey.getDataType() === this.meldKey.getDataType()),
             "Assert the meldClone has a meldKey with the same type, id and filter");
         test.assertEqual(meld.getData(), this.data,
             "Assert the meldClone has the same data");

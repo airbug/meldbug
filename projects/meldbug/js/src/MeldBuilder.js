@@ -68,11 +68,10 @@ var MeldBuilder = Class.extend(Obj, {
     /**
      * @param {string} type
      * @param {string} id
-     * @param {string} filter
      * @return {MeldKey}
      */
-    generateMeldKey: function(type, id, filter) {
-        return new MeldKey(type, id, filter);
+    generateMeldKey: function(type, id) {
+        return new MeldKey(type, id);
     },
 
     /**
@@ -143,7 +142,7 @@ var MeldBuilder = Class.extend(Obj, {
      * @return {MeldKey}
      */
     buildMeldKey: function(meldKeyData) {
-        return new MeldKey(meldKeyData.dataType, meldKeyData.id, meldKeyData.filterType);
+        return new MeldKey(meldKeyData.dataType, meldKeyData.id);
     },
 
     /**
@@ -153,7 +152,6 @@ var MeldBuilder = Class.extend(Obj, {
     unbuildMeldKey: function(meldKey) {
         return {
             dataType: meldKey.getDataType(),
-            filterType: meldKey.getFilterType(),
             id: meldKey.getId()
         };
     },

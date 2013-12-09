@@ -48,8 +48,7 @@ var removeMeldOperationInstantiationTest = {
     setup: function(test) {
         this.id             = "testId";
         this.type           = "TestType";
-        this.filter         = "basic";
-        this.meldKey        = new MeldKey(this.type, this.id, this.filter);
+        this.meldKey        = new MeldKey(this.type, this.id);
         this.removeMeldOperation  = new RemoveMeldOperation(this.meldKey);
     },
 

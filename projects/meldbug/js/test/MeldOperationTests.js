@@ -59,7 +59,7 @@ var meldOperationInstantiationTest = {
         this.filter                     = "basic";
         this.testUuid                   = "testUuid";
         this.testPreviousOperationUuid  = "testPreviousOperationUuid";
-        this.meldKey                    = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey                    = new MeldKey(this.meldType, this.id);
         this.meldOperationType          = "testMeldOperationType";
         this.meldOperation              = new MeldOperation(this.meldKey, this.meldOperationType, this.testPreviousOperationUuid);
     },
@@ -93,8 +93,7 @@ var meldOperationGetMeldKeyTest = {
     setup: function(test) {
         this.id                     = "testId";
         this.meldType               = "TestType";
-        this.filter                 = "basic";
-        this.meldKey                = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey                = new MeldKey(this.meldType, this.id);
         this.previousOperationUuid  = null;
         this.meldOperationType      = "";
         this.meldOperation          = new MeldOperation(this.meldKey, this.meldOperationType, this.previousOperationUuid);
@@ -123,8 +122,7 @@ var meldOperationGetPreviousOperationUuidTest = {
     setup: function(test) {
         this.id                     = "testId";
         this.meldType               = "TestType";
-        this.filter                 = "basic";
-        this.meldKey                = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey                = new MeldKey(this.meldType, this.id);
         this.previousOperationUuid  = null;
         this.meldOperationType      = "";
         this.meldOperation          = new MeldOperation(this.meldKey, this.meldOperationType, this.previousOperationUuid);
@@ -157,9 +155,8 @@ var meldOperationGetUuidTest = {
     setup: function(test) {
         this.testId                 = "testId";
         this.meldType               = "TestType";
-        this.filter                 = "basic";
         this.testUuid               = "testUuid";
-        this.meldKey                = new MeldKey(this.meldType, this.testId, this.filter);
+        this.meldKey                = new MeldKey(this.meldType, this.testId);
         this.meldOperationType      = "";
         this.meldOperation          = new MeldOperation(this.meldKey, this.meldOperationType, null);
     },
@@ -187,8 +184,7 @@ var meldOperationSetPreviousOperationUuidTest = {
     setup: function(test) {
         this.id                     = "testId";
         this.meldType               = "TestType";
-        this.filter                 = "basic";
-        this.meldKey                = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey                = new MeldKey(this.meldType, this.id);
         this.previousOperationUuid  = null;
         this.meldOperationType      = "";
         this.meldOperation          = new MeldOperation(this.meldKey, this.meldOperationType, this.previousOperationUuid);
@@ -206,7 +202,7 @@ var meldOperationSetPreviousOperationUuidTest = {
         this.meldOperation.setPreviousOperationUuid(this.previousOperationUuidTwo);
         test.assertEqual(this.previousOperationUuidTwo, this.meldOperation.getPreviousOperationUuid(),
             "Assert meldOperation#setPreviousOperationUuid is now set to the new previousOperationUuid");
-        test.assertNotEqual(this.previousOperationUuid, this.getPreviousOperationUuidTwo,
+        test.assertNotEqual(this.previousOperationUuid, this.meldOperation.getPreviousOperationUuid(),
             "Assert meldOperation previousOperationUuid is not equal to previous previousOperationUuid");
     }
 };
@@ -223,8 +219,7 @@ var meldOperationSetUuidTest = {
     setup: function(test) {
         this.id                     = "testId";
         this.meldType               = "TestType";
-        this.filter                 = "basic";
-        this.meldKey                = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey                = new MeldKey(this.meldType, this.id);
         this.meldOperationType      = "";
         this.meldOperation          = new MeldOperation(this.meldKey, this.meldOperationType, this.previousOperationUuid);
     },
@@ -255,8 +250,7 @@ var meldOperationApplyTest = {
     setup: function(test) {
         this.id                     = "testId";
         this.meldType               = "testType";
-        this.filter                 = "basic";
-        this.meldKey                = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey                = new MeldKey(this.meldType, this.id);
         this.meldBucket             = new MeldBucket();
         this.testData               = {
             "testPath": {
@@ -298,8 +292,7 @@ var meldOperationCommitTest = {
     setup: function(test) {
         this.id                     = "testId";
         this.meldType               = "testType";
-        this.filter                 = "basic";
-        this.meldKey                = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey                = new MeldKey(this.meldType, this.id);
         this.meldBucket             = new MeldBucket();
         this.testData               = {
             "testPath": {

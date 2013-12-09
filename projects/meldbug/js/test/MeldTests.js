@@ -50,7 +50,7 @@ var meldTest = {
 
     setup: function(test) {
         var _this = this;
-        var meldKey = new MeldKey("array", "basic", "id");
+        var meldKey = new MeldKey("array", "id");
         this.meld = new Meld(meldKey, "type");
     },
 

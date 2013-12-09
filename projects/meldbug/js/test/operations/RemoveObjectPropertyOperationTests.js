@@ -56,7 +56,7 @@ var removeObjectPropertyOperationInstantiationTest = {
     //-------------------------------------------------------------------------------
 
     setup: function(test) {
-        this.meldKey                = new MeldKey("TestType", "testId", "basic");
+        this.meldKey                = new MeldKey("TestType", "testId");
         this.testPath               = "testPath";
         this.testPropertyName       = "testPropertyName";
         this.testPropertyValue      = "testPropertyValue";
@@ -92,8 +92,7 @@ var removeObjectPropertyOperationGetPathTest = {
     setup: function(test) {
         this.id                     = "testId";
         this.meldType               = "testType";
-        this.filter                 = "basic";
-        this.meldKey                = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey                = new MeldKey(this.meldType, this.id);
         this.testPath               = "testPath";
         this.testPathTwo            = "testPathTwo";
         this.testPropertyName       = "testPropertyName";
@@ -127,8 +126,7 @@ var removeObjectPropertyOperationGetPropertyNameTest = {
     setup: function(test) {
         this.id                     = "testId";
         this.meldType               = "testType";
-        this.filter                 = "basic";
-        this.meldKey                = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey                = new MeldKey(this.meldType, this.id);
         this.testPath               = "testPath";
         this.testPathTwo            = "testPathTwo";
         this.testPropertyName       = "testPropertyName";
@@ -162,14 +160,13 @@ var removeObjectPropertyOperationApplyTest = {
     setup: function(test) {
         this.id                     = "testId";
         this.meldType               = "testType";
-        this.filter                 = "basic";
         this.testPath               = "testPath";
         this.testPropertyName       = "testPropertyName";
         this.complexTestPath        = "testPath.complexPath";
         this.testPropertyNameTwo    = "testPropertyNameTwo";
         this.testPropertyValue      = 123456789;
         this.testPropertyValueTwo   = 987654321;
-        this.meldKey                = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey                = new MeldKey(this.meldType, this.id);
         this.meldBucket             = new MeldBucket();
         this.testData               = {
             "testPath": {
@@ -231,11 +228,10 @@ var removeObjectPropertyOperationCommitTest = {
     setup: function(test) {
         this.id                 = "testId";
         this.meldType           = "testType";
-        this.filter             = "basic";
         this.testPath           = "testPath";
         this.testPropertyName   = "testPropertyName";
         this.testPropertyValue  = 123456789;
-        this.meldKey            = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey            = new MeldKey(this.meldType, this.id);
         this.meldBucket         = new MeldBucket();
         this.meldDocument       = new MeldDocument(this.meldKey, {"testPath": {"testPropertyName": this.testPropertyValue}});
         this.meldBucket.addMeld(this.meldDocument);
@@ -278,12 +274,11 @@ var removeObjectPropertyOperationCloneTest = {
     setup: function(test) {
         this.id                 = "testId";
         this.meldType           = "testType";
-        this.filter             = "basic";
         this.testPath           = "testPath";
         this.testPropertyName   = "testPropertyName";
         this.testPropertyValue  = 123456789;
         this.previousOperationUuid = "previousOperationUuid123"
-        this.meldKey            = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey            = new MeldKey(this.meldType, this.id);
         this.removeObjectPropertyOperation = new RemoveObjectPropertyOperation(this.meldKey, this.testPath, this.testPropertyName);
         this.removeObjectPropertyOperation.setPreviousOperationUuid("previousOperationUuid123");
     },

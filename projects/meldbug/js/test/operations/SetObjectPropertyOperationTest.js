@@ -56,7 +56,7 @@ var setObjectPropertyOperationInstantiationTest = {
     //-------------------------------------------------------------------------------
 
     setup: function(test) {
-        this.meldKey                = new MeldKey("TestType", "testId", "basic");
+        this.meldKey                = new MeldKey("TestType", "testId");
         this.testPath               = "testPath";
         this.testPropertyName       = "testPropertyName";
         this.testPropertyValue      = "testPropertyValue";
@@ -92,7 +92,7 @@ var setObjectPropertyOperationGetPathTest = {
     //-------------------------------------------------------------------------------
 
     setup: function(test) {
-        this.meldKey                = new MeldKey("TestType", "testId", "basic");
+        this.meldKey                = new MeldKey("TestType", "testId");
         this.testPath               = "testPath";
         this.testPathTwo            = "testPathTwo";
         this.testPropertyName       = "testPropertyName";
@@ -124,7 +124,7 @@ var setObjectPropertyOperationGetPropertyNameTest = {
     //-------------------------------------------------------------------------------
 
     setup: function(test) {
-        this.meldKey                = new MeldKey("TestType", "testId", "basic");
+        this.meldKey                = new MeldKey("TestType", "testId");
         this.testPath               = "testPath";
         this.testPathTwo            = "testPathTwo";
         this.testPropertyName       = "testPropertyName";
@@ -156,7 +156,7 @@ var setObjectPropertyOperationGetPropertyValueTest = {
     //-------------------------------------------------------------------------------
 
     setup: function(test) {
-        this.meldKey                = new MeldKey("TestType", "testId", "basic");
+        this.meldKey                = new MeldKey("TestType", "testId");
         this.testPath               = "testPath";
         this.testPathTwo            = "testPathTwo";
         this.testPropertyName       = "testPropertyName";
@@ -195,11 +195,11 @@ var setObjectPropertyOperationApplyTest = {
         this.testPath               = "testPath";
         this.testPropertyName       = "testPropertyName";
         this.testPropertyValue      = 123456789;
-        this.meldKey                = new MeldKey("TestType", "testId", "basic");
+        this.meldKey                = new MeldKey("TestType", "testId");
         this.meldBucket             = new MeldBucket();
         this.testData               = {
             "testPath": {
-                "testPropertyName": this.testPropertyValue,
+                "testPropertyName": this.testPropertyValue
             }
         };
         this.testSetValue       = "newSetValueOne";
@@ -244,7 +244,7 @@ var setObjectPropertyOperationComplexPathApplyTest = {
         this.complexTestPath        = "testPath.complexPath";
         this.testPropertyName       = "testPropertyNameTwo";
         this.testPropertyValue      = 987654321;
-        this.meldKey                = new MeldKey("TestType", "testId", "basic");
+        this.meldKey                = new MeldKey("TestType", "testId");
         this.meldBucket             = new MeldBucket();
         this.testData               = {
             "testPath": {
@@ -295,7 +295,7 @@ var setObjectPropertyOperationCommitTest = {
         this.testPropertyName   = "testPropertyName";
         this.testPropertyValue  = 123456789;
         this.testSetValue       = "newSetValueOne";
-        this.meldKey            = new MeldKey("TestType", "testId", "basic");
+        this.meldKey            = new MeldKey("TestType", "testId");
         this.meldBucket         = new MeldBucket();
         this.meldDocument       = new MeldDocument(this.meldKey, {"testPath": {"testPropertyName": this.testPropertyValue}});
         this.meldBucket.addMeld(this.meldDocument);
@@ -340,7 +340,7 @@ var setObjectPropertyOperationCloneTest = {
         this.testPropertyName   = "testPropertyName";
         this.testPropertyValue  = 123456789;
         this.previousOperationUuid = "previousOperationUuid123"
-        this.meldKey            = new MeldKey("TestType", "testId", "basic");
+        this.meldKey            = new MeldKey("TestType", "testId");
         this.setObjectPropertyOperation = new SetObjectPropertyOperation(this.meldKey, this.testPath, this.testPropertyName, this.testPropertyValue);
         this.setObjectPropertyOperation.setPreviousOperationUuid("previousOperationUuid123");
     },

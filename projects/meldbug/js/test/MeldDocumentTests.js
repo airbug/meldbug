@@ -64,11 +64,11 @@ var meldDocumentTest = {
             testSet: new Set(["value1", "value2"]),
             testObject: {
                 property1: "val1",
-                proeprty2: "val2"
+                property2: "val2"
             }
         };
         this.meldBucket = new MeldBucket();
-        this.meldKey = new MeldKey("object", "basic", "id");
+        this.meldKey = new MeldKey("object", "id");
         this.meldDocument = new MeldDocument(this.meldKey, data);
         this.meldBucket.addMeld(this.meldDocument);
     },
