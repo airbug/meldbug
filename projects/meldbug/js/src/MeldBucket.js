@@ -125,7 +125,7 @@ var MeldBucket = Class.extend(EventDispatcher, {
      */
     unmeldMeld: function(meld) {
         if (this.containsMeld(meld)) {
-            var operation = new RemoveMeldOperation(meld.getMeldKey(), meld);
+            var operation = new RemoveMeldOperation(meld.getMeldKey(), meld); //NOTE SUNG I believe this should be called UnmeldOperation for consistency.
             this.meldOperation(operation);
         }
     },
