@@ -155,11 +155,11 @@ var meldOperationGetUuidTest = {
     //-------------------------------------------------------------------------------
 
     setup: function(test) {
-        this.id                     = "testId";
+        this.testId                 = "testId";
         this.meldType               = "TestType";
         this.filter                 = "basic";
         this.testUuid               = "testUuid";
-        this.meldKey                = new MeldKey(this.meldType, this.id, this.filter);
+        this.meldKey                = new MeldKey(this.meldType, this.testId, this.filter);
         this.meldOperationType      = "";
         this.meldOperation          = new MeldOperation(this.meldKey, this.meldOperationType, null);
     },

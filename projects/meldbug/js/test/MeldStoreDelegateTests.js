@@ -81,13 +81,9 @@ var meldStoreDelegateEnsureMeldKeyRetrievedTest = {
     //-------------------------------------------------------------------------------
 
     setup: function(test) {
-        this.testId                 = "testId";
-        this.meldType               = "TestType";
-        this.filter                 = "basic";
-        this.testUuid               = "testUuid";
         this.meldBucket             = new MeldBucket();
         this.meldStore              = new MeldStore(this.meldBucket);
-        this.meldKey                = new MeldKey(this.meldType, this.testId, this.filter);
+        this.meldKey                = new MeldKey("TestType", "testId", "basic");
         this.meld                   = new Meld(this.meldKey, this.meldType);
         this.meldStoreDelegate      = new MeldStoreDelegate(this.meldStore);
         this.meldBucket.addMeld(this.meld);
@@ -118,13 +114,9 @@ bugmeta.annotate(meldStoreDelegateEnsureMeldKeyRetrievedTest).with(
 //     //-------------------------------------------------------------------------------
 
 //     setup: function(test) {
-//         this.testId                 = "testId";
-//         this.meldType               = "TestType";
-//         this.filter                 = "basic";
-//         this.testUuid               = "testUuid";
 //         this.meldBucket             = new MeldBucket();
 //         this.meldStore              = new MeldStore(this.meldBucket);
-//         this.meldKey                = new MeldKey(this.meldType, this.testId, this.filter);
+//         this.meldKey                = new MeldKey("TestType", "testId", "basic");
 //         this.meld                   = new Meld(this.meldKey, this.meldType);
 //         this.meldStoreDelegate      = new MeldStoreDelegate(this.meldStore);
 //     },
