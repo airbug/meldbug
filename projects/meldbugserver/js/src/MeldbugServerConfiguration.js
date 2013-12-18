@@ -9,6 +9,7 @@
 
 //@Require('Class')
 //@Require('Obj')
+//@Require('bugflow.BugFlow')
 //@Require('bugioc.ArgAnnotation')
 //@Require('bugioc.ConfigurationAnnotation')
 //@Require('bugioc.IConfiguration')
@@ -22,6 +23,8 @@
 //@Require('meldbugserver.MeldManagerFactory')
 //@Require('meldbugserver.MeldMirrorService')
 //@Require('meldbugserver.MeldMirrorStore')
+//@Require('redis.RedisClient')
+//@Require('redis.RedisConfig')
 
 
 //-------------------------------------------------------------------------------
@@ -29,6 +32,7 @@
 //-------------------------------------------------------------------------------
 
 var bugpack                         = require('bugpack').context();
+var redis                           = require('redis');
 
 
 //-------------------------------------------------------------------------------
@@ -37,6 +41,7 @@ var bugpack                         = require('bugpack').context();
 
 var Class                           = bugpack.require('Class');
 var Obj                             = bugpack.require('Obj');
+var BugFlow                         = bugpack.require('bugflow.BugFlow');
 var ArgAnnotation                   = bugpack.require('bugioc.ArgAnnotation');
 var ConfigurationAnnotation         = bugpack.require('bugioc.ConfigurationAnnotation');
 var IConfiguration                  = bugpack.require('bugioc.IConfiguration');
@@ -50,6 +55,8 @@ var MeldbugClientConsumerManager    = bugpack.require('meldbugserver.MeldbugClie
 var MeldManagerFactory              = bugpack.require('meldbugserver.MeldManagerFactory');
 var MeldMirrorService               = bugpack.require('meldbugserver.MeldMirrorService');
 var MeldMirrorStore                 = bugpack.require('meldbugserver.MeldMirrorStore');
+var RedisClient                     = bugpack.require('redis.RedisClient');
+var RedisConfig                     = bugpack.require('redis.RedisConfig');
 
 
 //-------------------------------------------------------------------------------
@@ -61,6 +68,8 @@ var bugmeta                         = BugMeta.context();
 var configuration                   = ConfigurationAnnotation.configuration;
 var module                          = ModuleAnnotation.module;
 var property                        = PropertyAnnotation.property;
+var $series                         = BugFlow.$series;
+var $task                           = BugFlow.$task;
 
 
 //-------------------------------------------------------------------------------
@@ -68,6 +77,32 @@ var property                        = PropertyAnnotation.property;
 //-------------------------------------------------------------------------------
 
 var MeldbugServerConfiguration = Class.extend(Obj, {
+
+    //-------------------------------------------------------------------------------
+    // Constructor
+    //-------------------------------------------------------------------------------
+
+    _constructor: function() {
+
+        this._super();
+
+
+        //-------------------------------------------------------------------------------
+        // Private Properties
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @private
+         * @type {RedisClient}
+         */
+        this._redisClient   = null;
+
+        /**
+         * @private
+         * @type {RedisConfig}
+         */
+        this._redisConfig   = null;
+    },
 
 
     //-------------------------------------------------------------------------------
@@ -80,7 +115,13 @@ var MeldbugServerConfiguration = Class.extend(Obj, {
     initializeConfiguration: function(callback) {
         var _this = this;
         console.log("Initializing MeldbugServerConfiguration");
-        callback();
+        $series([
+            $task(function(flow) {
+                _this._redisClient.connect(function(throwable) {
+                    flow.complete(throwable);
+                })
+            })
+        ]).execute(callback);
     },
 
     /**
@@ -135,6 +176,31 @@ var MeldbugServerConfiguration = Class.extend(Obj, {
      */
     meldStore: function(meldBucket) {
         return new MeldStore(meldBucket);
+    },
+
+    /**
+     * @return {exports}
+     */
+    redis: function() {
+        return redis;
+    },
+
+    /**
+     * @param {exports} redis
+     * @param {RedisConfig} redisConfig
+     * @return {RedisClient}
+     */
+    redisClient: function(redis, redisConfig) {
+        this._redisClient = new RedisClient(redis, redisConfig);
+        return this._redisClient;
+    },
+
+    /**
+     * @return {RedisConfig}
+     */
+    redisConfig: function() {
+        this._redisConfig = new RedisConfig();
+        return this._redisConfig;
     }
 });
 
@@ -173,7 +239,14 @@ bugmeta.annotate(MeldbugServerConfiguration).with(
         module("meldStore")
             .args([
                 arg().ref("meldBucket")
-            ])
+            ]),
+        module("redis"),
+        module("redisClient")
+            .args([
+                arg().ref("redis"),
+                arg().ref("redisConfig")
+            ]),
+        module("redisConfig")
     ])
 );
 
