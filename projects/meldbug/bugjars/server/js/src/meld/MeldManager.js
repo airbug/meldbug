@@ -14,6 +14,7 @@
 //@Require('bugioc.ArgAnnotation')
 //@Require('bugioc.ModuleAnnotation')
 //@Require('bugmeta.BugMeta')
+//@Require('meldbug.MeldDocumentKey')
 
 
 //-------------------------------------------------------------------------------
@@ -34,6 +35,7 @@ var BugFlow                 = bugpack.require('bugflow.BugFlow');
 var ArgAnnotation           = bugpack.require('bugioc.ArgAnnotation');
 var ModuleAnnotation        = bugpack.require('bugioc.ModuleAnnotation');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
+var MeldDocumentKey         = bugpack.require('meldbug.MeldDocumentKey');
 
 
 //-------------------------------------------------------------------------------
@@ -131,12 +133,19 @@ var MeldManager = Class.extend(Obj, {
      * @param {function(Throwable, Set.<string>=)} callback
      */
     getMeldDocumentKeySetForCallUuid: function(callUuid, callback) {
+        var _this = this;
         var meldDocumentKeySetKey = this.generateMeldDocumentKeySetForCallUuidKey(callUuid);
         this.redisClient.sMembers(meldDocumentKeySetKey, function(error, replies) {
             if (!error) {
                 /** @type {Set.<MeldDocumentKey>} */
-                var callUuidSet = new Set(replies);
-                callback(null, callUuidSet);
+                var meldDocumentKeySet = new Set();
+                if (replies) {
+                    replies.forEach(function(reply) {
+                        var meldDocumentKey = MeldDocumentKey.fromStringKey(reply);
+                        meldDocumentKeySet.add(meldDocumentKey);
+                    });
+                }
+                callback(null, meldDocumentKeySet);
             } else {
                 callback(error)
             }
@@ -168,11 +177,12 @@ var MeldManager = Class.extend(Obj, {
      * @param {function(Throwable=)} callback
      */
     meldCallUuidWithMeldDocumentKeys: function(callUuid, meldDocumentKeys, callback) {
+        var _this = this;
         var multi = this.redisClient.multi();
         meldDocumentKeys.forEach(function(meldDocumentKey) {
             multi
-                .sadd(this.generateMeldDocumentKeySetForCallUuidKey(callUuid), meldDocumentKey.toStringKey())
-                .sadd(this.generateCallUuidSetForMeldDocumentKeyKey(meldDocumentKey), callUuid);
+                .sadd(_this.generateMeldDocumentKeySetForCallUuidKey(callUuid), meldDocumentKey.toStringKey())
+                .sadd(_this.generateCallUuidSetForMeldDocumentKeyKey(meldDocumentKey), callUuid);
         });
         multi
             .exec(function(errors, replies) {
@@ -190,12 +200,13 @@ var MeldManager = Class.extend(Obj, {
      * @param {function(Throwable=)} callback
      */
     meldCallUuidsWithMeldDocumentKeys: function(callUuids, meldDocumentKeys, callback) {
+        var _this = this;
         var multi = this.redisClient.multi();
         callUuids.forEach(function(callUuid) {
             meldDocumentKeys.forEach(function(meldDocumentKey) {
                 multi
-                    .sadd(this.generateMeldDocumentKeySetForCallUuidKey(callUuid), meldDocumentKey.toStringKey())
-                    .sadd(this.generateCallUuidSetForMeldDocumentKeyKey(meldDocumentKey), callUuid);
+                    .sadd(_this.generateMeldDocumentKeySetForCallUuidKey(callUuid), meldDocumentKey.toStringKey())
+                    .sadd(_this.generateCallUuidSetForMeldDocumentKeyKey(meldDocumentKey), callUuid);
             });
         });
         multi
@@ -232,7 +243,7 @@ var MeldManager = Class.extend(Obj, {
         var meldDocumentKeySet = null;
         $series([
             $task(function(flow) {
-                _this.meldManager.getMeldDocumentKeySetForCallUuid(callUuid, function(throwable, retrievedMeldDocumentKeySet) {
+                _this.getMeldDocumentKeySetForCallUuid(callUuid, function(throwable, retrievedMeldDocumentKeySet) {
                     if (!throwable) {
                         meldDocumentKeySet = retrievedMeldDocumentKeySet;
                     }
@@ -240,7 +251,7 @@ var MeldManager = Class.extend(Obj, {
                 });
             }),
             $task(function(flow) {
-                _this.meldManager.unmeldCallUuidWithMeldDocumentKeys(callUuid, meldDocumentKeySet.toArray(), function(throwable) {
+                _this.unmeldCallUuidWithMeldDocumentKeys(callUuid, meldDocumentKeySet.toArray(), function(throwable) {
                     flow.complete(throwable);
                 });
             })
@@ -253,11 +264,12 @@ var MeldManager = Class.extend(Obj, {
      * @param {function(Throwable=)} callback
      */
     unmeldCallUuidWithMeldDocumentKeys: function(callUuid, meldDocumentKeys, callback) {
+        var _this = this;
         var multi = this.redisClient.multi();
         meldDocumentKeys.forEach(function(meldDocumentKey) {
             multi
-                .srem(this.generateMeldDocumentKeySetForCallUuidKey(callUuid), meldDocumentKey.toStringKey())
-                .srem(this.generateCallUuidSetForMeldDocumentKeyKey(meldDocumentKey), callUuid);
+                .srem(_this.generateMeldDocumentKeySetForCallUuidKey(callUuid), meldDocumentKey.toStringKey())
+                .srem(_this.generateCallUuidSetForMeldDocumentKeyKey(meldDocumentKey), callUuid);
         });
         multi
             .exec(function(errors, replies) {
@@ -275,12 +287,13 @@ var MeldManager = Class.extend(Obj, {
      * @param {function(Throwable=)} callback
      */
     unmeldCallUuidsWithMeldDocumentKeys: function(callUuids, meldDocumentKeys, callback) {
+        var _this = this;
         var multi = this.redisClient.multi();
         callUuids.forEach(function(callUuid) {
             meldDocumentKeys.forEach(function(meldDocumentKey) {
                 multi
-                    .srem(this.generateMeldDocumentKeySetForCallUuidKey(callUuid), meldDocumentKey.toStringKey())
-                    .srem(this.generateCallUuidSetForMeldDocumentKeyKey(meldDocumentKey), callUuid);
+                    .srem(_this.generateMeldDocumentKeySetForCallUuidKey(callUuid), meldDocumentKey.toStringKey())
+                    .srem(_this.generateCallUuidSetForMeldDocumentKeyKey(meldDocumentKey), callUuid);
             });
         });
         multi

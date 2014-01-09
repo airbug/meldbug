@@ -377,17 +377,23 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
         $iterableParallel(callUuidSet, function(flow, callUuid) {
             var meldClientKey = _this.meldClientManager.generateMeldClientKey(callUuid);
             _this.meldClientManager.getMeldClientForKey(meldClientKey, function(throwable, meldClient) {
-                if (meldClient.isActive()) {
-                    _this.pushToActiveClient(callUuid, meldTransaction, function(throwable) {
-                        flow.complete(throwable);
-                    })
-                } else if (meldClient.getLastActive() > (1000 * 60 * 60)) {
+                if (meldClient) {
+                    if (meldClient.isActive()) {
+                        _this.pushToActiveClient(callUuid, meldTransaction, function(throwable) {
+                            flow.complete(throwable);
+                        })
+                    } else if (meldClient.getLastActive() > (1000 * 60 * 60)) {
+                        _this.queueCleanup(callUuid, function(throwable) {
+                            flow.complete(throwable);
+                        })
+                    } else {
+                        _this.storeForDeactivatedClient(callUuid, meldTransaction, function(throwable) {
+                            flow.complete(throwable)
+                        })
+                    }
+                } else {
                     _this.queueCleanup(callUuid, function(throwable) {
                         flow.complete(throwable);
-                    })
-                } else {
-                    _this.storeForDeactivatedClient(callUuid, meldTransaction, function(throwable) {
-                        flow.complete(throwable)
                     })
                 }
             });

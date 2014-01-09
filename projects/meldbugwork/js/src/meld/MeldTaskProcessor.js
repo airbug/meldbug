@@ -140,9 +140,6 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
      * @param {function(Throwable=)} callback
      */
     doTask: function(meldTask, callback) {
-
-        console.log("Processing MeldTask - taskUuid:", meldTask.getTaskUuid(), " callUuid:", meldTask.getCallUuid());
-
         var _this                   = this;
         var callUuid                = meldTask.getCallUuid();
         var mirrorMeldBucketKey     = this.meldBucketManager.generateMeldBucketKey("mirrorMeldBucket", callUuid);
@@ -150,6 +147,10 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
         var mirrorMeldBucket        = null;
         var serverMeldBucket        = null;
         var locked                  = false;
+
+        console.log("Processing MeldTask - taskUuid:", meldTask.getTaskUuid(), " callUuid:", meldTask.getCallUuid(),
+            " mirrorMeldBucketKey:", mirrorMeldBucketKey.toStringKey(), " serverMeldBucketKey:", serverMeldBucketKey.toStringKey());
+
         $series([
             $task(function(flow) {
                 _this.meldBucketManager.lockMeldBucketForKey(mirrorMeldBucketKey, function(throwable) {
@@ -212,7 +213,15 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
                      }
                      callback(error);
                  } else if (taskThrowable) {
-                     callback(taskThrowable)
+                     if (Class.doesExtend(taskThrowable, Exception)) {
+                         if (taskThrowable.getType() === "MessageNotDelivered") {
+                             console.warn("MeldTask could not be completed - callUuid:", meldTask.getCallUuid());
+                             //TODO BRN: We should retry this message a few times. If it still fails, then what do we do?....
+                             callback();
+                         }
+                     } else {
+                        callback(taskThrowable)
+                     }
                  } else {
                      callback();
                  }
@@ -233,45 +242,62 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
      * @param {function(Throwable=)} callback
      */
     generateAndPublishTransaction: function(callUuid, serverMeldBucket, mirrorMeldBucket, callback) {
+        var complete        = false;
+        var timeoutId       = null;
         var _this           = this;
         var meldTransaction = this.meldTransactionGenerator.generateMeldTransactionBetweenMeldBuckets(serverMeldBucket, mirrorMeldBucket);
 
-        $series([
-            $task(function(flow) {
-                _this.meldTransactionManager.publishTransactionForCallAndSubscribeToResponse(callUuid, meldTransaction, function(message) {
-                    var messageData = message.getMessageData();
-                    var success     = messageData.success;
+        if (!meldTransaction.isEmpty()) {
+            $series([
+                $task(function(flow) {
+                    _this.meldTransactionManager.publishTransactionForCallAndSubscribeToResponse(callUuid, meldTransaction, function(message) {
+                        if (!complete) {
+                            complete = true;
+                            clearTimeout(timeoutId);
+                            var messageData = message.getMessageData();
+                            var success     = messageData.success;
 
-                    //TEST
-                    console.log("MeldTransaction response received for callUuid:", callUuid, " message:", message);
+                            //TEST
+                            console.log("MeldTransaction response received for callUuid:", callUuid, " message:", message);
 
-                    if (success) {
-                        flow.complete();
-                    } else {
-                        flow.error(new Exception("MessageFailed"));
-                    }
-                }, null, function(throwable, numberReceived) {
-
-                    //TEST
-                    console.log("MeldTransaction published for callUuid:", callUuid, " numberReceived:", numberReceived);
-
-                    if (throwable) {
-                        flow.error(throwable);
-                    } else {
-                        if (numberReceived === 0) {
-                            flow.error(new Exception("MessageNotDelivered"));
-                        } else {
-                            if (numberReceived > 1) {
-                                console.warn("more than one server received transaction message. This should not happen");
+                            if (success) {
+                                flow.complete();
+                            } else {
+                                flow.error(new Exception("MessageFailed"));
                             }
-                            // do nothing more since we don't want to proceed to the next task until we receive a response
-                            // NOTE BRN: There is a chance that the server that received the transaction message could go down
-                            // and this would be left hanging. Need to setup some sort of timeout for this edge case.
                         }
-                    }
-                });
-            })
-        ]).execute(callback)
+                    }, null, function(throwable, numberReceived) {
+
+                        //TEST
+                        console.log("MeldTransaction published for callUuid:", callUuid, " numberReceived:", numberReceived);
+
+                        if (throwable) {
+                            flow.error(throwable);
+                        } else {
+                            if (numberReceived === 0) {
+                                flow.error(new Exception("MessageNotDelivered", {}, "Message was not received by anyone"));
+                            } else {
+                                if (numberReceived > 1) {
+                                    console.warn("more than one server received transaction message. This should not happen");
+                                }
+                                // do nothing more since we don't want to proceed to the next task until we receive a response
+                                // NOTE BRN: There is a chance that the server that received the transaction message could go down
+                                // and this would be left hanging.
+
+                                timeoutId = setTimeout(function() {
+                                    if (!complete) {
+                                        complete = true;
+                                        flow.error(new Exception("Timeout"));
+                                    }
+                                }, 30 * 1000);
+                            }
+                        }
+                    });
+                })
+            ]).execute(callback);
+        } else {
+            callback();
+        }
     }
 });
 

@@ -85,6 +85,18 @@ var MeldTransaction = Class.extend(Obj, {
      */
     addMeldOperation: function(meldOperation) {
         this.meldOperationList.add(meldOperation);
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Public Methods
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @return {boolean}
+     */
+    isEmpty: function() {
+        return this.meldOperationList.isEmpty();
     }
 });
 
