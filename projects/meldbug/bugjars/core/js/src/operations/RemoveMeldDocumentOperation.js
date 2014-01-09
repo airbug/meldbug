@@ -2,44 +2,34 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbugclient')
+//@Package('meldbug')
 
-//@Export('MeldbugClientService')
+//@Export('RemoveMeldDocumentOperation')
 
 //@Require('Class')
-//@Require('Obj')
-//@Require('bugflow.BugFlow')
+//@Require('meldbug.MeldBucketOperation')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack             = require('bugpack').context();
+var bugpack                 = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class               = bugpack.require('Class');
-var Obj                 = bugpack.require('Obj');
-var BugFlow             = bugpack.require('bugflow.BugFlow');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var $series             = BugFlow.$series;
-var $task               = BugFlow.$task;
+var Class                   = bugpack.require('Class');
+var MeldBucketOperation     = bugpack.require('meldbug.MeldBucketOperation');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldbugClientService = Class.extend(Obj, {
+var RemoveMeldDocumentOperation = Class.extend(MeldBucketOperation, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -47,64 +37,62 @@ var MeldbugClientService = Class.extend(Obj, {
 
     /**
      * @constructs
-     * @param {MeldStore} meldStore
+     * @param {MeldDocumentKey} meldDocumentKey
      */
-    _constructor: function(meldStore) {
+    _constructor: function(meldDocumentKey) {
 
-        this._super();
+        this._super(meldDocumentKey, RemoveMeldDocumentOperation.TYPE);
+
 
         //-------------------------------------------------------------------------------
-        // Private Properties
+        // Properties
         //-------------------------------------------------------------------------------
-
-        /**
-         * @private
-         * @type {MeldStore}
-         */
-        this.meldStore = meldStore;
     },
 
 
     //-------------------------------------------------------------------------------
-    // Getters and Setters
+    // IClone Implementation
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {MeldStore}
+     * @param {boolean} deep
+     * @return {RemoveMeldDocumentOperation}
      */
-    getMeldStore: function() {
-        return this.meldStore;
+    clone: function(deep) {
+        var clone = new RemoveMeldDocumentOperation(this.getMeldDocumentKey());
+        clone.setUuid(this.getUuid());
+        return clone;
     },
 
 
     //-------------------------------------------------------------------------------
-    // Public Methods
+    // MeldOperation Methods
     //-------------------------------------------------------------------------------
 
     /**
-     * @private
-     * @param {MeldTransaction} meldTransaction
-     * @param {function(Throwable)} callback
+     * @override
+     * @param {MeldBucket} meldBucket
+     * @return {MeldDocument}
      */
-    commitMeldTransaction: function(meldTransaction, callback) {
-        var _this = this;
-        $task(function(flow) {
-            _this.meldStore.commitMeldTransaction(meldTransaction, function(throwable) {
-                flow.complete(throwable);
-            });
-        }).execute(function(throwable) {
-            if (!throwable) {
-                callback(null);
-            } else {
-                callback(throwable);
-            }
-        });
+    apply: function(meldBucket) {
+        return meldBucket.removeMeldDocumentByMeldDocumentKey(this.getMeldDocumentKey());
     }
 });
+
+
+//-------------------------------------------------------------------------------
+// Static Variables
+//-------------------------------------------------------------------------------
+
+/**
+ * @static
+ * @const {string}
+ */
+RemoveMeldDocumentOperation.TYPE = "RemoveMeldDocumentOperation";
 
 
 //-------------------------------------------------------------------------------
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbugclient.MeldbugClientService', MeldbugClientService);
+bugpack.export('meldbug.RemoveMeldDocumentOperation', RemoveMeldDocumentOperation);

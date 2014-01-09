@@ -2,44 +2,36 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbugclient')
+//@Package('meldbug')
 
-//@Export('MeldbugClientService')
+//@Export('MeldClient')
 
 //@Require('Class')
 //@Require('Obj')
-//@Require('bugflow.BugFlow')
+//@Require('TypeUtil')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack             = require('bugpack').context();
+var bugpack                 = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class               = bugpack.require('Class');
-var Obj                 = bugpack.require('Obj');
-var BugFlow             = bugpack.require('bugflow.BugFlow');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var $series             = BugFlow.$series;
-var $task               = BugFlow.$task;
+var Class                   = bugpack.require('Class');
+var Obj                     = bugpack.require('Obj');
+var TypeUtil                = bugpack.require('TypeUtil');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldbugClientService = Class.extend(Obj, {
+var MeldClient = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -47,11 +39,14 @@ var MeldbugClientService = Class.extend(Obj, {
 
     /**
      * @constructs
-     * @param {MeldStore} meldStore
+     * @param {MeldClientKey} meldClientKey
+     * @param {boolean=} active
+     * @param {Date=} lastActive
      */
-    _constructor: function(meldStore) {
+    _constructor: function(meldClientKey, active, lastActive) {
 
         this._super();
+
 
         //-------------------------------------------------------------------------------
         // Private Properties
@@ -59,9 +54,21 @@ var MeldbugClientService = Class.extend(Obj, {
 
         /**
          * @private
-         * @type {MeldStore}
+         * @type {boolean}
          */
-        this.meldStore = meldStore;
+        this.active                     = TypeUtil.isBoolean(active) ? active : true;
+
+        /**
+         * @private
+         * @type {Date}
+         */
+        this.lastActive                 = TypeUtil.isDate(lastActive) ? lastActive : new Date();
+
+        /**
+         * @private
+         * @type {MeldClientKey}
+         */
+        this.meldClientKey              = meldClientKey;
     },
 
 
@@ -70,35 +77,45 @@ var MeldbugClientService = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {MeldStore}
+     * @return {boolean}
      */
-    getMeldStore: function() {
-        return this.meldStore;
+    getActive: function() {
+        return this.active;
     },
 
-
-    //-------------------------------------------------------------------------------
-    // Public Methods
-    //-------------------------------------------------------------------------------
+    /**
+     * @returns {boolean}
+     */
+    isActive: function() {
+        return this.getActive();
+    },
 
     /**
-     * @private
-     * @param {MeldTransaction} meldTransaction
-     * @param {function(Throwable)} callback
+     * @param {boolean} active
      */
-    commitMeldTransaction: function(meldTransaction, callback) {
-        var _this = this;
-        $task(function(flow) {
-            _this.meldStore.commitMeldTransaction(meldTransaction, function(throwable) {
-                flow.complete(throwable);
-            });
-        }).execute(function(throwable) {
-            if (!throwable) {
-                callback(null);
-            } else {
-                callback(throwable);
-            }
-        });
+    setActive: function(active) {
+        this.active = active;
+    },
+
+    /**
+     * @return {Date}
+     */
+    getLastActive: function() {
+        return this.lastActive;
+    },
+
+    /**
+     * @param {Date} lastActive
+     */
+    setLastActive: function(lastActive) {
+        this.lastActive = lastActive;
+    },
+
+    /**
+     * @return {MeldClientKey}
+     */
+    getMeldClientKey: function() {
+        return this.meldClientKey;
     }
 });
 
@@ -107,4 +124,4 @@ var MeldbugClientService = Class.extend(Obj, {
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbugclient.MeldbugClientService', MeldbugClientService);
+bugpack.export('meldbug.MeldClient', MeldClient);

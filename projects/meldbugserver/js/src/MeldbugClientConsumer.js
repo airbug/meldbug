@@ -93,12 +93,9 @@ var MeldbugClientConsumer = Class.extend(Obj, {
 
     /**
      * @param {MeldTransaction} meldTransaction
-     * @param {function(Error)} callback
+     * @param {function(Throwable=)} callback
      */
     commitMeldTransaction: function(meldTransaction, callback) {
-
-        //TODO BRN: Add Lock support to this call so that we do not send more than one transaction at a time
-
         var _this = this;
         var meldTransactionData = this.meldBuilder.unbuildMeldTransaction(meldTransaction);
         _this.bugCallServer.request(this.callManager, MeldbugClientConsumer.RequstTypes.COMMIT_MELD_TRANSACTION,
@@ -112,7 +109,7 @@ var MeldbugClientConsumer = Class.extend(Obj, {
                         callback();
                     } else if (callResponse.getType() === MeldDefines.ResponseTypes.EXCEPTION) {
                         console.error("unhandled error response:", callResponse);
-                        var error = callResponse.callResponse.getData().error;
+                        var error = callResponse.getData().error;
                         console.log("error:", error);
 
                         //TODO BRN: Handle exceptions...
@@ -120,7 +117,7 @@ var MeldbugClientConsumer = Class.extend(Obj, {
 
                     } else if (callResponse.getType() === MeldDefines.ResponseTypes.ERROR) {
                         console.error("unhandled error response:", callResponse);
-                        var error = callResponse.callResponse.getData().error;
+                        var error = callResponse.getData().error;
                         console.log("error:", error);
 
                         //TODO BRN: Handle errors...
@@ -138,7 +135,7 @@ var MeldbugClientConsumer = Class.extend(Obj, {
                             //TODO BRN: If a request fails, we need to figure out what the reason is..
 
                             console.warn("Could not complete request to callManager:", _this.callManager);
-                            callback();
+                            callback(exception);
                         } else {
                             //TODO BRN: Unhandled exception types
                             console.error("Unhandled Exception:", exception);

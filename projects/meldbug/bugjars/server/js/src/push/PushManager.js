@@ -2,13 +2,18 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbugclient')
+//@Package('meldbug')
 
-//@Export('MeldbugClientService')
+//@Export('PushManager')
+//@Autoload
 
 //@Require('Class')
 //@Require('Obj')
 //@Require('bugflow.BugFlow')
+//@Require('bugioc.ArgAnnotation')
+//@Require('bugioc.ModuleAnnotation')
+//@Require('bugmeta.BugMeta')
+//@Require('meldbug.Push')
 
 
 //-------------------------------------------------------------------------------
@@ -25,21 +30,26 @@ var bugpack             = require('bugpack').context();
 var Class               = bugpack.require('Class');
 var Obj                 = bugpack.require('Obj');
 var BugFlow             = bugpack.require('bugflow.BugFlow');
+var ArgAnnotation       = bugpack.require('bugioc.ArgAnnotation');
+var ModuleAnnotation    = bugpack.require('bugioc.ModuleAnnotation');
+var BugMeta             = bugpack.require('bugmeta.BugMeta');
+var Push                = bugpack.require('meldbug.Push');
 
 
 //-------------------------------------------------------------------------------
 // Simplify References
 //-------------------------------------------------------------------------------
 
-var $series             = BugFlow.$series;
-var $task               = BugFlow.$task;
+var arg                 = ArgAnnotation.arg;
+var bugmeta             = BugMeta.context();
+var module              = ModuleAnnotation.module;
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldbugClientService = Class.extend(Obj, {
+var PushManager = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -47,21 +57,22 @@ var MeldbugClientService = Class.extend(Obj, {
 
     /**
      * @constructs
-     * @param {MeldStore} meldStore
+     * @param {PushTaskManager} pushTaskManager
      */
-    _constructor: function(meldStore) {
+    _constructor: function(pushTaskManager) {
 
         this._super();
 
+
         //-------------------------------------------------------------------------------
-        // Private Properties
+        // Properties
         //-------------------------------------------------------------------------------
 
         /**
          * @private
-         * @type {MeldStore}
+         * @type {PushTaskManager}
          */
-        this.meldStore = meldStore;
+        this.pushTaskManager    = pushTaskManager;
     },
 
 
@@ -70,10 +81,10 @@ var MeldbugClientService = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {MeldStore}
+     * @return {PushTaskManager}
      */
-    getMeldStore: function() {
-        return this.meldStore;
+    getPushTaskManager: function() {
+        return this.pushTaskManager;
     },
 
 
@@ -82,29 +93,28 @@ var MeldbugClientService = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @private
-     * @param {MeldTransaction} meldTransaction
-     * @param {function(Throwable)} callback
+     * @return {Push}
      */
-    commitMeldTransaction: function(meldTransaction, callback) {
-        var _this = this;
-        $task(function(flow) {
-            _this.meldStore.commitMeldTransaction(meldTransaction, function(throwable) {
-                flow.complete(throwable);
-            });
-        }).execute(function(throwable) {
-            if (!throwable) {
-                callback(null);
-            } else {
-                callback(throwable);
-            }
-        });
+    push: function() {
+        return new Push(this.pushTaskManager);
     }
 });
+
+
+//-------------------------------------------------------------------------------
+// BugMeta
+//-------------------------------------------------------------------------------
+
+bugmeta.annotate(PushManager).with(
+    module("pushManager")
+        .args([
+            arg().ref("pushTaskManager")
+        ])
+);
 
 
 //-------------------------------------------------------------------------------
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbugclient.MeldbugClientService', MeldbugClientService);
+bugpack.export('meldbug.PushManager', PushManager);

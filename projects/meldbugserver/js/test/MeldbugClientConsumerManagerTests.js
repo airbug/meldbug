@@ -61,9 +61,9 @@ var meldbugClientConsumerManagerInstantiationTest = {
     //-------------------------------------------------------------------------------
 
     test: function(test) {
-        test.assertTrue(Class.doesExtend(this.meldbugClientConsumerManager.callManagerToConsumerMap, Map),
-            "Assert callManagerToConsumerMap is set at construction and is a Map");
-        test.assertEqual(this.meldbugClientConsumerManager.meldBuilder, this.meldBuilder,
+        test.assertTrue(Class.doesExtend(this.meldbugClientConsumerManager.getCallUuidToConsumerMap(), Map),
+            "Assert getCallUuidToConsumerMap() is set at construction and is a Map");
+        test.assertEqual(this.meldbugClientConsumerManager.getMeldBuilder(), this.meldBuilder,
             "Assert meldBuilder is set at construction");
     }
 };

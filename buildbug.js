@@ -35,74 +35,68 @@ var nodejs          = enableModule('nodejs');
 //-------------------------------------------------------------------------------
 
 buildProperties({
-    meldbugserver: {
+    work: {
         packageJson: {
-            name: "meldbugserver",
+            name: "meldbugwork",
             version: "0.0.1",
             dependencies: {
                 bugpack: "https://s3.amazonaws.com/airbug/bugpack-0.0.5.tgz",
-                express: "3.2.x",
-                share: "0.6.x"
+                redis: "0.9.x"
             },
             scripts: {
-                start: "node ./scripts/meldbug-server-application-start.js"
+                start: "node ./scripts/meldbug-work-application-start.js"
             }
         },
         sourcePaths: [
-            "./projects/meldbugserver/js/src",
-            "../bugjs/projects/bugmeta/js/src",
+            "./projects/meldbug/bugjars/core/js/src",
+            "./projects/meldbug/bugjars/server/js/src",
+            "./projects/meldbugwork/js/src",
+            "../bugjs/projects/bugdelta/js/src",
             "../bugjs/projects/bugflow/js/src",
             "../bugjs/projects/bugfs/js/src",
             "../bugjs/projects/bugioc/js/src",
             "../bugjs/projects/bugjs/js/src",
+            "../bugjs/projects/bugmeta/js/src",
             "../bugjs/projects/bugtrace/js/src",
-            "../bugjs/projects/express/js/src",
-            "../bugjs/projects/sharejs/bugjars/server/js/src",
-            "../bugunit/projects/bugdouble/js/src",
-            "../bugunit/projects/bugunit/js/src"
+            "../bugjs/projects/bugwork/js/src",
+            "../bugjs/projects/loggerbug/js/src",
+            "../bugjs/projects/redis/js/src"
         ],
         scriptPaths: [
-            "./projects/meldbugserver/js/scripts",
-            "../bugunit/projects/bugunit/js/scripts"
-        ],
-        testPaths: [
-            "../bugjs/projects/bugcall/js/test",
-            "../bugjs/projects/bugflow/js/test",
-            "../bugjs/projects/bugjs/js/test",
-            "../bugjs/projects/bugtrace/js/test"
+            "../bugjs/projects/bugwork/js/scripts",
+            "./projects/meldbugwork/js/scripts"
         ]
     },
-    meldbugclient: {
-        clientJson: {
-            name: "meldbug",
+    unitTest: {
+        packageJson: {
+            name: "meldbugwork-test",
             version: "0.0.1",
-            main: "./lib/MeldbugClientModule.js"
+            dependencies: {
+                bugpack: "https://s3.amazonaws.com/airbug/bugpack-0.0.5.tgz",
+                redis: "0.9.x"
+            },
+            scripts: {
+                start: "node ./scripts/meldbug-work-application-start.js"
+            }
         },
         sourcePaths: [
-            "./projects/meldbugclient/js/src",
-            "../bugjs/projects/bugmeta/js/src",
-            "../bugjs/projects/bugcall/js/src",
-            "../bugjs/projects/bugflow/js/src",
-            "../bugjs/projects/bugfs/js/src",
-            "../bugjs/projects/bugioc/js/src",
-            "../bugjs/projects/bugjs/js/src",
-            "../bugjs/projects/bugroute/bugjars/bugcall/js/src",
-            "../bugjs/projects/bugtrace/js/src",
-            "../bugjs/projects/express/js/src",
-            "../bugjs/projects/socketio/bugjars/client/js/src",
-            "../bugjs/projects/socketio/bugjars/factoryserver/js/src",
-            "../bugjs/projects/socketio/bugjars/socket/js/src",
             "../bugunit/projects/bugdouble/js/src",
             "../bugunit/projects/bugunit/js/src"
         ],
         scriptPaths: [
-            "./projects/meldbugclient/js/scripts",
             "../bugunit/projects/bugunit/js/scripts"
         ],
         testPaths: [
+            "./projects/meldbug/bugjars/core/js/test",
+            "./projects/meldbug/bugjars/server/js/test",
+            "./projects/meldbugwork/js/test",
+            "../bugjs/projects/bugdelta/js/test",
             "../bugjs/projects/bugflow/js/test",
+            "../bugjs/projects/bugioc/js/test",
             "../bugjs/projects/bugjs/js/test",
-            "../bugjs/projects/bugtrace/js/test"
+            "../bugjs/projects/bugmeta/js/test",
+            "../bugjs/projects/bugtrace/js/test",
+            "../bugjs/projects/bugwork/js/test"
         ]
     }
 });
@@ -139,17 +133,21 @@ buildTarget('local').buildFlow(
             series([
                 targetTask('createNodePackage', {
                     properties: {
-                        packageJson: buildProject.getProperty("meldbugserver.packageJson"),
-                        sourcePaths: buildProject.getProperty("meldbugserver.sourcePaths"),
-                        scriptPaths: buildProject.getProperty("meldbugserver.scriptPaths"),
-                        testPaths: buildProject.getProperty("meldbugserver.testPaths")
+                        packageJson: buildProject.getProperty("work.packageJson"),
+                        sourcePaths: buildProject.getProperty("work.sourcePaths").concat(
+                            buildProject.getProperty("unitTest.sourcePaths")
+                        ),
+                        scriptPaths: buildProject.getProperty("work.scriptPaths").concat(
+                            buildProject.getProperty("unitTest.scriptPaths")
+                        ),
+                        testPaths: buildProject.getProperty("unitTest.testPaths")
                     }
                 }),
                 targetTask('generateBugPackRegistry', {
                     init: function(task, buildProject, properties) {
                         var nodePackage = nodejs.findNodePackage(
-                            buildProject.getProperty("meldbugserver.packageJson.name"),
-                            buildProject.getProperty("meldbugserver.packageJson.version")
+                            buildProject.getProperty("work.packageJson.name"),
+                            buildProject.getProperty("work.packageJson.version")
                         );
                         task.updateProperties({
                             sourceRoot: nodePackage.getBuildPath()
@@ -158,15 +156,15 @@ buildTarget('local').buildFlow(
                 }),
                 targetTask('packNodePackage', {
                     properties: {
-                        packageName: buildProject.getProperty("meldbugserver.packageJson.name"),
-                        packageVersion: buildProject.getProperty("meldbugserver.packageJson.version")
+                        packageName: buildProject.getProperty("work.packageJson.name"),
+                        packageVersion: buildProject.getProperty("work.packageJson.version")
                     }
                 }),
                 targetTask('startNodeModuleTests', {
                     init: function(task, buildProject, properties) {
                         var packedNodePackage = nodejs.findPackedNodePackage(
-                            buildProject.getProperty("meldbugserver.packageJson.name"),
-                            buildProject.getProperty("meldbugserver.packageJson.version")
+                            buildProject.getProperty("work.packageJson.name"),
+                            buildProject.getProperty("work.packageJson.version")
                         );
                         task.updateProperties({
                             modulePath: packedNodePackage.getFilePath()
@@ -180,12 +178,16 @@ buildTarget('local').buildFlow(
                 }),
                 targetTask("s3PutFile", {
                     init: function(task, buildProject, properties) {
-                        var packedNodePackage = nodejs.findPackedNodePackage(buildProject.getProperty("meldbugserver.packageJson.name"),
-                            buildProject.getProperty("meldbugserver.packageJson.version"));
+                        var packedNodePackage = nodejs.findPackedNodePackage(buildProject.getProperty("work.packageJson.name"),
+                            buildProject.getProperty("work.packageJson.version"));
                         task.updateProperties({
                             file: packedNodePackage.getFilePath(),
                             options: {
-                                acl: 'public-read'
+
+                                //TODO BRN: In order to protect this file we need to limit the access to this artifact and provide some sort of http auth access so that the artifacts are retrievable via npm install. This would need to be done in a server wrapper.
+
+                                acl: 'public-read',
+                                encrypt: true
                             }
                         });
                     },
@@ -193,65 +195,121 @@ buildTarget('local').buildFlow(
                         bucket: buildProject.getProperty("local-bucket")
                     }
                 })
-            ])/*,
-            series([
-                targetTask('createNodePackage', {
-                    properties: {
-                        packageJson: buildProject.getProperty("meldbugclient.packageJson"),
-                        sourcePaths: buildProject.getProperty("meldbugclient.sourcePaths"),
-                        scriptPaths: buildProject.getProperty("meldbugclient.scriptPaths"),
-                        testPaths: buildProject.getProperty("meldbugclient.testPaths")
-                    }
-                }),
-                targetTask('generateBugPackRegistry', {
-                    init: function(task, buildProject, properties) {
-                        var nodePackage = nodejs.findNodePackage(
-                            buildProject.getProperty("meldbugclient.packageJson.name"),
-                            buildProject.getProperty("meldbugclient.packageJson.version")
-                        );
-                        task.updateProperties({
-                            sourceRoot: nodePackage.getBuildPath()
-                        });
-                    }
-                }),
-                targetTask('packNodePackage', {
-                    properties: {
-                        packageName: buildProject.getProperty("meldbugclient.packageJson.name"),
-                        packageVersion: buildProject.getProperty("meldbugclient.packageJson.version")
-                    }
-                }),
-                targetTask('startNodeModuleTests', {
-                    init: function(task, buildProject, properties) {
-                        var packedNodePackage = nodejs.findPackedNodePackage(
-                            buildProject.getProperty("meldbugclient.packageJson.name"),
-                            buildProject.getProperty("meldbugclient.packageJson.version")
-                        );
-                        task.updateProperties({
-                            modulePath: packedNodePackage.getFilePath()
-                        });
-                    }
-                }),
-                targetTask("s3EnsureBucket", {
-                    properties: {
-                        bucket: buildProject.getProperty("local-bucket")
-                    }
-                }),
-                targetTask("s3PutFile", {
-                    init: function(task, buildProject, properties) {
-                        var packedNodePackage = nodejs.findPackedNodePackage(buildProject.getProperty("meldbugclient.packageJson.name"),
-                            buildProject.getProperty("meldbugclient.packageJson.version"));
-                        task.updateProperties({
-                            file: packedNodePackage.getFilePath(),
-                            options: {
-                                acl: 'public-read'
-                            }
-                        });
-                    },
-                    properties: {
-                        bucket: buildProject.getProperty("local-bucket")
-                    }
-                })
-            ])*/
+            ])
         ])
     ])
 ).makeDefault();
+
+
+// Prod Flow
+//-------------------------------------------------------------------------------
+
+buildTarget('prod').buildFlow(
+    series([
+
+        // TODO BRN: This "clean" task is temporary until we're not modifying the build so much. This also ensures that
+        // old source files are removed. We should figure out a better way of doing that.
+
+        targetTask('clean'),
+        parallel([
+
+            //Create test package (this is not the production package). We create a different package for testing so that the production code does not have the unit test code in it.
+
+            series([
+                targetTask('createNodePackage', {
+                    properties: {
+                        packageJson: buildProject.getProperty("unitTest.packageJson"),
+                        sourcePaths: buildProject.getProperty("work.sourcePaths").concat(
+                            buildProject.getProperty("unitTest.sourcePaths")
+                        ),
+                        scriptPaths: buildProject.getProperty("work.scriptPaths").concat(
+                            buildProject.getProperty("unitTest.scriptPaths")
+                        ),
+                        testPaths: buildProject.getProperty("unitTest.testPaths")
+                    }
+                }),
+                targetTask('generateBugPackRegistry', {
+                    init: function(task, buildProject, properties) {
+                        var nodePackage = nodejs.findNodePackage(
+                            buildProject.getProperty("unitTest.packageJson.name"),
+                            buildProject.getProperty("unitTest.packageJson.version")
+                        );
+                        task.updateProperties({
+                            sourceRoot: nodePackage.getBuildPath()
+                        });
+                    }
+                }),
+                targetTask('packNodePackage', {
+                    properties: {
+                        packageName: buildProject.getProperty("unitTest.packageJson.name"),
+                        packageVersion: buildProject.getProperty("unitTest.packageJson.version")
+                    }
+                }),
+                targetTask('startNodeModuleTests', {
+                    init: function(task, buildProject, properties) {
+                        var packedNodePackage = nodejs.findPackedNodePackage(
+                            buildProject.getProperty("unitTest.packageJson.name"),
+                            buildProject.getProperty("unitTest.packageJson.version")
+                        );
+                        task.updateProperties({
+                            modulePath: packedNodePackage.getFilePath()
+                        });
+                    }
+                })
+            ]),
+
+            // Create production package
+
+            series([
+                targetTask('createNodePackage', {
+                    properties: {
+                        packageJson: buildProject.getProperty("work.packageJson"),
+                        sourcePaths: buildProject.getProperty("work.sourcePaths"),
+                        scriptPaths: buildProject.getProperty("work.scriptPaths")
+                    }
+                }),
+                targetTask('generateBugPackRegistry', {
+                    init: function(task, buildProject, properties) {
+                        var nodePackage = nodejs.findNodePackage(
+                            buildProject.getProperty("work.packageJson.name"),
+                            buildProject.getProperty("work.packageJson.version")
+                        );
+                        task.updateProperties({
+                            sourceRoot: nodePackage.getBuildPath()
+                        });
+                    }
+                }),
+                targetTask('packNodePackage', {
+                    properties: {
+                        packageName: buildProject.getProperty("work.packageJson.name"),
+                        packageVersion: buildProject.getProperty("work.packageJson.version")
+                    }
+                }),
+                targetTask("s3EnsureBucket", {
+                    properties: {
+                        bucket: "airbug"
+                    }
+                }),
+                targetTask("s3PutFile", {
+                    init: function(task, buildProject, properties) {
+                        var packedNodePackage = nodejs.findPackedNodePackage(buildProject.getProperty("work.packageJson.name"),
+                            buildProject.getProperty("work.packageJson.version"));
+                        task.updateProperties({
+                            file: packedNodePackage.getFilePath(),
+                            options: {
+
+                                //TODO BRN: In order to protect this file we need to limit the access to this artifact and provide some sort of http auth access so that the artifacts are retrievable via npm install. This would need to be done in a server wrapper.
+
+                                acl: 'public-read',
+                                encrypt: true
+                            }
+                        });
+                    },
+                    properties: {
+                        bucket: "airbug"
+                    }
+                })
+            ])
+        ])
+    ])
+);

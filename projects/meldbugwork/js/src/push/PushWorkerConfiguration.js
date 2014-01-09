@@ -2,9 +2,9 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbugserver')
+//@Package('meldbug')
 
-//@Export('MeldbugServerConfiguration')
+//@Export('PushWorkerConfiguration')
 //@Autoload
 
 //@Require('Class')
@@ -16,8 +16,8 @@
 //@Require('bugioc.ModuleAnnotation')
 //@Require('bugioc.PropertyAnnotation')
 //@Require('bugmeta.BugMeta')
-//@Require('meldbugserver.MeldbugClientConsumerService')
-//@Require('meldbugserver.MeldBucketService')
+//@Require('meldbug.PushTaskProcessor')
+//@Require('meldbug.TaskProcessor')
 //@Require('redis.RedisClient')
 //@Require('redis.RedisConfig')
 //@Require('redis.RedisEvent')
@@ -28,51 +28,50 @@
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack                         = require('bugpack').context();
-var redis                           = require('redis');
+var bugpack                 = require('bugpack').context();
+var redis                   = require('redis');
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class                           = bugpack.require('Class');
-var Obj                             = bugpack.require('Obj');
-var BugFlow                         = bugpack.require('bugflow.BugFlow');
-var ArgAnnotation                   = bugpack.require('bugioc.ArgAnnotation');
-var ConfigurationAnnotation         = bugpack.require('bugioc.ConfigurationAnnotation');
-var IConfiguration                  = bugpack.require('bugioc.IConfiguration');
-var ModuleAnnotation                = bugpack.require('bugioc.ModuleAnnotation');
-var PropertyAnnotation              = bugpack.require('bugioc.PropertyAnnotation');
-var BugMeta                         = bugpack.require('bugmeta.BugMeta');
-var MeldbugClientConsumerService    = bugpack.require('meldbugserver.MeldbugClientConsumerService');
-var MeldBucketService               = bugpack.require('meldbugserver.MeldBucketService');
-var MeldClientService               = bugpack.require('meldbugserver.MeldClientService');
-var RedisClient                     = bugpack.require('redis.RedisClient');
-var RedisConfig                     = bugpack.require('redis.RedisConfig');
-var RedisEvent                      = bugpack.require('redis.RedisEvent');
-var RedisPubSub                     = bugpack.require('redis.RedisPubSub');
+var Class                   = bugpack.require('Class');
+var Obj                     = bugpack.require('Obj');
+var BugFlow                 = bugpack.require('bugflow.BugFlow');
+var ArgAnnotation           = bugpack.require('bugioc.ArgAnnotation');
+var ConfigurationAnnotation = bugpack.require('bugioc.ConfigurationAnnotation');
+var IConfiguration          = bugpack.require('bugioc.IConfiguration');
+var ModuleAnnotation        = bugpack.require('bugioc.ModuleAnnotation');
+var PropertyAnnotation      = bugpack.require('bugioc.PropertyAnnotation');
+var BugMeta                 = bugpack.require('bugmeta.BugMeta');
+var PushTaskProcessor       = bugpack.require('meldbug.PushTaskProcessor');
+var TaskProcessor           = bugpack.require('meldbug.TaskProcessor');
+var RedisClient             = bugpack.require('redis.RedisClient');
+var RedisConfig             = bugpack.require('redis.RedisConfig');
+var RedisEvent              = bugpack.require('redis.RedisEvent');
+var RedisPubSub             = bugpack.require('redis.RedisPubSub');
 
 
 //-------------------------------------------------------------------------------
 // Simplify References
 //-------------------------------------------------------------------------------
 
-var arg                             = ArgAnnotation.arg;
-var bugmeta                         = BugMeta.context();
-var configuration                   = ConfigurationAnnotation.configuration;
-var module                          = ModuleAnnotation.module;
-var property                        = PropertyAnnotation.property;
-var $parallel                       = BugFlow.$parallel;
-var $series                         = BugFlow.$series;
-var $task                           = BugFlow.$task;
+var arg                     = ArgAnnotation.arg;
+var bugmeta                 = BugMeta.context();
+var configuration           = ConfigurationAnnotation.configuration;
+var module                  = ModuleAnnotation.module;
+var property                = PropertyAnnotation.property;
+var $parallel               = BugFlow.$parallel;
+var $series                 = BugFlow.$series;
+var $task                   = BugFlow.$task;
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldbugServerConfiguration = Class.extend(Obj, {
+var PushWorkerConfiguration = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -89,6 +88,12 @@ var MeldbugServerConfiguration = Class.extend(Obj, {
 
         /**
          * @private
+         * @type {PushTaskProcessor}
+         */
+        this._pushTaskProcessor     = null;
+
+        /**
+         * @private
          * @type {RedisClient}
          */
         this._redisClient           = null;
@@ -98,6 +103,12 @@ var MeldbugServerConfiguration = Class.extend(Obj, {
          * @type {RedisConfig}
          */
         this._redisConfig           = null;
+
+        /**
+         * @private
+         * @type {RedisPubSub}
+         */
+        this._redisPubSub           = null;
 
         /**
          * @private
@@ -116,8 +127,16 @@ var MeldbugServerConfiguration = Class.extend(Obj, {
      */
     deinitializeConfiguration: function(callback) {
         var _this = this;
-        console.log("Shutting down MeldbugServerConfiguration....");
+        console.log("Initializing PushWorkerConfiguration");
         $series([
+            $task(function(flow) {
+                var hearProcessorStopped = function(event) {
+                    _this._pushTaskProcessor.removeEventListener(TaskProcessor.EventTypes.STOPPED, hearProcessorStopped);
+                    flow.complete();
+                };
+                _this._redisClient.addEventListener(TaskProcessor.EventTypes.STOPPED, hearProcessorStopped);
+                _this._redisClient.stop();
+            }),
             $task(function(flow) {
                 _this._redisPubSub.deinitialize(function(throwable) {
                     flow.complete(throwable);
@@ -147,8 +166,8 @@ var MeldbugServerConfiguration = Class.extend(Obj, {
      */
     initializeConfiguration: function(callback) {
         var _this = this;
-        console.log("Initializing MeldbugServerConfiguration");
-        $parallel([
+        console.log("Initializing PushWorkerConfiguration");
+        $series([
             $task(function(flow) {
                 _this._redisClient.connect(function(throwable) {
                     flow.complete(throwable);
@@ -157,12 +176,16 @@ var MeldbugServerConfiguration = Class.extend(Obj, {
             $task(function(flow) {
                 _this._subscriberRedisClient.connect(function(throwable) {
                     flow.complete(throwable);
-                });
+                })
             }),
             $task(function(flow) {
                 _this._redisPubSub.initialize(function(throwable) {
                     flow.complete(throwable);
                 });
+            }),
+            $task(function(flow) {
+                _this._pushTaskProcessor.start();
+                flow.complete();
             })
         ]).execute(callback);
     },
@@ -173,35 +196,21 @@ var MeldbugServerConfiguration = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {BugCallServer} bugCallServer
+     * @param {PushTaskManager} pushTaskManager
      * @param {MeldBucketManager} meldBucketManager
-     * @param {MeldBuilder} meldBuilder
-     * @return {MeldBucketService}
-     */
-    meldBucketService: function(bugCallServer, meldBucketManager, meldBuilder) {
-        return new MeldBucketService(bugCallServer, meldBucketManager, meldBuilder);
-    },
-
-    /**
-     * @param {BugCallServer} bugCallServer
-     * @param {MeldbugClientConsumerManager} meldbugClientConsumerManager
-     * @returns {MeldbugClientConsumerService}
-     */
-    meldbugClientConsumerService: function(bugCallServer, meldbugClientConsumerManager) {
-        return new MeldbugClientConsumerService(bugCallServer, meldbugClientConsumerManager);
-    },
-
-    /**
-     * @param {BugCallServer} bugCallServer
+     * @param {MeldTaskManager} meldTaskManager
      * @param {MeldClientManager} meldClientManager
-     * @return {MeldClientService}
+     * @param {MeldManager} meldManager
+     * @param {CleanupTaskManager} cleanupTaskManager
+     * @return {PushTaskProcessor}
      */
-    meldClientService: function(bugCallServer, meldClientManager) {
-        return new MeldClientService(bugCallServer, meldClientManager);
+    pushTaskProcessor: function(pushTaskManager, meldBucketManager, meldTaskManager, meldClientManager, meldManager, cleanupTaskManager) {
+        this._pushTaskProcessor = new PushTaskProcessor(pushTaskManager, meldBucketManager, meldTaskManager, meldClientManager, meldManager, cleanupTaskManager);
+        return this._pushTaskProcessor;
     },
 
     /**
-     * @return {exports}
+     * @return {redis}
      */
     redis: function() {
         return redis;
@@ -228,7 +237,7 @@ var MeldbugServerConfiguration = Class.extend(Obj, {
     /**
      * @param {RedisClient} redisClient
      * @param {RedisClient} subscriberRedisClient
-     * @return {RedisPubSub}
+     * @returns {RedisPubSub}
      */
     redisPubSub: function(redisClient, subscriberRedisClient) {
         this._redisPubSub = new RedisPubSub(redisClient, subscriberRedisClient);
@@ -251,30 +260,23 @@ var MeldbugServerConfiguration = Class.extend(Obj, {
 // Interfaces
 //-------------------------------------------------------------------------------
 
-Class.implement(MeldbugServerConfiguration, IConfiguration);
+Class.implement(PushWorkerConfiguration, IConfiguration);
 
 
 //-------------------------------------------------------------------------------
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(MeldbugServerConfiguration).with(
-    configuration("meldbugServerConfiguration").modules([
-        module("meldbugClientConsumerService")
+bugmeta.annotate(PushWorkerConfiguration).with(
+    configuration("pushWorkerConfiguration").modules([
+        module("pushTaskProcessor")
             .args([
-                arg().ref("bugCallServer"),
-                arg().ref("meldbugClientConsumerManager")
-            ]),
-        module("meldClientService")
-            .args([
-                arg().ref("bugCallServer"),
-                arg().ref("meldClientManager")
-            ]),
-        module("meldBucketService")
-            .args([
-                arg().ref("bugCallServer"),
+                arg().ref("pushTaskManager"),
                 arg().ref("meldBucketManager"),
-                arg().ref("meldBuilder")
+                arg().ref("meldTaskManager"),
+                arg().ref("meldClientManager"),
+                arg().ref("meldManager"),
+                arg().ref("cleanupTaskManager")
             ]),
         module("redis"),
         module("redisClient")
@@ -301,4 +303,4 @@ bugmeta.annotate(MeldbugServerConfiguration).with(
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export("meldbugserver.MeldbugServerConfiguration", MeldbugServerConfiguration);
+bugpack.export("meldbug.PushWorkerConfiguration", PushWorkerConfiguration);

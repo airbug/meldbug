@@ -2,44 +2,36 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbugclient')
+//@Package('meldbug')
 
-//@Export('MeldbugClientService')
+//@Export('MeldOperation')
 
 //@Require('Class')
 //@Require('Obj')
-//@Require('bugflow.BugFlow')
+//@Require('UuidGenerator')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack             = require('bugpack').context();
+var bugpack         = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class               = bugpack.require('Class');
-var Obj                 = bugpack.require('Obj');
-var BugFlow             = bugpack.require('bugflow.BugFlow');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var $series             = BugFlow.$series;
-var $task               = BugFlow.$task;
+var Class           = bugpack.require('Class');
+var Obj             = bugpack.require('Obj');
+var UuidGenerator   = bugpack.require('UuidGenerator');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldbugClientService = Class.extend(Obj, {
+var MeldOperation = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -47,11 +39,13 @@ var MeldbugClientService = Class.extend(Obj, {
 
     /**
      * @constructs
-     * @param {MeldStore} meldStore
+     * @param {MeldDocumentKey} meldDocumentKey
+     * @param {string} type
      */
-    _constructor: function(meldStore) {
+    _constructor: function(meldDocumentKey, type) {
 
         this._super();
+
 
         //-------------------------------------------------------------------------------
         // Private Properties
@@ -59,9 +53,21 @@ var MeldbugClientService = Class.extend(Obj, {
 
         /**
          * @private
-         * @type {MeldStore}
+         * @type {MeldDocumentKey}
          */
-        this.meldStore = meldStore;
+        this.meldDocumentKey        = meldDocumentKey;
+
+        /**
+         * @private
+         * @type {string}
+         */
+        this.type                   = type;
+
+        /**
+         * @private
+         * @type {string}
+         */
+        this.uuid                   = UuidGenerator.generateUuid();
     },
 
 
@@ -70,35 +76,58 @@ var MeldbugClientService = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {MeldStore}
+     * @return {MeldDocumentKey}
      */
-    getMeldStore: function() {
-        return this.meldStore;
+    getMeldDocumentKey: function() {
+        return this.meldDocumentKey;
+    },
+
+    /**
+     * @return {string}
+     */
+    getType: function() {
+        return this.type;
+    },
+
+    /**
+     * @return {string}
+     */
+    getUuid: function() {
+        return this.uuid;
+    },
+
+    /**
+     * @protected
+     */
+    setUuid: function(uuid) {
+        this.uuid = uuid;
     },
 
 
     //-------------------------------------------------------------------------------
-    // Public Methods
+    // IClone Implementation
     //-------------------------------------------------------------------------------
 
     /**
-     * @private
-     * @param {MeldTransaction} meldTransaction
-     * @param {function(Throwable)} callback
+     * @param {boolean} deep
+     * @return {*}
      */
-    commitMeldTransaction: function(meldTransaction, callback) {
-        var _this = this;
-        $task(function(flow) {
-            _this.meldStore.commitMeldTransaction(meldTransaction, function(throwable) {
-                flow.complete(throwable);
-            });
-        }).execute(function(throwable) {
-            if (!throwable) {
-                callback(null);
-            } else {
-                callback(throwable);
-            }
-        });
+    clone: function(deep) {
+        //abstract
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Abstract Methods
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @abstract
+     * @param {MeldBucket} meldBucket
+     * @return {MeldDocument}
+     */
+    apply: function(meldBucket) {
+        return meldBucket.getMeldDocumentByMeldDocumentKey(this.meldDocumentKey);
     }
 });
 
@@ -107,4 +136,4 @@ var MeldbugClientService = Class.extend(Obj, {
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbugclient.MeldbugClientService', MeldbugClientService);
+bugpack.export('meldbug.MeldOperation', MeldOperation);

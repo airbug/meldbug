@@ -39,12 +39,19 @@ var MeldbugClientController = Class.extend(Obj, {
     // Constructor
     //-------------------------------------------------------------------------------
 
+    /**
+     * @constructs
+     * @param {BugCallRouter} bugCallRouter
+     * @param {MeldbugClientService} meldbugClientService
+     * @param {MeldBuilder} meldBuilder
+     */
     _constructor: function(bugCallRouter, meldbugClientService, meldBuilder) {
 
         this._super();
 
+
         //-------------------------------------------------------------------------------
-        // Properties
+        // Private Properties
         //-------------------------------------------------------------------------------
 
         /**
@@ -68,7 +75,33 @@ var MeldbugClientController = Class.extend(Obj, {
 
 
     //-------------------------------------------------------------------------------
-    // Public Instance Methods
+    // Getters and Setters
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @return {BugCallRouter}
+     */
+    getBugCallRouter: function() {
+        return this.bugCallRouter;
+    },
+
+    /**
+     * @return {MeldbugClientService}
+     */
+    getMeldbugClientService: function() {
+        return this.meldbugClientService;
+    },
+
+    /**
+     * @return {MeldBuilder}
+     */
+    getMeldBuilder: function() {
+        return this.meldBuilder;
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Public Methods
     //-------------------------------------------------------------------------------
 
     /**
@@ -91,6 +124,9 @@ var MeldbugClientController = Class.extend(Obj, {
                     if (!throwable) {
                         response    = responder.response(MeldDefines.ResponseTypes.SUCCESS);
                     } else {
+
+                        //TODO BRN: Route these through a client logger so they can be logged back to the server
+
                         console.log(throwable.message);
                         console.log(throwable.stack);
                         if (Class.doesExtend(throwable, Exception)) {
@@ -103,8 +139,7 @@ var MeldbugClientController = Class.extend(Obj, {
                             });
                         }
                     }
-                    responder.sendResponse(response);
-                    callback();
+                    responder.sendResponse(response, callback);
                 });
             }
         });

@@ -2,60 +2,59 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbugserver')
+//@Package('meldbug')
 
-//@Export('MeldbugClientConsumerManager')
+//@Export('PushBuilder')
 //@Autoload
 
 //@Require('Class')
-//@Require('Map')
 //@Require('Obj')
 //@Require('bugioc.ArgAnnotation')
 //@Require('bugioc.ModuleAnnotation')
 //@Require('bugmeta.BugMeta')
-//@Require('meldbugserver.MeldbugClientConsumer')
+//@Require('meldbug.Push')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack                 = require('bugpack').context();
+var bugpack             = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
-// Bugpack Modules
+// BugPack
 //-------------------------------------------------------------------------------
 
-var Class                   = bugpack.require('Class');
-var Map                     = bugpack.require('Map');
-var Obj                     = bugpack.require('Obj');
-var ArgAnnotation           = bugpack.require('bugioc.ArgAnnotation');
-var ModuleAnnotation        = bugpack.require('bugioc.ModuleAnnotation');
-var BugMeta                 = bugpack.require('bugmeta.BugMeta');
-var MeldbugClientConsumer   = bugpack.require('meldbugserver.MeldbugClientConsumer');
+var Class               = bugpack.require('Class');
+var Obj                 = bugpack.require('Obj');
+var ArgAnnotation       = bugpack.require('bugioc.ArgAnnotation');
+var ModuleAnnotation    = bugpack.require('bugioc.ModuleAnnotation');
+var BugMeta             = bugpack.require('bugmeta.BugMeta');
+var Push                = bugpack.require('meldbug.Push');
 
 
 //-------------------------------------------------------------------------------
 // Simplify References
 //-------------------------------------------------------------------------------
 
-var arg                     = ArgAnnotation.arg;
-var bugmeta                 = BugMeta.context();
-var module                  = ModuleAnnotation.module;
+var arg                 = ArgAnnotation.arg;
+var bugmeta             = BugMeta.context();
+var module              = ModuleAnnotation.module;
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldbugClientConsumerManager = Class.extend(Obj, {
+var PushBuilder = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
     // Constructor
     //-------------------------------------------------------------------------------
 
     /**
+     * @constructs
      * @param {MeldBuilder} meldBuilder
      */
     _constructor: function(meldBuilder) {
@@ -64,33 +63,20 @@ var MeldbugClientConsumerManager = Class.extend(Obj, {
 
 
         //-------------------------------------------------------------------------------
-        // Instance Properties
+        // Properties
         //-------------------------------------------------------------------------------
-
-        /**
-         * @private
-         * @type {Map.<string, MeldbugClientConsumer>}
-         */
-        this.callUuidToConsumerMap      = new Map();
 
         /**
          * @private
          * @type {MeldBuilder}
          */
-        this.meldBuilder                = meldBuilder;
+        this.meldBuilder    = meldBuilder;
     },
 
 
     //-------------------------------------------------------------------------------
     // Getters and Setters
     //-------------------------------------------------------------------------------
-
-    /**
-     * @return {Map.<string, MeldbugClientConsumer>}
-     */
-    getCallUuidToConsumerMap: function() {
-        return this.callUuidToConsumerMap;
-    },
 
     /**
      * @return {MeldBuilder}
@@ -105,42 +91,29 @@ var MeldbugClientConsumerManager = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {MeldbugClientConsumer} consumer
+     * @param {Object} pushData
+     * @return {Push}
      */
-    addConsumer: function(consumer) {
-        this.callUuidToConsumerMap.put(consumer.getCallManager().getCallUuid(), consumer);
+    buildPush: function(pushData) {
+        var push = new Push();
+        push.all = pushData.all;
+        push.meldTransaction = this.meldBuilder.buildMeldTransaction(pushData.meldTransaction);
+        push.toCallUuidSet.addAll(pushData.toCallUuidSet);
+        push.waitForCallUuidSet.addAll(pushData.waitForCallUuidSet);
+        return push;
     },
 
     /**
-     * @param {BugCallServer} bugCallServer
-     * @param {CallManager} callManager
-     * @return {MeldbugClientConsumer}
+     * @param {Push} push
+     * @return {Object}
      */
-    factoryConsumer: function(bugCallServer, callManager) {
-        return new MeldbugClientConsumer(bugCallServer, callManager, this.meldBuilder);
-    },
-
-    /**
-     * @param {string} callUuid
-     * @return {MeldbugClientConsumer}
-     */
-    getConsumerForCallUuid: function(callUuid) {
-        return this.callUuidToConsumerMap.get(callUuid);
-    },
-
-    /**
-     * @param {string} callUuid
-     * @return {boolean}
-     */
-    hasConsumerForCallUuid: function(callUuid) {
-        return this.callUuidToConsumerMap.containsKey(callUuid);
-    },
-
-    /**
-     * @param {string} callUuid
-     */
-    removeConsumerForCallUuid: function(callUuid) {
-        this.callUuidToConsumerMap.remove(callUuid);
+    unbuildPush: function(push) {
+        return {
+            all: push.getAll(),
+            meldTransaction: this.meldBuilder.unbuildMeldTransaction(push.getMeldTransaction()),
+            toCallUuidSet: push.getToCallUuidSet().toArray(),
+            waitForCallUuidSet: push.getWaitForCallUuidSet().toArray()
+        };
     }
 });
 
@@ -149,8 +122,8 @@ var MeldbugClientConsumerManager = Class.extend(Obj, {
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(MeldbugClientConsumerManager).with(
-    module("meldbugClientConsumerManager")
+bugmeta.annotate(PushBuilder).with(
+    module("pushBuilder")
         .args([
             arg().ref("meldBuilder")
         ])
@@ -161,4 +134,4 @@ bugmeta.annotate(MeldbugClientConsumerManager).with(
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbugserver.MeldbugClientConsumerManager', MeldbugClientConsumerManager);
+bugpack.export('meldbug.PushBuilder', PushBuilder);

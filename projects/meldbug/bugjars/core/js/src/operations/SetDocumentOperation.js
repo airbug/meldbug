@@ -2,13 +2,14 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbugclient')
+//@Package('meldbug')
 
-//@Export('MeldbugClientService')
+//@Export('SetDocumentOperation')
 
 //@Require('Class')
 //@Require('Obj')
-//@Require('bugflow.BugFlow')
+//@Require('meldbug.MeldDocument')
+//@Require('meldbug.MeldOperation')
 
 
 //-------------------------------------------------------------------------------
@@ -24,22 +25,15 @@ var bugpack             = require('bugpack').context();
 
 var Class               = bugpack.require('Class');
 var Obj                 = bugpack.require('Obj');
-var BugFlow             = bugpack.require('bugflow.BugFlow');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var $series             = BugFlow.$series;
-var $task               = BugFlow.$task;
+var MeldDocument        = bugpack.require('meldbug.MeldDocument');
+var MeldOperation       = bugpack.require('meldbug.MeldOperation');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldbugClientService = Class.extend(Obj, {
+var SetDocumentOperation = Class.extend(MeldOperation, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -47,11 +41,13 @@ var MeldbugClientService = Class.extend(Obj, {
 
     /**
      * @constructs
-     * @param {MeldStore} meldStore
+     * @param {MeldDocumentKey} meldDocumentKey
+     * @param {*} data
      */
-    _constructor: function(meldStore) {
+    _constructor: function(meldDocumentKey, data) {
 
-        this._super();
+        this._super(meldDocumentKey, SetDocumentOperation.TYPE);
+
 
         //-------------------------------------------------------------------------------
         // Private Properties
@@ -59,9 +55,9 @@ var MeldbugClientService = Class.extend(Obj, {
 
         /**
          * @private
-         * @type {MeldStore}
+         * @type {*}
          */
-        this.meldStore = meldStore;
+        this.data = data;
     },
 
 
@@ -70,41 +66,62 @@ var MeldbugClientService = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {MeldStore}
+     * @return {*}
      */
-    getMeldStore: function() {
-        return this.meldStore;
+    getData: function() {
+        return this.data;
     },
 
 
     //-------------------------------------------------------------------------------
-    // Public Methods
+    // IClone Implementation
     //-------------------------------------------------------------------------------
 
     /**
-     * @private
-     * @param {MeldTransaction} meldTransaction
-     * @param {function(Throwable)} callback
+     * @param {boolean} deep
+     * @return {SetDocumentOperation}
      */
-    commitMeldTransaction: function(meldTransaction, callback) {
-        var _this = this;
-        $task(function(flow) {
-            _this.meldStore.commitMeldTransaction(meldTransaction, function(throwable) {
-                flow.complete(throwable);
-            });
-        }).execute(function(throwable) {
-            if (!throwable) {
-                callback(null);
-            } else {
-                callback(throwable);
-            }
-        });
+    clone: function(deep) {
+        var clone = new SetDocumentOperation(this.getMeldDocumentKey, Obj.clone(this.data, deep));
+        clone.setUuid(this.getUuid());
+        return clone;
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // MeldOperation Methods
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @override
+     * @param {MeldBucket} meldBucket
+     * @return {MeldDocument}
+     */
+    apply: function(meldBucket) {
+        var meldDocument = meldBucket.getMeldDocumentByMeldDocumentKey(this.getMeldDocumentKey());
+        if (!meldDocument) {
+            meldDocument = new MeldDocument(this.getMeldDocumentKey());
+            meldBucket.addMeldDocument(meldDocument);
+        }
+        meldDocument.setData(this.data);
+        return meldDocument;
     }
 });
+
+
+//-------------------------------------------------------------------------------
+// Static Variables
+//-------------------------------------------------------------------------------
+
+/**
+ * @static
+ * @const {string}
+ */
+SetDocumentOperation.TYPE = "SetDocumentOperation";
 
 
 //-------------------------------------------------------------------------------
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbugclient.MeldbugClientService', MeldbugClientService);
+bugpack.export('meldbug.SetDocumentOperation', SetDocumentOperation);

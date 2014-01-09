@@ -2,56 +2,43 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbugclient')
+//@Package('meldbug')
 
-//@Export('MeldbugClientService')
+//@Export('Subscriber')
 
 //@Require('Class')
 //@Require('Obj')
-//@Require('bugflow.BugFlow')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack             = require('bugpack').context();
+var bugpack                     = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class               = bugpack.require('Class');
-var Obj                 = bugpack.require('Obj');
-var BugFlow             = bugpack.require('bugflow.BugFlow');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var $series             = BugFlow.$series;
-var $task               = BugFlow.$task;
+var Class                       = bugpack.require('Class');
+var Obj                         = bugpack.require('Obj');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldbugClientService = Class.extend(Obj, {
+var Subscriber = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
     // Constructor
     //-------------------------------------------------------------------------------
 
-    /**
-     * @constructs
-     * @param {MeldStore} meldStore
-     */
-    _constructor: function(meldStore) {
+    _constructor: function(subscriberFunction, subscriberContext, once) {
 
         this._super();
+
 
         //-------------------------------------------------------------------------------
         // Private Properties
@@ -59,9 +46,21 @@ var MeldbugClientService = Class.extend(Obj, {
 
         /**
          * @private
-         * @type {MeldStore}
+         * @type {boolean}
          */
-        this.meldStore = meldStore;
+        this.once                   = once;
+
+        /**
+         * @private
+         * @type {Object}
+         */
+        this.subscriberContext      = subscriberContext;
+
+        /**
+         * @private
+         * @type {function(Message)}
+         */
+        this.subscriberFunction     = subscriberFunction;
     },
 
 
@@ -70,10 +69,24 @@ var MeldbugClientService = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {MeldStore}
+     * @return {boolean}
      */
-    getMeldStore: function() {
-        return this.meldStore;
+    getOnce: function() {
+        return this.once;
+    },
+
+    /**
+     * @return {Object}
+     */
+    getSubscriberContext: function() {
+        return this.subscriberContext;
+    },
+
+    /**
+     * @return {function(Message)}
+     */
+    getSubscriberFunction: function() {
+        return this.subscriberFunction;
     },
 
 
@@ -82,23 +95,10 @@ var MeldbugClientService = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @private
-     * @param {MeldTransaction} meldTransaction
-     * @param {function(Throwable)} callback
+     * @param {Message} message
      */
-    commitMeldTransaction: function(meldTransaction, callback) {
-        var _this = this;
-        $task(function(flow) {
-            _this.meldStore.commitMeldTransaction(meldTransaction, function(throwable) {
-                flow.complete(throwable);
-            });
-        }).execute(function(throwable) {
-            if (!throwable) {
-                callback(null);
-            } else {
-                callback(throwable);
-            }
-        });
+    receiveMessage: function(message) {
+        this.subscriberFunction.call(this.subscriberContext, message);
     }
 });
 
@@ -107,4 +107,4 @@ var MeldbugClientService = Class.extend(Obj, {
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbugclient.MeldbugClientService', MeldbugClientService);
+bugpack.export('meldbug.Subscriber', Subscriber);
