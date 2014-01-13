@@ -182,13 +182,16 @@ var MeldBucketManager = Class.extend(Obj, {
      * @param {function(Throwable=)} callback
      */
     lockMeldBucketForKey: function(meldBucketKey, callback) {
+        console.log("Attempting to lock MeldBucket '", meldBucketKey.toStringKey(), "'");
         var _this = this;
         var lockKey = "lock:" + meldBucketKey.toStringKey();
         this.redisClient.setNX(lockKey, 1, $traceWithError(function(error, reply) {
             if (!error) {
                 if (!!reply) {
+                    console.log("Locked MeldBucket '", meldBucketKey.toStringKey(), "'");
                     callback();
                 } else {
+                    console.log("Could not lock MeldBucket '", meldBucketKey.toStringKey(), "'", " retry in 100ms");
                     setTimeout(function() {
                         _this.lockMeldBucketForKey(meldBucketKey, callback);
                     }, 100);
@@ -231,6 +234,7 @@ var MeldBucketManager = Class.extend(Obj, {
         var lockKey = "lock:" + meldBucketKey.toStringKey();
         this.redisClient.del(lockKey, $traceWithError(function(error, reply) {
             if (!error) {
+                console.log("UNLOCKED MeldBucket '", meldBucketKey.toStringKey(), "'");
                 callback();
             } else {
                 callback(error);

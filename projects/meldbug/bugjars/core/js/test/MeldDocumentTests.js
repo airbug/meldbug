@@ -4,14 +4,14 @@
 
 //@TestFile
 
-//@Require('meldbug.MeldDocument')
-//@Require('meldbug.MeldDocumentKey')
-//@Require('meldbug.MeldBucket')
 //@Require('Class')
 //@Require('Set')
 //@Require('bugdelta.DeltaDocument')
 //@Require('bugmeta.BugMeta')
 //@Require('bugunit-annotate.TestAnnotation')
+//@Require('meldbug.MeldDocument')
+//@Require('meldbug.MeldDocumentKey')
+//@Require('meldbug.MeldBucket')
 
 
 //-------------------------------------------------------------------------------
@@ -27,12 +27,12 @@ var bugpack                 = require('bugpack').context();
 
 var Class                   = bugpack.require('Class');
 var Set                     = bugpack.require('Set');
-var MeldDocument            = bugpack.require('meldbug.MeldDocument');
-var MeldDocumentKey         = bugpack.require('meldbug.MeldDocumentKey');
-var MeldBucket              = bugpack.require('meldbug.MeldBucket');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
 var DeltaDocument           = bugpack.require('bugdelta.DeltaDocument');
 var TestAnnotation          = bugpack.require('bugunit-annotate.TestAnnotation');
+var MeldDocument            = bugpack.require('meldbug.MeldDocument');
+var MeldDocumentKey         = bugpack.require('meldbug.MeldDocumentKey');
+var MeldBucket              = bugpack.require('meldbug.MeldBucket');
 
 
 //-------------------------------------------------------------------------------
@@ -48,8 +48,6 @@ var test                    = TestAnnotation.test;
 //-------------------------------------------------------------------------------
 
 var meldDocumentTest = {
-
-    async: true,
 
     //-------------------------------------------------------------------------------
     // Setup Test
@@ -105,9 +103,40 @@ var meldDocumentTest = {
         // test removeObjectProperty
         // test setData
         // test setObjectProperty
-        test.complete();
     }
 };
 bugmeta.annotate(meldDocumentTest).with(
     test().name("MeldDocument Tests")
+);
+
+
+var meldDocumentAddToSetNonExistentTest = {
+
+    //-------------------------------------------------------------------------------
+    // Setup Test
+    //-------------------------------------------------------------------------------
+
+    setup: function(test) {
+        this.meldDocumentKey        = new MeldDocumentKey("object", "id");
+        this.meldDocument           = new MeldDocument(this.meldDocumentKey);
+        this.testPath               = "testPath";
+        this.testValue              = "value3";
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Run Test
+    //-------------------------------------------------------------------------------
+
+    test: function(test) {
+        this.meldDocument.addToSet(this.testPath, this.testValue);
+        var returnedSet = this.meldDocument.getPath(this.testPath);
+        test.assertTrue(Class.doesExtend(returnedSet, Set),
+            "Assert a Set was created at testPath path");
+        test.assertTrue(returnedSet.contains(this.testValue),
+            "Assert new Set contains the testValue");
+    }
+};
+bugmeta.annotate(meldDocumentAddToSetNonExistentTest).with(
+    test().name("MeldDocument - addToSet non existent Set test")
 );
