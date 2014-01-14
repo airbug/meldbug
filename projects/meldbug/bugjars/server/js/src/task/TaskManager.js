@@ -56,19 +56,22 @@ var TaskManager = Class.extend(Obj, {
 
     /**
      * @constructs
+     * @param {RedisClient} blockingRedisClient
      * @param {RedisClient} redisClient
      * @param {PubSub} pubSub
      * @param {string} taskQueueName
      */
-    _constructor: function(redisClient, pubSub, taskQueueName) {
+    _constructor: function(blockingRedisClient, redisClient, pubSub, taskQueueName) {
         var args = ArgUtil.process(arguments, [
+            {name: "blockingRedisClient", optional: false, type: "object"},
             {name: "redisClient", optional: false, type: "object"},
             {name: "pubSub", optional: false, type: "object"},
             {name: "taskQueueName", optional: false, type: "string"}
         ]);
-        redisClient     = args.redisClient;
-        pubSub          = args.pubSub;
-        taskQueueName   = args.taskQueueName;
+        blockingRedisClient     = args.blockingRedisClient;
+        redisClient             = args.redisClient;
+        pubSub                  = args.pubSub;
+        taskQueueName           = args.taskQueueName;
 
         this._super();
 
@@ -79,27 +82,40 @@ var TaskManager = Class.extend(Obj, {
 
         /**
          * @private
+         * @type {RedisClient}
+         */
+        this.blockingRedisClient    = blockingRedisClient;
+
+        /**
+         * @private
          * @type {PubSub}
          */
-        this.pubSub             = pubSub;
+        this.pubSub                 = pubSub;
 
         /**
          * @private
          * @type {RedisClient}
          */
-        this.redisClient        = redisClient;
+        this.redisClient            = redisClient;
 
         /**
          * @private
          * @type {string}
          */
-        this.taskQueueName      = taskQueueName;
+        this.taskQueueName          = taskQueueName;
     },
 
 
     //-------------------------------------------------------------------------------
     // Getters and Setters
     //-------------------------------------------------------------------------------
+
+    /**
+     * @return {RedisClient}
+     */
+    getBlockingRedisClient: function() {
+        return this.blockingRedisClient;
+    },
 
     /**
      * @return {string}
@@ -139,7 +155,7 @@ var TaskManager = Class.extend(Obj, {
      */
     dequeueTask: function(callback) {
         var _this = this;
-        this.redisClient.bRPopLPush(this.getTaskQueueName(), this.getProcessingQueueName(), 1000, function(error, reply) {
+        this.blockingRedisClient.bRPopLPush(this.getTaskQueueName(), this.getProcessingQueueName(), 1000, function(error, reply) {
             if (!error) {
                 if (reply) {
                     callback(null, _this.buildTaskFromDataString(reply));

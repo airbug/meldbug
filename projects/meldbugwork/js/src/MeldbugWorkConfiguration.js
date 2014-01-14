@@ -102,17 +102,17 @@ var MeldbugWorkConfiguration = Class.extend(Obj, {
         console.log("Initializing MeldbugWorkConfiguration");
         $parallel([
             $task(function(flow) {
-                _this.workerManager.createWorker("cleanupWorker", 1, function(throwable) {
+                _this.workerManager.createWorker("cleanupWorker", {maxConcurrency: 1}, function(throwable) {
                     flow.complete(throwable);
                 });
             }),
             $task(function(flow) {
-                _this.workerManager.createWorker("meldWorker", 1, function(throwable) {
+                _this.workerManager.createWorker("meldWorker", {maxConcurrency: 1}, function(throwable) {
                     flow.complete(throwable);
                 });
             }),
             $task(function(flow) {
-                _this.workerManager.createWorker("pushWorker", 1, function(throwable) {
+                _this.workerManager.createWorker("pushWorker", {maxConcurrency: 1}, function(throwable) {
                     flow.complete(throwable);
                 });
             })

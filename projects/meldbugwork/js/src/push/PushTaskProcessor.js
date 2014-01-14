@@ -378,11 +378,12 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
             var meldClientKey = _this.meldClientManager.generateMeldClientKey(callUuid);
             _this.meldClientManager.getMeldClientForKey(meldClientKey, function(throwable, meldClient) {
                 if (meldClient) {
+                    var now = (new Date()).getTime();
                     if (meldClient.isActive()) {
                         _this.pushToActiveClient(callUuid, meldTransaction, function(throwable) {
                             flow.complete(throwable);
                         })
-                    } else if (meldClient.getLastActive() > (1000 * 60 * 60)) {
+                    } else if ((now - meldClient.getLastActive().getTime())  > (1000 * 60 * 60)) {
                         _this.queueCleanup(callUuid, function(throwable) {
                             flow.complete(throwable);
                         })

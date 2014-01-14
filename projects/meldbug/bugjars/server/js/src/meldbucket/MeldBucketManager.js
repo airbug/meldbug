@@ -148,7 +148,7 @@ var MeldBucketManager = Class.extend(Obj, {
         var _this = this;
 
         //TEST
-        console.log("MeldBucketManager:getMeldBucketForKey")
+        console.log("MeldBucketManager:getMeldBucketForKey");
 
         this.redisClient.get(meldBucketKey.toStringKey(), $traceWithError(function(error, meldBucketData) {
             if (!error) {

@@ -127,6 +127,7 @@ MeldTaskManager.MELD_TASK_QUEUE = "meldTaskQueue";
 bugmeta.annotate(MeldTaskManager).with(
     module("meldTaskManager")
         .args([
+            arg().ref("blockingRedisClient"),
             arg().ref("redisClient"),
             arg().ref("pubSub"),
             arg().value(MeldTaskManager.MELD_TASK_QUEUE)

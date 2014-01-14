@@ -88,6 +88,12 @@ var CleanupWorkerConfiguration = Class.extend(Obj, {
 
         /**
          * @private
+         * @type {RedisClient}
+         */
+        this._blockingRedisClient   = null;
+
+        /**
+         * @private
          * @type {CleanupTaskProcessor}
          */
         this._cleanupTaskProcessor  = null;
@@ -144,6 +150,14 @@ var CleanupWorkerConfiguration = Class.extend(Obj, {
             }),
             $task(function(flow) {
                 var hearRedisEnd = function(event) {
+                    _this._blockingRedisClient.removeEventListener(RedisEvent.EventTypes.END, hearRedisEnd);
+                    flow.complete();
+                };
+                _this._blockingRedisClient.addEventListener(RedisEvent.EventTypes.END, hearRedisEnd);
+                _this._blockingRedisClient.quit();
+            }),
+            $task(function(flow) {
+                var hearRedisEnd = function(event) {
                     _this._redisClient.removeEventListener(RedisEvent.EventTypes.END, hearRedisEnd);
                     flow.complete();
                 };
@@ -168,6 +182,11 @@ var CleanupWorkerConfiguration = Class.extend(Obj, {
         var _this = this;
         console.log("Initializing CleanupWorkerConfiguration");
         $series([
+            $task(function(flow) {
+                _this._blockingRedisClient.connect(function(throwable) {
+                    flow.complete(throwable);
+                })
+            }),
             $task(function(flow) {
                 _this._redisClient.connect(function(throwable) {
                     flow.complete(throwable);
@@ -194,6 +213,16 @@ var CleanupWorkerConfiguration = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
     // Public Methods
     //-------------------------------------------------------------------------------
+
+    /**
+     * @param {exports} redis
+     * @param {RedisConfig} redisConfig
+     * @return {RedisClient}
+     */
+    blockingRedisClient: function(redis, redisConfig) {
+        this._blockingRedisClient = new RedisClient(redis, redisConfig);
+        return this._blockingRedisClient;
+    },
 
     /**
      * @param {CleanupTaskManager} cleanupTaskManager
@@ -267,6 +296,11 @@ Class.implement(CleanupWorkerConfiguration, IConfiguration);
 
 bugmeta.annotate(CleanupWorkerConfiguration).with(
     configuration("cleanupWorkerConfiguration").modules([
+        module("blockingRedisClient")
+            .args([
+                arg().ref("redis"),
+                arg().ref("redisConfig")
+            ]),
         module("cleanupTaskProcessor")
             .args([
                 arg().ref("cleanupTaskManager"),

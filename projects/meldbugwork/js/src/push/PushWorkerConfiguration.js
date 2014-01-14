@@ -88,6 +88,12 @@ var PushWorkerConfiguration = Class.extend(Obj, {
 
         /**
          * @private
+         * @type {RedisClient}
+         */
+        this._blockingRedisClient   = null;
+
+        /**
+         * @private
          * @type {PushTaskProcessor}
          */
         this._pushTaskProcessor     = null;
@@ -144,6 +150,14 @@ var PushWorkerConfiguration = Class.extend(Obj, {
             }),
             $task(function(flow) {
                 var hearRedisEnd = function(event) {
+                    _this._blockingRedisClient.removeEventListener(RedisEvent.EventTypes.END, hearRedisEnd);
+                    flow.complete();
+                };
+                _this._blockingRedisClient.addEventListener(RedisEvent.EventTypes.END, hearRedisEnd);
+                _this._blockingRedisClient.quit();
+            }),
+            $task(function(flow) {
+                var hearRedisEnd = function(event) {
                     _this._redisClient.removeEventListener(RedisEvent.EventTypes.END, hearRedisEnd);
                     flow.complete();
                 };
@@ -168,6 +182,11 @@ var PushWorkerConfiguration = Class.extend(Obj, {
         var _this = this;
         console.log("Initializing PushWorkerConfiguration");
         $series([
+            $task(function(flow) {
+                _this._blockingRedisClient.connect(function(throwable) {
+                    flow.complete(throwable);
+                })
+            }),
             $task(function(flow) {
                 _this._redisClient.connect(function(throwable) {
                     flow.complete(throwable);
@@ -194,6 +213,16 @@ var PushWorkerConfiguration = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
     // Public Methods
     //-------------------------------------------------------------------------------
+
+    /**
+     * @param {exports} redis
+     * @param {RedisConfig} redisConfig
+     * @return {RedisClient}
+     */
+    blockingRedisClient: function(redis, redisConfig) {
+        this._blockingRedisClient = new RedisClient(redis, redisConfig);
+        return this._blockingRedisClient;
+    },
 
     /**
      * @param {PushTaskManager} pushTaskManager
@@ -269,6 +298,11 @@ Class.implement(PushWorkerConfiguration, IConfiguration);
 
 bugmeta.annotate(PushWorkerConfiguration).with(
     configuration("pushWorkerConfiguration").modules([
+        module("blockingRedisClient")
+            .args([
+                arg().ref("redis"),
+                arg().ref("redisConfig")
+            ]),
         module("pushTaskProcessor")
             .args([
                 arg().ref("pushTaskManager"),
