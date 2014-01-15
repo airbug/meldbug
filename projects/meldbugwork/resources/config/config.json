@@ -1,0 +1,15 @@
+{
+    "cleanupWorker": {
+        "maxConcurrency": 1
+    },
+    "meldWorker": {
+        "maxConcurrency": 1
+    },
+    "pushWorker": {
+        "maxConcurrency": 2
+    },
+    "redis": {
+        "host": "127.0.0.1",
+        "port": 6379
+    }
+}
