@@ -10,12 +10,14 @@
 //@Require('Class')
 //@Require('Obj')
 //@Require('bugflow.BugFlow')
+//@Require('bugfs.BugFs')
 //@Require('bugioc.ArgAnnotation')
 //@Require('bugioc.ConfigurationAnnotation')
 //@Require('bugioc.IConfiguration')
 //@Require('bugioc.ModuleAnnotation')
 //@Require('bugioc.PropertyAnnotation')
 //@Require('bugmeta.BugMeta')
+//@Require('configbug.Configbug')
 //@Require('meldbug.CleanupTaskProcessor')
 //@Require('meldbug.TaskProcessor')
 //@Require('redis.RedisClient')
@@ -39,12 +41,14 @@ var redis                   = require('redis');
 var Class                   = bugpack.require('Class');
 var Obj                     = bugpack.require('Obj');
 var BugFlow                 = bugpack.require('bugflow.BugFlow');
+var BugFs                   = bugpack.require('bugfs.BugFs');
 var ArgAnnotation           = bugpack.require('bugioc.ArgAnnotation');
 var ConfigurationAnnotation = bugpack.require('bugioc.ConfigurationAnnotation');
 var IConfiguration          = bugpack.require('bugioc.IConfiguration');
 var ModuleAnnotation        = bugpack.require('bugioc.ModuleAnnotation');
 var PropertyAnnotation      = bugpack.require('bugioc.PropertyAnnotation');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
+var Configbug               = bugpack.require('configbug.Configbug');
 var CleanupTaskProcessor    = bugpack.require('meldbug.CleanupTaskProcessor');
 var TaskProcessor           = bugpack.require('meldbug.TaskProcessor');
 var RedisClient             = bugpack.require('redis.RedisClient');
@@ -97,6 +101,12 @@ var CleanupWorkerConfiguration = Class.extend(Obj, {
          * @type {CleanupTaskProcessor}
          */
         this._cleanupTaskProcessor  = null;
+
+        /**
+         * @private
+         * @type {Configbug}
+         */
+        this._configbug             = null;
 
         /**
          * @private
@@ -181,7 +191,18 @@ var CleanupWorkerConfiguration = Class.extend(Obj, {
     initializeConfiguration: function(callback) {
         var _this = this;
         console.log("Initializing CleanupWorkerConfiguration");
+
         $series([
+            $task(function(flow) {
+                /** @type {string} */
+                var configName  = _this.generateConfigName();
+                _this.loadConfig(configName, function(throwable, config) {
+                    if (!throwable) {
+                        _this.buildConfigs(config);
+                    }
+                    flow.complete(throwable);
+                });
+            }),
             $task(function(flow) {
                 _this._blockingRedisClient.connect(function(throwable) {
                     flow.complete(throwable);
@@ -237,6 +258,14 @@ var CleanupWorkerConfiguration = Class.extend(Obj, {
     },
 
     /**
+     * @return {Configbug}
+     */
+    configbug: function() {
+        this._configbug = new Configbug(BugFs.resolvePaths([__dirname, '../../resources/config']));
+        return this._configbug;
+    },
+
+    /**
      * @return {redis}
      */
     redis: function() {
@@ -279,6 +308,42 @@ var CleanupWorkerConfiguration = Class.extend(Obj, {
     subscriberRedisClient: function(redis, redisConfig) {
         this._subscriberRedisClient = new RedisClient(redis, redisConfig);
         return this._subscriberRedisClient;
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Private Methods
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @private
+     * @param {Config} config
+     */
+    buildConfigs: function(config) {
+        this._redisConfig.setHost(config.getProperty("redis.host"));
+        this._redisConfig.setPort(config.getProperty("redis.port"));
+    },
+
+    /**
+     * @private
+     * @return {string}
+     */
+    generateConfigName: function() {
+        var configName = "dev";
+        var index = process.argv.indexOf("--config");
+        if (index > -1) {
+            configName = process.argv[index + 1];
+        }
+        return configName;
+    },
+
+    /**
+     * @private
+     * @param {string} configName
+     * @param {function(Throwable, Config=)} callback
+     */
+    loadConfig: function(configName, callback) {
+        this._configbug.getConfig(configName, callback);
     }
 });
 
@@ -308,6 +373,7 @@ bugmeta.annotate(CleanupWorkerConfiguration).with(
                 arg().ref("meldManager"),
                 arg().ref("meldClientManager")
             ]),
+        module("configbug"),
         module("redis"),
         module("redisClient")
             .args([

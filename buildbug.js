@@ -55,6 +55,9 @@ buildProperties({
                 start: "node ./scripts/meldbug-work-application-start.js"
             }
         },
+        resourcePaths: [
+            "./projects/meldbugwork/resources"
+        ],
         sourcePaths: [
             "./projects/meldbug/bugjars/core/js/src",
             "./projects/meldbug/bugjars/server/js/src",
@@ -67,6 +70,7 @@ buildProperties({
             "../bugjs/projects/bugmeta/js/src",
             "../bugjs/projects/bugtrace/js/src",
             "../bugjs/projects/bugwork/js/src",
+            "../bugjs/projects/configbug/js/src",
             "../bugjs/projects/loggerbug/js/src",
             "../bugjs/projects/redis/js/src"
         ],
@@ -101,7 +105,8 @@ buildProperties({
             "../bugjs/projects/bugjs/js/test",
             "../bugjs/projects/bugmeta/js/test",
             "../bugjs/projects/bugtrace/js/test",
-            "../bugjs/projects/bugwork/js/test"
+            "../bugjs/projects/bugwork/js/test",
+            "../bugjs/projects/configbug/js/test"
         ]
     }
 });
@@ -139,6 +144,7 @@ buildTarget('local').buildFlow(
                 targetTask('createNodePackage', {
                     properties: {
                         packageJson: buildProject.getProperty("work.packageJson"),
+                        resourcePaths: buildProject.getProperty("work.resourcePaths"),
                         sourcePaths: buildProject.getProperty("work.sourcePaths").concat(
                             buildProject.getProperty("unitTest.sourcePaths")
                         ),
@@ -219,6 +225,7 @@ buildTarget('prod').buildFlow(
                 targetTask('createNodePackage', {
                     properties: {
                         packageJson: buildProject.getProperty("unitTest.packageJson"),
+                        resourcePaths: buildProject.getProperty("work.resourcePaths"),
                         sourcePaths: buildProject.getProperty("work.sourcePaths").concat(
                             buildProject.getProperty("unitTest.sourcePaths")
                         ),
@@ -264,6 +271,7 @@ buildTarget('prod').buildFlow(
                 targetTask('createNodePackage', {
                     properties: {
                         packageJson: buildProject.getProperty("work.packageJson"),
+                        resourcePaths: buildProject.getProperty("work.resourcePaths"),
                         sourcePaths: buildProject.getProperty("work.sourcePaths"),
                         scriptPaths: buildProject.getProperty("work.scriptPaths")
                     }
