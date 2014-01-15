@@ -31,6 +31,17 @@ var nodejs          = enableModule('nodejs');
 
 
 //-------------------------------------------------------------------------------
+// Values
+//-------------------------------------------------------------------------------
+
+var version         = "0.0.1";
+var dependencies    = {
+    bugpack: "https://s3.amazonaws.com/airbug/bugpack-0.0.5.tgz",
+    redis: "0.10.0"
+};
+
+
+//-------------------------------------------------------------------------------
 // Declare Properties
 //-------------------------------------------------------------------------------
 
@@ -38,11 +49,8 @@ buildProperties({
     work: {
         packageJson: {
             name: "meldbugwork",
-            version: "0.0.1",
-            dependencies: {
-                bugpack: "https://s3.amazonaws.com/airbug/bugpack-0.0.5.tgz",
-                redis: "0.9.x"
-            },
+            version: version,
+            dependencies: dependencies,
             scripts: {
                 start: "node ./scripts/meldbug-work-application-start.js"
             }
@@ -70,11 +78,8 @@ buildProperties({
     unitTest: {
         packageJson: {
             name: "meldbugwork-test",
-            version: "0.0.1",
-            dependencies: {
-                bugpack: "https://s3.amazonaws.com/airbug/bugpack-0.0.5.tgz",
-                redis: "0.9.x"
-            },
+            version: version,
+            dependencies: dependencies,
             scripts: {
                 start: "node ./scripts/meldbug-work-application-start.js"
             }
