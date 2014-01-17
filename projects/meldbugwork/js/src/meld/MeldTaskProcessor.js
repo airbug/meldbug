@@ -257,9 +257,6 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
                             var messageData = message.getMessageData();
                             var success     = messageData.success;
 
-                            //TEST
-                            console.log("MeldTransaction response received for callUuid:", callUuid, " message:", message);
-
                             if (success) {
                                 flow.complete();
                             } else {
@@ -267,10 +264,6 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
                             }
                         }
                     }, null, function(throwable, numberReceived) {
-
-                        //TEST
-                        console.log("MeldTransaction published for callUuid:", callUuid, " numberReceived:", numberReceived);
-
                         if (throwable) {
                             flow.error(throwable);
                         } else {

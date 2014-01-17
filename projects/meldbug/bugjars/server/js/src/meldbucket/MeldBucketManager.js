@@ -192,6 +192,10 @@ var MeldBucketManager = Class.extend(Obj, {
                     callback();
                 } else {
                     console.log("Could not lock MeldBucket '", meldBucketKey.toStringKey(), "'", " retry in 100ms");
+
+                    //TODO BRN: Add a back off and fail mechanism here if we can't lock the bucket.
+                    //In the code that calls this mechanism, we should check to see if the user has dropped since the call was made
+
                     setTimeout(function() {
                         _this.lockMeldBucketForKey(meldBucketKey, callback);
                     }, 100);
