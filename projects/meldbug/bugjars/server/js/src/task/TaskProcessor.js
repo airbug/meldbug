@@ -206,10 +206,6 @@ var TaskProcessor = Class.extend(EventDispatcher, {
      * @param {function(Throwable, Task=)} callback
      */
     doDequeueTask: function(callback) {
-
-        //TEST
-        console.log("TaskProcessor#doDequeueTask");
-
         this.taskManager.dequeueTask(callback);
     },
 
