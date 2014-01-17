@@ -194,16 +194,18 @@ var Push = Class.extend(Obj, {
 
     /**
      * @param {MeldDocumentKey} meldDocumentKey
+     * @return {Push}
      */
     removeDocument: function(meldDocumentKey) {
         this.meldTransaction.addMeldOperation(new RemoveMeldDocumentOperation(meldDocumentKey));
+        return this;
     },
 
     /**
      * @param {MeldDocumentKey} meldDocumentKey
      * @param {string} path
      * @param {*} setValue
-     * @returns {Push}
+     * @return {Push}
      */
     removeFromSet: function(meldDocumentKey, path, setValue) {
         this.meldTransaction.addMeldOperation(new RemoveFromSetOperation(meldDocumentKey, path, setValue));
@@ -214,7 +216,7 @@ var Push = Class.extend(Obj, {
      * @param {MeldDocumentKey} meldDocumentKey
      * @param {string} path
      * @param {string} propertyName
-     * @returns {Push}
+     * @return {Push}
      */
     removeObjectProperty: function(meldDocumentKey, path, propertyName) {
         this.meldTransaction.addMeldOperation(new RemoveObjectPropertyOperation(meldDocumentKey, path, propertyName));
@@ -236,7 +238,7 @@ var Push = Class.extend(Obj, {
      * @param {string} path
      * @param {string} propertyName
      * @param {*} propertyValue
-     * @returns {Push}
+     * @return {Push}
      */
     setObjectProperty: function(meldDocumentKey, path, propertyName, propertyValue) {
         this.meldTransaction.addMeldOperation(new SetObjectPropertyOperation(meldDocumentKey, path, propertyName, propertyValue));
