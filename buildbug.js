@@ -34,7 +34,7 @@ var nodejs          = enableModule('nodejs');
 // Values
 //-------------------------------------------------------------------------------
 
-var version         = "0.0.2";
+var version         = "0.0.3";
 var dependencies    = {
     bugpack: "https://s3.amazonaws.com/airbug/bugpack-0.0.5.tgz",
     redis: "0.10.0"
