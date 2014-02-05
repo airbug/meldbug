@@ -6,6 +6,7 @@
 
 //@Export('Push')
 
+//@Require('Bug')
 //@Require('Class')
 //@Require('Obj')
 //@Require('Set')
@@ -18,6 +19,7 @@
 //@Require('meldbug.RemoveObjectPropertyOperation')
 //@Require('meldbug.SetDocumentOperation')
 //@Require('meldbug.SetObjectPropertyOperation')
+//@Require('meldbug.TaskDefines')
 
 
 //-------------------------------------------------------------------------------
@@ -31,6 +33,7 @@ var bugpack                             = require('bugpack').context();
 // BugPack
 //-------------------------------------------------------------------------------
 
+var Bug                                 = bugpack.require('Bug');
 var Class                               = bugpack.require('Class');
 var Obj                                 = bugpack.require('Obj');
 var Set                                 = bugpack.require('Set');
@@ -43,6 +46,7 @@ var RemoveMeldDocumentOperation         = bugpack.require('meldbug.RemoveMeldDoc
 var RemoveObjectPropertyOperation       = bugpack.require('meldbug.RemoveObjectPropertyOperation');
 var SetDocumentOperation                = bugpack.require('meldbug.SetDocumentOperation');
 var SetObjectPropertyOperation          = bugpack.require('meldbug.SetObjectPropertyOperation');
+var TaskDefines                         = bugpack.require('meldbug.TaskDefines');
 
 
 //-------------------------------------------------------------------------------
@@ -81,6 +85,18 @@ var Push = Class.extend(Obj, {
          * @type {boolean}
          */
         this.all                    = false;
+
+        /**
+         * @private
+         * @type {function(Throwable=)}
+         */
+        this.callback               = null;
+
+        /**
+         * @private
+         * @type {boolean}
+         */
+        this.executed               = false;
 
         /**
          * @private
@@ -160,26 +176,30 @@ var Push = Class.extend(Obj, {
      * @param {function(Throwable=)} callback
      */
     exec: function(callback) {
-        var _this   = this;
-        var task    = this.pushTaskManager.generatePushTask(this);
-        $series([
-            $task(function(flow) {
-                _this.pushTaskManager.subscribeToTaskComplete(task, function(message) {
-                    callback();
-                }, null, function(throwable) {
-                    flow.complete(throwable);
-                });
-            }),
-            $task(function(flow) {
-                _this.pushTaskManager.queueTask(task, function(throwable) {
-                    flow.complete(throwable);
-                });
-            })
-        ]).execute(function(throwable) {
-            if (throwable) {
-                callback(throwable);
-            }
-        });
+        if (!this.executed) {
+            this.executed = true;
+            this.callback = callback;
+            var _this   = this;
+            var task    = this.pushTaskManager.generatePushTask(this);
+            $series([
+                $task(function(flow) {
+                    _this.pushTaskManager.subscribeToTaskResult(task, _this.receiveTaskResultMessage, _this, function(throwable) {
+                        flow.complete(throwable);
+                    });
+                }),
+                $task(function(flow) {
+                    _this.pushTaskManager.queueTask(task, function(throwable) {
+                        flow.complete(throwable);
+                    });
+                })
+            ]).execute(function(throwable) {
+                if (throwable) {
+                    callback(throwable);
+                }
+            });
+        } else {
+            callback(new Bug("InvalidState", {}, "Push has already been executed"));
+        }
     },
 
     /**
@@ -269,6 +289,25 @@ var Push = Class.extend(Obj, {
     waitFor: function(callUuids) {
         this.waitForCallUuidSet.addAll(callUuids);
         return this;
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Message Receivers
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @private
+     * @param {Message} message
+     */
+    receiveTaskResultMessage: function(message) {
+        if (message.getMessageType() === TaskDefines.MessageTypes.TASK_COMPLETE) {
+            this.callback();
+        } else if (message.getMessageType() === TaskDefines.MessageTypes.TASK_THROWABLE) {
+            this.callback(message.getMessageData().throwable);
+        } else {
+            this.callback(new Bug("UnhandledMessage", {}, "Received message of unsupported type - type:", message.getMessageType()));
+        }
     }
 });
 

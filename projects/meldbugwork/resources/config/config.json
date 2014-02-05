@@ -6,7 +6,7 @@
         "maxConcurrency": 1
     },
     "pushWorker": {
-        "maxConcurrency": 2
+        "maxConcurrency": 1
     },
     "redis": {
         "host": "127.0.0.1",

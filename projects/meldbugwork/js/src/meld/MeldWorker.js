@@ -146,12 +146,20 @@ var MeldWorker = Class.extend(Worker, {
         try {
             this.configurationScan.scanBugpack("meldbug.MeldWorkerConfiguration");
             this.moduleScan.scanBugpacks([
+                "bugcall.CallManager",
+                "bugcall.CallRequestFactory",
+                "bugcall.CallRequestManager",
+                "bugcall.CallResponseHandlerFactory",
+                "bugcall.PersistedCallFactory",
+                "bugmarsh.Marshaller",
+                "bugmarsh.MarshRegistry",
+                "bugsub.PubSub",
+                "loggerbug.Logger",
                 "meldbug.MeldBucketManager",
                 "meldbug.MeldBuilder",
                 "meldbug.MeldTaskManager",
                 "meldbug.MeldTransactionGenerator",
-                "meldbug.MeldTransactionManager",
-                "meldbug.PubSub"
+                "meldbug.MeldTransactionPublisher"
             ]);
             this.iocContext.process();
         } catch(t) {

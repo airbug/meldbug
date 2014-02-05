@@ -128,6 +128,7 @@ CleanupTaskManager.CLEANUP_TASK_QUEUE = "cleanupTaskQueue";
 bugmeta.annotate(CleanupTaskManager).with(
     module("cleanupTaskManager")
         .args([
+            arg().ref("logger"),
             arg().ref("blockingRedisClient"),
             arg().ref("redisClient"),
             arg().ref("pubSub"),

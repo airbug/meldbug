@@ -7,6 +7,9 @@
 //@Export('PutMeldDocumentOperation')
 
 //@Require('Class')
+//@Require('bugmarsh.MarshAnnotation');
+//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmeta.BugMeta')
 //@Require('meldbug.MeldBucketOperation')
 
 
@@ -14,15 +17,27 @@
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack                 = require('bugpack').context();
+var bugpack                     = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class                   = bugpack.require('Class');
-var MeldBucketOperation     = bugpack.require('meldbug.MeldBucketOperation');
+var Class                       = bugpack.require('Class');
+var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
+var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+var MeldBucketOperation         = bugpack.require('meldbug.MeldBucketOperation');
+
+
+//-------------------------------------------------------------------------------
+// Simplify References
+//-------------------------------------------------------------------------------
+
+var bugmeta                     = BugMeta.context();
+var marsh                       = MarshAnnotation.marsh;
+var property                    = MarshPropertyAnnotation.property;
 
 
 //-------------------------------------------------------------------------------
@@ -111,6 +126,21 @@ var PutMeldDocumentOperation = Class.extend(MeldBucketOperation, {
  * @const {string}
  */
 PutMeldDocumentOperation.TYPE = "PutMeldDocumentOperation";
+
+
+//-------------------------------------------------------------------------------
+// BugMeta
+//-------------------------------------------------------------------------------
+
+bugmeta.annotate(PutMeldDocumentOperation).with(
+    marsh("PutMeldDocumentOperation")
+        .properties([
+            property("meldDocument"),
+            property("meldDocumentKey"),
+            property("type"),
+            property("uuid")
+        ])
+);
 
 
 //-------------------------------------------------------------------------------

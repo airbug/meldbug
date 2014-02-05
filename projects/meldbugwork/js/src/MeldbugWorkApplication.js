@@ -86,8 +86,14 @@ var MeldbugWorkApplication = Class.extend(Obj, {
     start: function(callback) {
         this.configurationScan.scanBugpack('meldbugwork.MeldbugWorkConfiguration');
         this.moduleScan.scanBugpacks([
+            "bugmarsh.MarshRegistry",
+            "bugmarsh.Marshaller",
+            "bugwork.WorkerCommandFactory",
+            "bugwork.WorkerContextFactory",
             "bugwork.WorkerManager",
-            "bugwork.WorkerRegistry"
+            "bugwork.WorkerProcessFactory",
+            "bugwork.WorkerRegistry",
+            "loggerbug.Logger"
         ]);
         this.iocContext.process();
         this.iocContext.initialize(callback);
@@ -97,7 +103,7 @@ var MeldbugWorkApplication = Class.extend(Obj, {
      * @param {function(Throwable=)} callback
      */
     stop: function(callback) {
-        this.iocContext.deinitialze(callback);
+        this.iocContext.deinitialize(callback);
     }
 });
 

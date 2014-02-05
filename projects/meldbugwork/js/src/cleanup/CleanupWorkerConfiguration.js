@@ -143,15 +143,19 @@ var CleanupWorkerConfiguration = Class.extend(Obj, {
      */
     deinitializeConfiguration: function(callback) {
         var _this = this;
-        console.log("Initializing CleanupWorkerConfiguration");
+        console.log("Deinitializing CleanupWorkerConfiguration");
         $series([
             $task(function(flow) {
-                var hearProcessorStopped = function(event) {
-                    _this._cleanupTaskProcessor.removeEventListener(TaskProcessor.EventTypes.STOPPED, hearProcessorStopped);
-                    flow.complete();
-                };
-                _this._cleanupTaskProcessor.addEventListener(TaskProcessor.EventTypes.STOPPED, hearProcessorStopped);
-                _this._cleanupTaskProcessor.stop();
+                if (!_this._cleanupTaskProcessor.isStopped()) {
+                    var hearProcessorStopped = function(event) {
+                        _this._cleanupTaskProcessor.removeEventListener(TaskProcessor.EventTypes.STOPPED, hearProcessorStopped);
+                        flow.complete();
+                    };
+                    _this._cleanupTaskProcessor.addEventListener(TaskProcessor.EventTypes.STOPPED, hearProcessorStopped);
+                }
+                if (_this._cleanupTaskProcessor.isStarted()) {
+                    _this._cleanupTaskProcessor.stop();
+                }
             }),
             $task(function(flow) {
                 _this._redisPubSub.deinitialize(function(throwable) {
@@ -227,7 +231,14 @@ var CleanupWorkerConfiguration = Class.extend(Obj, {
                 _this._cleanupTaskProcessor.start();
                 flow.complete();
             })
-        ]).execute(callback);
+        ]).execute(function(throwable) {
+            if (!throwable) {
+                console.log("CleanupWorkerConfiguration successfully initialized!");
+            } else {
+                console.log("CleanupWorkerConfiguration encountered an error while initializing - throwable:", throwable);
+            }
+            callback(throwable);
+        });
     },
 
 
@@ -246,14 +257,15 @@ var CleanupWorkerConfiguration = Class.extend(Obj, {
     },
 
     /**
+     * @param {Logger} logger
      * @param {CleanupTaskManager} cleanupTaskManager
      * @param {MeldBucketManager} meldBucketManager
      * @param {MeldManager} meldManager
      * @param {MeldClientManager} meldClientManager
      * @return {CleanupTaskProcessor}
      */
-    cleanupTaskProcessor: function(cleanupTaskManager, meldBucketManager, meldManager, meldClientManager) {
-        this._cleanupTaskProcessor = new CleanupTaskProcessor(cleanupTaskManager, meldBucketManager, meldManager, meldClientManager);
+    cleanupTaskProcessor: function(logger, cleanupTaskManager, meldBucketManager, meldManager, meldClientManager) {
+        this._cleanupTaskProcessor = new CleanupTaskProcessor(logger, cleanupTaskManager, meldBucketManager, meldManager, meldClientManager);
         return this._cleanupTaskProcessor;
     },
 
@@ -370,6 +382,7 @@ bugmeta.annotate(CleanupWorkerConfiguration).with(
             ]),
         module("cleanupTaskProcessor")
             .args([
+                arg().ref("logger"),
                 arg().ref("cleanupTaskManager"),
                 arg().ref("meldBucketManager"),
                 arg().ref("meldManager"),

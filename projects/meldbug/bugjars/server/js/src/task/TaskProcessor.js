@@ -10,6 +10,7 @@
 //@Require('Class')
 //@Require('Event')
 //@Require('EventDispatcher')
+//@Require('Exception')
 //@Require('bugflow.BugFlow')
 
 
@@ -28,6 +29,7 @@ var Bug                 = bugpack.require('Bug');
 var Class               = bugpack.require('Class');
 var Event               = bugpack.require('Event');
 var EventDispatcher     = bugpack.require('EventDispatcher');
+var Exception           = bugpack.require('Exception');
 var BugFlow             = bugpack.require('bugflow.BugFlow');
 
 
@@ -206,7 +208,11 @@ var TaskProcessor = Class.extend(EventDispatcher, {
      * @param {function(Throwable, Task=)} callback
      */
     doDequeueTask: function(callback) {
-        this.taskManager.dequeueTask(callback);
+        if (this.isStarted()) {
+            this.taskManager.dequeueTask(callback);
+        } else {
+            callback(new Exception("TaskProcessorStopping"));
+        }
     },
 
     /**
@@ -245,6 +251,15 @@ var TaskProcessor = Class.extend(EventDispatcher, {
         setTimeout(function() {
             _this.tryProcessTask();
         }, 0);
+    },
+
+    /**
+     * @protected
+     * @param {Task} task
+     * @param {function(Throwable=)} callback
+     */
+    requeueTask: function(task, callback) {
+        this.taskManager.requeueTask(task, callback);
     },
 
     /**
@@ -303,7 +318,16 @@ var TaskProcessor = Class.extend(EventDispatcher, {
                 if (!throwable) {
                     _this.repeatProcessTask();
                 } else {
-                    throw throwable;
+                    if (Class.doesExtend(throwable, Exception)) {
+                        if (throwable.getType() === "TaskProcessorStopping" && _this.isStopping()) {
+                            _this.state = TaskProcessor.States.STOPPED;
+                            _this.dispatchStopped();
+                        } else {
+                            throw throwable;
+                        }
+                    } else {
+                        throw throwable;
+                    }
                 }
             });
         } else if (this.isStopping()) {

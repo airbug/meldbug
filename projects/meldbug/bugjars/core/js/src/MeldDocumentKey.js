@@ -10,29 +10,48 @@
 //@Require('Class')
 //@Require('IObjectable')
 //@Require('Obj')
+//@Require('bugmarsh.MarshAnnotation');
+//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmeta.BugMeta')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack             = require('bugpack').context();
+var bugpack                     = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var ArgumentBug         = bugpack.require('ArgumentBug');
-var Class               = bugpack.require('Class');
-var IObjectable         = bugpack.require('IObjectable');
-var Obj                 = bugpack.require('Obj');
+var ArgumentBug                 = bugpack.require('ArgumentBug');
+var Class                       = bugpack.require('Class');
+var IObjectable                 = bugpack.require('IObjectable');
+var Obj                         = bugpack.require('Obj');
+var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
+var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+
+
+//-------------------------------------------------------------------------------
+// Simplify References
+//-------------------------------------------------------------------------------
+
+var bugmeta                     = BugMeta.context();
+var marsh                       = MarshAnnotation.marsh;
+var property                    = MarshPropertyAnnotation.property;
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
+/**
+ * @class
+ * @extends {Obj}
+ */
 var MeldDocumentKey = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
@@ -40,7 +59,9 @@ var MeldDocumentKey = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     *
+     * @constructs
+     * @param {string} dataType
+     * @param {string} id
      */
     _constructor: function(dataType, id) {
 
@@ -167,6 +188,19 @@ MeldDocumentKey.fromStringKey = function(stringKey) {
 //-------------------------------------------------------------------------------
 
 Class.implement(MeldDocumentKey, IObjectable);
+
+
+//-------------------------------------------------------------------------------
+// BugMeta
+//-------------------------------------------------------------------------------
+
+bugmeta.annotate(MeldDocumentKey).with(
+    marsh("MeldDocumentKey")
+        .properties([
+            property("dataType"),
+            property("id")
+        ])
+);
 
 
 //-------------------------------------------------------------------------------

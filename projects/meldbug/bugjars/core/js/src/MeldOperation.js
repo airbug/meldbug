@@ -9,22 +9,37 @@
 //@Require('Class')
 //@Require('Obj')
 //@Require('UuidGenerator')
+//@Require('bugmarsh.MarshAnnotation');
+//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmeta.BugMeta')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack         = require('bugpack').context();
+var bugpack                     = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class           = bugpack.require('Class');
-var Obj             = bugpack.require('Obj');
-var UuidGenerator   = bugpack.require('UuidGenerator');
+var Class                       = bugpack.require('Class');
+var Obj                         = bugpack.require('Obj');
+var UuidGenerator               = bugpack.require('UuidGenerator');
+var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
+var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+
+
+//-------------------------------------------------------------------------------
+// Simplify References
+//-------------------------------------------------------------------------------
+
+var bugmeta                     = BugMeta.context();
+var marsh                       = MarshAnnotation.marsh;
+var property                    = MarshPropertyAnnotation.property;
 
 
 //-------------------------------------------------------------------------------
@@ -130,6 +145,20 @@ var MeldOperation = Class.extend(Obj, {
         return meldBucket.getMeldDocumentByMeldDocumentKey(this.meldDocumentKey);
     }
 });
+
+
+//-------------------------------------------------------------------------------
+// BugMeta
+//-------------------------------------------------------------------------------
+
+bugmeta.annotate(MeldOperation).with(
+    marsh("MeldOperation")
+        .properties([
+            property("meldDocumentKey"),
+            property("type"),
+            property("uuid")
+        ])
+);
 
 
 //-------------------------------------------------------------------------------

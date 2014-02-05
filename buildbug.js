@@ -34,10 +34,11 @@ var nodejs          = enableModule('nodejs');
 // Values
 //-------------------------------------------------------------------------------
 
-var version         = "0.0.4";
+var version         = "0.0.5";
 var dependencies    = {
     bugpack: "https://s3.amazonaws.com/airbug/bugpack-0.0.5.tgz",
-    redis: "0.10.0"
+    redis: "0.10.0",
+    "socket.io": "0.9.16"
 };
 
 
@@ -62,17 +63,23 @@ buildProperties({
             "./projects/meldbug/bugjars/core/js/src",
             "./projects/meldbug/bugjars/server/js/src",
             "./projects/meldbugwork/js/src",
+            "../bugjs/projects/bugcall/bugjars/core/js/src",
+            "../bugjs/projects/bugcall/bugjars/server/js/src",
             "../bugjs/projects/bugdelta/js/src",
             "../bugjs/projects/bugflow/js/src",
             "../bugjs/projects/bugfs/js/src",
             "../bugjs/projects/bugioc/js/src",
             "../bugjs/projects/bugjs/js/src",
+            "../bugjs/projects/bugmarsh/js/src",
             "../bugjs/projects/bugmeta/js/src",
+            "../bugjs/projects/bugsub/js/src",
             "../bugjs/projects/bugtrace/js/src",
             "../bugjs/projects/bugwork/js/src",
             "../bugjs/projects/configbug/js/src",
             "../bugjs/projects/loggerbug/js/src",
-            "../bugjs/projects/redis/js/src"
+            "../bugjs/projects/redis/js/src",
+            "../bugjs/projects/socketio/bugjars/server/js/src",
+            "../bugjs/projects/socketio/bugjars/socket/js/src"
         ],
         scriptPaths: [
             "../bugjs/projects/bugwork/js/scripts",
@@ -99,11 +106,15 @@ buildProperties({
             "./projects/meldbug/bugjars/core/js/test",
             "./projects/meldbug/bugjars/server/js/test",
             "./projects/meldbugwork/js/test",
+            "../bugjs/projects/bugcall/bugjars/core/js/test",
+            "../bugjs/projects/bugcall/bugjars/server/js/test",
             "../bugjs/projects/bugdelta/js/test",
             "../bugjs/projects/bugflow/js/test",
             "../bugjs/projects/bugioc/js/test",
             "../bugjs/projects/bugjs/js/test",
+            "../bugjs/projects/bugmarsh/js/test",
             "../bugjs/projects/bugmeta/js/test",
+            "../bugjs/projects/bugsub/js/test",
             "../bugjs/projects/bugtrace/js/test",
             "../bugjs/projects/bugwork/js/test",
             "../bugjs/projects/configbug/js/test"

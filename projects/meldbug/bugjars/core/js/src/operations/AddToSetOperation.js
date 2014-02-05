@@ -8,6 +8,9 @@
 
 //@Require('Class')
 //@Require('Obj')
+//@Require('bugmarsh.MarshAnnotation');
+//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmeta.BugMeta')
 //@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldOperation')
 
@@ -16,17 +19,29 @@
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack             = require('bugpack').context();
+var bugpack                     = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class               = bugpack.require('Class');
-var Obj                 = bugpack.require('Obj');
-var MeldDocument        = bugpack.require('meldbug.MeldDocument');
-var MeldOperation       = bugpack.require('meldbug.MeldOperation');
+var Class                       = bugpack.require('Class');
+var Obj                         = bugpack.require('Obj');
+var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
+var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+var MeldDocument                = bugpack.require('meldbug.MeldDocument');
+var MeldOperation               = bugpack.require('meldbug.MeldOperation');
+
+
+//-------------------------------------------------------------------------------
+// Simplify References
+//-------------------------------------------------------------------------------
+
+var bugmeta                     = BugMeta.context();
+var marsh                       = MarshAnnotation.marsh;
+var property                    = MarshPropertyAnnotation.property;
 
 
 //-------------------------------------------------------------------------------
@@ -40,7 +55,10 @@ var AddToSetOperation = Class.extend(MeldOperation, {
     //-------------------------------------------------------------------------------
 
     /**
-     *
+     * @constructs
+     * @param {MeldDocumentKey} meldDocumentKey
+     * @param {string} path
+     * @param {*} setValue
      */
     _constructor: function(meldDocumentKey, path, setValue) {
 
@@ -129,6 +147,22 @@ var AddToSetOperation = Class.extend(MeldOperation, {
  * @const {string}
  */
 AddToSetOperation.TYPE = "AddToSetOperation";
+
+
+//-------------------------------------------------------------------------------
+// BugMeta
+//-------------------------------------------------------------------------------
+
+bugmeta.annotate(AddToSetOperation).with(
+    marsh("AddToSetOperation")
+        .properties([
+            property("meldDocumentKey"),
+            property("path"),
+            property("setValue"),
+            property("type"),
+            property("uuid")
+        ])
+);
 
 
 //-------------------------------------------------------------------------------

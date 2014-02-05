@@ -12,6 +12,7 @@
 //@Require('Set')
 //@Require('bugflow.BugFlow')
 //@Require('meldbug.MeldStore')
+//@Require('meldbug.TaskDefines')
 //@Require('meldbug.TaskProcessor')
 
 
@@ -32,6 +33,7 @@ var Exception           = bugpack.require('Exception');
 var Set                 = bugpack.require('Set');
 var BugFlow             = bugpack.require('bugflow.BugFlow');
 var MeldStore           = bugpack.require('meldbug.MeldStore');
+var TaskDefines         = bugpack.require('meldbug.TaskDefines');
 var TaskProcessor       = bugpack.require('meldbug.TaskProcessor');
 
 
@@ -61,6 +63,7 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
 
     /**
      * @constructs
+     * @param {Logger} logger
      * @param {PushTaskManager} pushTaskManager
      * @param {MeldBucketManager} meldBucketManager
      * @param {MeldTaskManager} meldTaskManager
@@ -68,7 +71,7 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
      * @param {MeldManager} meldManager
      * @param {CleanupTaskManager} cleanupTaskManager
      */
-    _constructor: function(pushTaskManager, meldBucketManager, meldTaskManager, meldClientManager, meldManager, cleanupTaskManager) {
+    _constructor: function(logger, pushTaskManager, meldBucketManager, meldTaskManager, meldClientManager, meldManager, cleanupTaskManager) {
 
         this._super(pushTaskManager);
 
@@ -82,6 +85,12 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
          * @type {CleanupTaskManager}
          */
         this.cleanupTaskManager         = cleanupTaskManager;
+
+        /**
+         * @private
+         * @type {Logger}
+         */
+        this.logger                     = logger;
 
         /**
          * @private
@@ -124,6 +133,13 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
      */
     getCleanupTaskManager: function() {
         return this.cleanupTaskManager;
+    },
+
+    /**
+     * @return {Logger}
+     */
+    getLogger: function() {
+        return this.logger;
     },
 
     /**
@@ -182,12 +198,7 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
         var meldCallUuidSet         = new Set();
         $series([
             $task(function(flow) {
-
-                //TEST
-                console.log("PushTaskProcessor:doTask - push.getToCallUuidSet().isEmpty():", push.getToCallUuidSet().isEmpty(), " push.getAll():", push.getAll());
-
                 if (push.getToCallUuidSet().isEmpty() && push.getAll()) {
-
                     _this.getCallUuidSetForTransaction(meldTransaction, function(throwable, callUuidSet) {
                         if (!throwable) {
                             meldCallUuidSet.addAll(callUuidSet);
@@ -195,32 +206,31 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
                         flow.complete(throwable);
                     })
                 } else {
-                    //TEST
-                    console.log("push.getToCallUuidSet().toArray():" + push.getToCallUuidSet().toArray());
-
                     meldCallUuidSet.addAll(push.getToCallUuidSet());
-
-                    //TEST
-                    console.log("MADE IT");
-
                     flow.complete();
                 }
             }),
             $task(function(flow) {
-
-                //TEST
-                console.log("Doing push");
-
-                _this.doPush(pushTask, waitForCallUuidSet, meldCallUuidSet, meldTransaction, function(throwable) {
+                _this.doUpdateAndPush(pushTask, waitForCallUuidSet, meldCallUuidSet, meldTransaction, function(throwable) {
                     flow.complete(throwable);
                 })
             }),
             $task(function(flow) {
                 _this.pushTaskManager.reportTaskComplete(pushTask, function(throwable) {
+                    _this.logger.info("Report PushTask Complete - taskUuid:", pushTask.getTaskUuid());
                     flow.complete(throwable);
                 });
             })
-        ]).execute(callback);
+        ]).execute(function(throwable) {
+            if (throwable) {
+                _this.logger.warn("PushTask throwable - taskUuid:", pushTask.getTaskUuid(), " throwable:", throwable);
+            }
+            if (Class.doesExtend(throwable, Exception)) {
+                _this.requeueTask(pushTask, callback);
+            } else {
+                callback(throwable);
+            }
+        });
     },
 
 
@@ -246,8 +256,14 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
         var task    = this.meldTaskManager.generateMeldTask(callUuid);
         $series([
             $task(function(flow) {
-                _this.meldTaskManager.subscribeToTaskComplete(task, function(message) {
-                    callback();
+                _this.meldTaskManager.subscribeToTaskResult(task, function(message) {
+                    if (message.getMessageType() === TaskDefines.MessageTypes.TASK_COMPLETE) {
+                        callback();
+                    } else if (message.getMessageType() === TaskDefines.MessageTypes.TASK_THROWABLE) {
+                        callback(message.getMessageData().throwable);
+                    } else {
+                        callback(new Exception("Unhandled message type - message.getMessageType():", message.getMessageType()));
+                    }
                 }, null, function(throwable) {
                     flow.complete(throwable);
                 });
@@ -272,10 +288,36 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
      * @param {MeldTransaction} meldTransaction
      * @param {function(Throwable=)} callback
      */
-    doPush: function(pushTask, waitForCallUuidSet, meldCallUuidSet, meldTransaction, callback) {
+    doUpdateAndPush: function(pushTask, waitForCallUuidSet, meldCallUuidSet, meldTransaction, callback) {
         var _this                       = this;
-        var waitForComplete             = false;
-        var dontWaitForComplete         = false;
+        $series([
+            $task(function(flow) {
+                _this.updateServerMeldDocumentsForCallUuidSet(meldCallUuidSet, meldTransaction, function(throwable) {
+                    flow.complete(throwable);
+                });
+            }),
+            $task(function(flow) {
+                _this.pushTaskManager.finishTask(pushTask, function(throwable) {
+                    console.log("PushTask FINISHED - taskUuid:", pushTask.getTaskUuid());
+                    flow.complete(throwable);
+                });
+            }),
+            $task(function(flow) {
+                _this.doPush(waitForCallUuidSet, meldCallUuidSet, function(throwable) {
+                    flow.complete(throwable);
+                });
+            })
+        ]).execute(callback);
+    },
+
+    /**
+     * @private
+     * @param {Set.<string>} waitForCallUuidSet
+     * @param {Set.<string>} meldCallUuidSet
+     * @param {function(Throwable=)} callback
+     */
+    doPush: function(waitForCallUuidSet, meldCallUuidSet, callback) {
+        var _this                       = this;
         var dontWaitForCallUuidSet      = new Set();
         dontWaitForCallUuidSet.addAll(meldCallUuidSet);
         dontWaitForCallUuidSet.removeAll(waitForCallUuidSet);
@@ -286,36 +328,19 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
                     waitForCallUuidSet.remove(waitForCallUuid);
                 }
             });
-            _this.pushToCallUuidSet(waitForCallUuidSet, meldTransaction, function(throwable) {
+            _this.pushToCallUuidSet(waitForCallUuidSet, function(throwable) {
                 flow.complete(throwable);
             });
-        }).execute(function(throwable) {
-            waitForComplete = true;
-            callback(throwable);
-
-            if (dontWaitForComplete) {
-                _this.pushTaskManager.finishTask(pushTask, function(throwable) {
-                    console.log("PushTask complete - taskUuid:", pushTask.getTaskUuid());
-                    if (throwable) {
-                        if (Class.doesExtend(throwable, Exception)) {
-                            console.error(throwable.message, throwable.stack);
-                        } else {
-                            throw throwable;
-                        }
-                    }
-                });
-            }
-        });
+        }).execute(callback);
 
         //NOTE BRN: This code is not part of the above flow because we do not want the completion of this call to have to
         //process every callUuid, only the ones in the waitForCallUuidSet
 
         $task(function(flow) {
-            _this.pushToCallUuidSet(dontWaitForCallUuidSet, meldTransaction, function(throwable) {
+            _this.pushToCallUuidSet(dontWaitForCallUuidSet, function(throwable) {
                 flow.complete(throwable);
             });
         }).execute(function(throwable) {
-            dontWaitForComplete = true;
             if (throwable) {
                 if (Class.doesExtend(throwable, Exception)) {
                     console.error(throwable.message, throwable.stack);
@@ -323,19 +348,7 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
                     throw throwable;
                 }
             }
-            if (waitForComplete) {
-                _this.pushTaskManager.finishTask(pushTask, function(throwable) {
-                    console.log("PushTask complete - taskUuid:", pushTask.getTaskUuid());
-                    if (throwable) {
-                        if (Class.doesExtend(throwable, Exception)) {
-                            console.error(throwable.message, throwable.stack);
-                        } else {
-                            throw throwable;
-                        }
-                    }
-                });
-            }
-        })
+        });
     },
 
     /**
@@ -369,10 +382,9 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
     /**
      * @private
      * @param {Set.<string>} callUuidSet
-     * @param {MeldTransaction} meldTransaction
      * @param {function(Throwable=)} callback
      */
-    pushToCallUuidSet: function(callUuidSet, meldTransaction, callback) {
+    pushToCallUuidSet: function(callUuidSet, callback) {
         var _this = this;
         $iterableParallel(callUuidSet, function(flow, callUuid) {
             var meldClientKey = _this.meldClientManager.generateMeldClientKey(callUuid);
@@ -380,7 +392,7 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
                 if (meldClient) {
                     var now = (new Date()).getTime();
                     if (meldClient.isActive()) {
-                        _this.pushToActiveClient(callUuid, meldTransaction, function(throwable) {
+                        _this.pushToActiveClient(callUuid, function(throwable) {
                             flow.complete(throwable);
                         })
                     } else if ((now - meldClient.getLastActive().getTime())  > (1000 * 60 * 60)) {
@@ -388,9 +400,8 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
                             flow.complete(throwable);
                         })
                     } else {
-                        _this.storeForDeactivatedClient(callUuid, meldTransaction, function(throwable) {
-                            flow.complete(throwable)
-                        })
+                        // nothing to do
+                        flow.complete();
                     }
                 } else {
                     _this.queueCleanup(callUuid, function(throwable) {
@@ -404,83 +415,15 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
     /**
      * @private
      * @param {string} callUuid
-     * @param {MeldTransaction} meldTransaction
      * @param {function(Throwable=)} callback
      */
-    pushToActiveClient: function(callUuid, meldTransaction, callback) {
+    pushToActiveClient: function(callUuid, callback) {
         var _this                   = this;
-        var serverMeldBucketKey     = this.meldBucketManager.generateMeldBucketKey("serverMeldBucket", callUuid);
-        var serverMeldBucket        = null;
-        var locked                  = false;
-        $series([
-            $task(function(flow) {
-                _this.meldBucketManager.lockMeldBucketForKey(serverMeldBucketKey, function(throwable) {
-                    locked = true;
-                    flow.complete(throwable);
-                });
-            }),
-            $task(function(flow) {
-                _this.meldBucketManager.getMeldBucketForKey(serverMeldBucketKey, function(throwable, meldBucket) {
-                    if (!throwable) {
-                        serverMeldBucket = meldBucket;
-                    }
-                    flow.complete(throwable);
-                });
-            }),
-            $task(function(flow) {
-                if (serverMeldBucket) {
-                    $series([
-                        $task(function(flow) {
-                            _this.applyTransactionToMeldBucket(meldTransaction, serverMeldBucket);
-                            _this.meldBucketManager.setMeldBucket(serverMeldBucketKey, serverMeldBucket, function(throwable) {
-                                flow.complete(throwable);
-                            });
-                        }),
-                        $task(function(flow) {
-                            _this.meldBucketManager.unlockMeldBucketForKey(serverMeldBucketKey, function(throwable) {
-                                locked = false;
-                                flow.complete(throwable);
-                            });
-                        }),
-                        $task(function(flow) {
-                            _this.queueMeldTaskAndWaitForResponse(callUuid, function(throwable) {
-                                flow.complete(throwable);
-                            });
-                        })
-                    ]).execute(function(throwable) {
-                        flow.complete(throwable);
-                    });
-                } else {
-                    _this.removeCallFromFutureMelds(callUuid, meldTransaction, function(throwable) {
-                        flow.complete(throwable);
-                    });
-                }
-            })
-        ]).execute(function(taskThrowable) {
-            $task(function(flow) {
-                if (locked) {
-                    locked = false;
-                    _this.meldBucketManager.unlockMeldBucketForKey(serverMeldBucketKey, function(throwable) {
-                        flow.complete(throwable);
-                    });
-                } else {
-                    flow.complete();
-                }
-            }).execute(function(throwable) {
-                if (throwable) {
-                    var error = new Bug("StuckError", {}, "Error occurred while trying to unlock after task");
-                    error.addCause(throwable);
-                    if (taskThrowable) {
-                        error.addCause(taskThrowable);
-                    }
-                    callback(error);
-                } else if (taskThrowable) {
-                    callback(taskThrowable)
-                } else {
-                    callback();
-                }
+        $task(function(flow) {
+            _this.queueMeldTaskAndWaitForResponse(callUuid, function(throwable) {
+                flow.complete(throwable);
             });
-        });
+        }).execute(callback);
     },
 
     /**
@@ -509,11 +452,40 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
 
     /**
      * @private
+     * @param {Set.<string>} callUuidSet
+     * @param {MeldTransaction} meldTransaction
+     * @param {function(Throwable=)} callback
+     */
+    updateServerMeldDocumentsForCallUuidSet: function(callUuidSet, meldTransaction, callback) {
+        var _this = this;
+        $iterableParallel(callUuidSet, function(flow, callUuid) {
+            var meldClientKey = _this.meldClientManager.generateMeldClientKey(callUuid);
+            _this.meldClientManager.getMeldClientForKey(meldClientKey, function(throwable, meldClient) {
+                if (meldClient) {
+                    var now = (new Date()).getTime();
+                    if (!meldClient.isActive() && (now - meldClient.getLastActive().getTime()) > (1000 * 60 * 60)) {
+                        //do nothing
+                        flow.complete();
+                    } else {
+                        _this.updateServerMeldDocument(callUuid, meldTransaction, function(throwable) {
+                            flow.complete(throwable)
+                        })
+                    }
+                } else {
+                    //do nothing
+                    flow.complete();
+                }
+            });
+        }).execute(callback);
+    },
+
+    /**
+     * @private
      * @param {string} callUuid
      * @param {MeldTransaction} meldTransaction
      * @param {function(Throwable=)} callback
      */
-    storeForDeactivatedClient: function(callUuid, meldTransaction, callback) {
+    updateServerMeldDocument: function(callUuid, meldTransaction, callback) {
         var _this                   = this;
         var serverMeldBucketKey     = this.meldBucketManager.generateMeldBucketKey("serverMeldBucket", callUuid);
         var serverMeldBucket        = null;

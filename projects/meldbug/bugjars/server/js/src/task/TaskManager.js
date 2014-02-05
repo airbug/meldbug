@@ -9,8 +9,11 @@
 //@Require('ArgUtil')
 //@Require('Bug')
 //@Require('Class')
+//@Require('Exception')
 //@Require('Obj')
 //@Require('bugflow.BugFlow')
+//@Require('bugtrace.BugTrace')
+//@Require('meldbug.TaskDefines')
 
 
 //-------------------------------------------------------------------------------
@@ -27,8 +30,11 @@ var bugpack             = require('bugpack').context();
 var ArgUtil             = bugpack.require('ArgUtil');
 var Bug                 = bugpack.require('Bug');
 var Class               = bugpack.require('Class');
+var Exception           = bugpack.require('Exception');
 var Obj                 = bugpack.require('Obj');
 var BugFlow             = bugpack.require('bugflow.BugFlow');
+var BugTrace            = bugpack.require('bugtrace.BugTrace');
+var TaskDefines         = bugpack.require('meldbug.TaskDefines');
 
 
 //-------------------------------------------------------------------------------
@@ -37,6 +43,7 @@ var BugFlow             = bugpack.require('bugflow.BugFlow');
 
 var $series             = BugFlow.$series;
 var $task               = BugFlow.$task;
+var $traceWithError     = BugTrace.$traceWithError;
 
 
 //-------------------------------------------------------------------------------
@@ -56,13 +63,15 @@ var TaskManager = Class.extend(Obj, {
 
     /**
      * @constructs
+     * @param {Logger} logger
      * @param {RedisClient} blockingRedisClient
      * @param {RedisClient} redisClient
      * @param {PubSub} pubSub
      * @param {string} taskQueueName
      */
-    _constructor: function(blockingRedisClient, redisClient, pubSub, taskQueueName) {
+    _constructor: function(logger, blockingRedisClient, redisClient, pubSub, taskQueueName) {
         var args = ArgUtil.process(arguments, [
+            {name: "logger", optional: false, type: "object"},
             {name: "blockingRedisClient", optional: false, type: "object"},
             {name: "redisClient", optional: false, type: "object"},
             {name: "pubSub", optional: false, type: "object"},
@@ -85,6 +94,12 @@ var TaskManager = Class.extend(Obj, {
          * @type {RedisClient}
          */
         this.blockingRedisClient    = blockingRedisClient;
+
+        /**
+         * @private
+         * @type {Logger}
+         */
+        this.logger                 = logger;
 
         /**
          * @private
@@ -155,60 +170,40 @@ var TaskManager = Class.extend(Obj, {
      */
     dequeueTask: function(callback) {
         var _this = this;
-        this.blockingRedisClient.bRPopLPush(this.getTaskQueueName(), this.getProcessingQueueName(), 1000, function(error, reply) {
+        this.blockingRedisClient.bRPopLPush(this.getTaskQueueName(), this.getProcessingQueueName(), 15, $traceWithError(function(error, reply) {
             if (!error) {
                 if (reply) {
                     callback(null, _this.buildTaskFromDataString(reply));
                 } else {
+
+                    //TEST
+                    _this.logger.log("dequeue task timed out");
+
                     callback(null, null);
                 }
             } else {
-                callback(error);
+                callback(new Exception("RedisError", {}, "An error occurred in the redis DB", [error]));
             }
-        });
+        }));
     },
 
     /**
      * @param {Task} task
-     * @param {function(Throwable, number=)} callback
-     */
-    completeTask: function(task, callback) {
-        var _this           = this;
-        var numberReceived  = 0;
-        $series([
-            $task(function(flow) {
-                _this.finishTask(task, function(throwable) {
-                    flow.complete(throwable);
-                });
-            }),
-            $task(function(flow) {
-                _this.reportTaskComplete(task, function(throwable) {
-                    flow.complete(throwable);
-                });
-            })
-        ]).execute(function(throwable) {
-            if (!throwable) {
-                callback(null, numberReceived);
-            } else {
-                callback(throwable);
-            }
-        });
-    },
-
-    /**
-     * @param {Task} task
-     * @param {function(Throwable)} callback
+     * @param {function(Throwable=)} callback
      */
     finishTask: function(task, callback) {
         var _this           = this;
         var taskDataString  = this.unbuildTaskToDataString(task);
-        $series([
-            $task(function(flow) {
-                _this.redisClient.lRem(_this.getProcessingQueueName(), -1, taskDataString, function(error, reply) {
-                    flow.complete(error);
-                });
-            })
-        ]).execute(callback);
+
+        $task(function(flow) {
+            _this.redisClient.lRem(_this.getProcessingQueueName(), -1, taskDataString, $traceWithError(function(error, reply) {
+                if (!error) {
+                    flow.complete();
+                } else {
+                    flow.error(new Exception("RedisError", {}, "An error occurred in the redis DB", [error]));
+                }
+            }));
+        }).execute(callback);
     },
 
     /**
@@ -216,14 +211,18 @@ var TaskManager = Class.extend(Obj, {
      * @param {function(Throwable=)} callback
      */
     queueTask: function(task, callback) {
-        var taskDataString = this.unbuildTaskToDataString(task);
-        this.redisClient.lPush(this.getTaskQueueName(), taskDataString, function(error, reply) {
-            if (!error) {
-                callback();
-            } else {
-                callback(error);
-            }
-        });
+        var _this           = this;
+        var taskDataString  = this.unbuildTaskToDataString(task);
+
+        $task(function(flow) {
+            _this.redisClient.lPush(_this.getTaskQueueName(), taskDataString, $traceWithError(function(error, reply) {
+                if (!error) {
+                    flow.complete();
+                } else {
+                    flow.error(new Exception("RedisError", {}, "An error occurred in the redis DB", [error]));
+                }
+            }));
+        }).execute(callback);
     },
 
     /**
@@ -235,10 +234,13 @@ var TaskManager = Class.extend(Obj, {
         var numberReceived  = 0;
         $series([
             $task(function(flow) {
-                var messageData = {
-                    taskUuid: task.getTaskUuid()
-                };
-                _this.pubSub.publish(_this.generateTaskCompleteChannel(task), messageData, function(throwable, reply) {
+                var message     = _this.pubSub.factoryMessage({
+                    messageType: TaskDefines.MessageTypes.TASK_COMPLETE,
+                    messageData: {
+                        taskUuid: task.getTaskUuid()
+                    }
+                });
+                _this.pubSub.publish(_this.generateTaskResultChannel(task), message, function(throwable, reply) {
                     if (!throwable) {
                         numberReceived = reply;
                     }
@@ -256,16 +258,70 @@ var TaskManager = Class.extend(Obj, {
 
     /**
      * @param {Task} task
+     * @param {Throwable} throwable
+     * @param {function(Throwable, number=)} callback
+     */
+    reportTaskThrowable: function(task, throwable, callback) {
+        var _this           = this;
+        var numberReceived  = 0;
+        $series([
+            $task(function(flow) {
+                var message     = _this.pubSub.factoryMessage({
+                    messageType: TaskDefines.MessageTypes.TASK_THROWABLE,
+                    messageData: {
+                        taskUuid: task.getTaskUuid(),
+                        throwable: throwable
+                    }
+                });
+                _this.pubSub.publish(_this.generateTaskResultChannel(task), message, function(throwable, reply) {
+                    if (!throwable) {
+                        numberReceived = reply;
+                    }
+                    flow.complete(throwable);
+                })
+            })
+        ]).execute(function(throwable) {
+            if (!throwable) {
+                callback(null, numberReceived);
+            } else {
+                callback(throwable);
+            }
+        });
+    },
+
+    /**
+     * @param {Task} task
+     * @param {function(Throwable=)} callback
+     */
+    requeueTask: function(task, callback) {
+        var _this           = this;
+        var taskDataString  = this.unbuildTaskToDataString(task);
+        var multi           = this.redisClient.multi();
+        multi
+            .lrem(this.getProcessingQueueName(), -1, taskDataString)
+            .lpush(this.getTaskQueueName(), taskDataString)
+            .exec($traceWithError(function(errors, replies) {
+                if (!errors) {
+                    _this.logger.info("TASK REQUEUED - taskUuid:", task.getTaskUuid());
+                    callback();
+                } else {
+                    callback(new Exception("RedisError", {}, "An error occurred in redis", errors));
+                }
+            }));
+    },
+
+    /**
+     * @param {Task} task
      * @param {function(Message)} subscriberFunction
      * @param {Object} subscriberContext
      * @param {function(Throwable=)} callback
      */
-    subscribeToTaskComplete: function(task, subscriberFunction, subscriberContext, callback) {
-        var _this               = this;
-        var taskCompleteChannel = this.generateTaskCompleteChannel(task);
+    subscribeToTaskResult: function(task, subscriberFunction, subscriberContext, callback) {
+        var _this           = this;
+        var channel         = this.generateTaskResultChannel(task);
         $series([
             $task(function(flow) {
-                _this.pubSub.subscribe(taskCompleteChannel, subscriberFunction, subscriberContext, function(throwable) {
+                _this.pubSub.subscribe(channel, subscriberFunction, subscriberContext, function(throwable) {
                     flow.complete(throwable);
                 });
             })
@@ -314,8 +370,8 @@ var TaskManager = Class.extend(Obj, {
      * @param {Task} task
      * @returns {string}
      */
-    generateTaskCompleteChannel: function(task) {
-        return "taskComplete:" + task.getTaskUuid();
+    generateTaskResultChannel: function(task) {
+        return "taskResult:" + task.getTaskUuid();
     },
 
     /**

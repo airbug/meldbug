@@ -16,8 +16,6 @@
 //@Require('bugioc.ModuleAnnotation')
 //@Require('bugioc.PropertyAnnotation')
 //@Require('bugmeta.BugMeta')
-//@Require('meldbugserver.MeldbugClientConsumerService')
-//@Require('meldbugserver.MeldBucketService')
 //@Require('redis.RedisClient')
 //@Require('redis.RedisConfig')
 //@Require('redis.RedisEvent')
@@ -45,9 +43,6 @@ var IConfiguration                  = bugpack.require('bugioc.IConfiguration');
 var ModuleAnnotation                = bugpack.require('bugioc.ModuleAnnotation');
 var PropertyAnnotation              = bugpack.require('bugioc.PropertyAnnotation');
 var BugMeta                         = bugpack.require('bugmeta.BugMeta');
-var MeldbugClientConsumerService    = bugpack.require('meldbugserver.MeldbugClientConsumerService');
-var MeldBucketService               = bugpack.require('meldbugserver.MeldBucketService');
-var MeldClientService               = bugpack.require('meldbugserver.MeldClientService');
 var RedisClient                     = bugpack.require('redis.RedisClient');
 var RedisConfig                     = bugpack.require('redis.RedisConfig');
 var RedisEvent                      = bugpack.require('redis.RedisEvent');
@@ -208,34 +203,6 @@ var MeldbugServerConfiguration = Class.extend(Obj, {
     },
 
     /**
-     * @param {BugCallServer} bugCallServer
-     * @param {MeldBucketManager} meldBucketManager
-     * @param {MeldBuilder} meldBuilder
-     * @return {MeldBucketService}
-     */
-    meldBucketService: function(bugCallServer, meldBucketManager, meldBuilder) {
-        return new MeldBucketService(bugCallServer, meldBucketManager, meldBuilder);
-    },
-
-    /**
-     * @param {BugCallServer} bugCallServer
-     * @param {MeldbugClientConsumerManager} meldbugClientConsumerManager
-     * @returns {MeldbugClientConsumerService}
-     */
-    meldbugClientConsumerService: function(bugCallServer, meldbugClientConsumerManager) {
-        return new MeldbugClientConsumerService(bugCallServer, meldbugClientConsumerManager);
-    },
-
-    /**
-     * @param {BugCallServer} bugCallServer
-     * @param {MeldClientManager} meldClientManager
-     * @return {MeldClientService}
-     */
-    meldClientService: function(bugCallServer, meldClientManager) {
-        return new MeldClientService(bugCallServer, meldClientManager);
-    },
-
-    /**
      * @return {exports}
      */
     redis: function() {
@@ -299,22 +266,6 @@ bugmeta.annotate(MeldbugServerConfiguration).with(
             .args([
                 arg().ref("redis"),
                 arg().ref("redisConfig")
-            ]),
-        module("meldbugClientConsumerService")
-            .args([
-                arg().ref("bugCallServer"),
-                arg().ref("meldbugClientConsumerManager")
-            ]),
-        module("meldClientService")
-            .args([
-                arg().ref("bugCallServer"),
-                arg().ref("meldClientManager")
-            ]),
-        module("meldBucketService")
-            .args([
-                arg().ref("bugCallServer"),
-                arg().ref("meldBucketManager"),
-                arg().ref("meldBuilder")
             ]),
         module("redis"),
         module("redisClient")

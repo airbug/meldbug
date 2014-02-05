@@ -8,6 +8,7 @@
 
 //@Require('Bug')
 //@Require('Class')
+//@Require('Exception')
 //@Require('bugflow.BugFlow')
 //@Require('meldbug.TaskProcessor')
 
@@ -25,6 +26,7 @@ var bugpack             = require('bugpack').context();
 
 var Bug                 = bugpack.require('Bug');
 var Class               = bugpack.require('Class');
+var Exception           = bugpack.require('Exception');
 var BugFlow             = bugpack.require('bugflow.BugFlow');
 var TaskProcessor       = bugpack.require('meldbug.TaskProcessor');
 
@@ -55,12 +57,13 @@ var CleanupTaskProcessor = Class.extend(TaskProcessor, {
 
     /**
      * @constructs
+     * @param {Logger} logger
      * @param {CleanupTaskManager} cleanupTaskManager
      * @param {MeldBucketManager} meldBucketManager
      * @param {MeldManager} meldManager
      * @param {MeldClientManager} meldClientManager
      */
-    _constructor: function(cleanupTaskManager, meldBucketManager, meldManager, meldClientManager) {
+    _constructor: function(logger, cleanupTaskManager, meldBucketManager, meldManager, meldClientManager) {
 
         this._super(cleanupTaskManager);
 
@@ -77,21 +80,27 @@ var CleanupTaskProcessor = Class.extend(TaskProcessor, {
 
         /**
          * @private
+         * @type {Logger}
+         */
+        this.logger                 = logger;
+
+        /**
+         * @private
          * @type {MeldBucketManager}
          */
-        this.meldBucketManager  = meldBucketManager;
+        this.meldBucketManager      = meldBucketManager;
 
         /**
          * @private
          * @type {MeldClientManager}
          */
-        this.meldClientManager  = meldClientManager;
+        this.meldClientManager      = meldClientManager;
 
         /**
          * @private
          * @type {MeldManager}
          */
-        this.meldManager        = meldManager;
+        this.meldManager            = meldManager;
     },
 
 
@@ -104,6 +113,13 @@ var CleanupTaskProcessor = Class.extend(TaskProcessor, {
      */
     getCleanupTaskManager: function() {
         return this.cleanupTaskManager;
+    },
+
+    /**
+     * @return {Logger}
+     */
+    getLogger: function() {
+        return this.logger;
     },
 
     /**
@@ -138,9 +154,7 @@ var CleanupTaskProcessor = Class.extend(TaskProcessor, {
      * @param {function(Throwable=)} callback
      */
     doTask: function(cleanupTask, callback) {
-
-        console.log("Processing CleanupTask - taskUuid:", cleanupTask.getTaskUuid(), " callUuid", cleanupTask.getCallUuid());
-
+        this.logger.info("Processing CleanupTask - taskUuid:", cleanupTask.getTaskUuid(), " callUuid", cleanupTask.getCallUuid());
         var _this       = this;
         var callUuid    = cleanupTask.getCallUuid();
         $series([
@@ -170,14 +184,21 @@ var CleanupTaskProcessor = Class.extend(TaskProcessor, {
                 })
             ]),
             $task(function(flow) {
-                _this.cleanupTaskManager.completeTask(cleanupTask, function(throwable) {
-                    console.log("CleanupTask complete - taskUuid:", cleanupTask.getTaskUuid(), " callUuid", cleanupTask.getCallUuid());
+                _this.cleanupTaskManager.finishTask(cleanupTask, function(throwable) {
                     flow.complete(throwable);
                 });
             })
-        ]).execute(callback);
+        ]).execute(function(throwable) {
+            if (throwable) {
+                _this.logger.warn("CleanupTask throwable - taskUuid:", cleanupTask.getTaskUuid(), " throwable:", throwable);
+            }
+            if (Class.doesExtend(throwable, Exception)) {
+                _this.requeueTask(cleanupTask, callback);
+            } else {
+                callback(throwable);
+            }
+        });
     }
-
 });
 
 

@@ -5,6 +5,7 @@
 //@Package('meldbugserver')
 
 //@Export('MeldBucketService')
+//@Autoload
 
 //@Require('Class')
 //@Require('Exception')
@@ -12,35 +13,46 @@
 //@Require('bugcall.CallEvent')
 //@Require('bugcall.IPreProcessCall')
 //@Require('bugflow.BugFlow')
+//@Require('bugioc.ArgAnnotation')
+//@Require('bugioc.IInitializeModule')
+//@Require('bugioc.ModuleAnnotation')
+//@Require('bugmeta.BugMeta')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack                 = require('bugpack').context();
+var bugpack                     = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // Bugpack Modules
 //-------------------------------------------------------------------------------
 
-var Class                   = bugpack.require('Class');
-var Exception               = bugpack.require('Exception');
-var Obj                     = bugpack.require('Obj');
-var CallEvent               = bugpack.require('bugcall.CallEvent');
-var IPreProcessCall         = bugpack.require('bugcall.IPreProcessCall');
-var BugFlow                 = bugpack.require('bugflow.BugFlow');
+var Class                       = bugpack.require('Class');
+var Exception                   = bugpack.require('Exception');
+var Obj                         = bugpack.require('Obj');
+var CallEvent                   = bugpack.require('bugcall.CallEvent');
+var IPreProcessCall             = bugpack.require('bugcall.IPreProcessCall');
+var BugFlow                     = bugpack.require('bugflow.BugFlow');
+var ArgAnnotation               = bugpack.require('bugioc.ArgAnnotation');
+var IInitializeModule           = bugpack.require('bugioc.IInitializeModule');
+var ModuleAnnotation            = bugpack.require('bugioc.ModuleAnnotation');
+var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 
 
 //-------------------------------------------------------------------------------
 // Simplify References
 //-------------------------------------------------------------------------------
 
-var $if                     = BugFlow.$if;
-var $parallel               = BugFlow.$parallel;
-var $series                 = BugFlow.$series;
-var $task                   = BugFlow.$task;
+var arg                         = ArgAnnotation.arg;
+var bugmeta                     = BugMeta.context();
+var module                      = ModuleAnnotation.module;
+var $if                         = BugFlow.$if;
+var $parallel                   = BugFlow.$parallel;
+var $series                     = BugFlow.$series;
+var $task                       = BugFlow.$task;
 
 
 //-------------------------------------------------------------------------------
@@ -50,6 +62,7 @@ var $task                   = BugFlow.$task;
 /**
  * @class
  * @extends {Obj}
+ * @implements {IInitializeModule}
  * @implements {IPreProcessCall}
  */
 var MeldBucketService = Class.extend(Obj, {
@@ -81,6 +94,12 @@ var MeldBucketService = Class.extend(Obj, {
 
         /**
          * @private
+         * @type {boolean}
+         */
+        this.initialized                    = false;
+
+        /**
+         * @private
          * @type {MeldBucketManager}
          */
         this.meldBucketManager              = meldBucketManager;
@@ -90,8 +109,6 @@ var MeldBucketService = Class.extend(Obj, {
          * @type {MeldBuilder}
          */
         this.meldBuilder                    = meldBuilder;
-
-        this.initialize();
     },
 
 
@@ -120,19 +137,26 @@ var MeldBucketService = Class.extend(Obj, {
         return this.meldBucketManager;
     },
 
+    /**
+     * @return {boolean}
+     */
+    isInitialized: function() {
+        return this.initialized;
+    },
+
 
     //-------------------------------------------------------------------------------
     // ICallProcessor Implementation
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {CallManager} callManager
+     * @param {Call} call
      * @param {function(Throwable=)} callback
      */
-    preProcessCall: function(callManager, callback) {
-        var _this           = this;
-        var mirrorMeldBucketKey = this.meldBuilder.generateMeldBucketKey("mirrorMeldBucket", callManager.getCallUuid());
-        var serverMeldBucketKey = this.meldBuilder.generateMeldBucketKey("serverMeldBucket", callManager.getCallUuid());
+    preProcessCall: function(call, callback) {
+        var _this               = this;
+        var mirrorMeldBucketKey = this.meldBuilder.generateMeldBucketKey("mirrorMeldBucket", call.getCallUuid());
+        var serverMeldBucketKey = this.meldBuilder.generateMeldBucketKey("serverMeldBucket", call.getCallUuid());
         $if (function(flow) {
                 _this.meldBucketManager.hasMeldBucketForKey(mirrorMeldBucketKey, function(throwable, exists) {
                     if (!throwable) {
@@ -143,7 +167,7 @@ var MeldBucketService = Class.extend(Obj, {
                 });
             },
             $task(function(flow) {
-                if (!callManager.isReconnect()) {
+                if (!call.isReconnect()) {
                     $parallel([
                         $task(function(flow) {
                             _this.createMeldBucket(mirrorMeldBucketKey, function(throwable, meldBucket) {
@@ -168,6 +192,35 @@ var MeldBucketService = Class.extend(Obj, {
                 }
             })
         ).execute(callback);
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // IInitializeModule Implementation
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @param {function(Throwable=)} callback
+     */
+    deinitializeModule: function(callback) {
+        if (this.isInitialized()) {
+            this.initialized = false;
+            this.bugCallServer.off(CallEvent.CLOSED, this.hearBugCallServerCallClosed, this);
+            this.bugCallServer.deregisterCallPreProcessor(this);
+        }
+        callback();
+    },
+
+    /**
+     * @param {function(Throwable=)} callback
+     */
+    initializeModule: function(callback) {
+        if (!this.isInitialized()) {
+            this.initialized = true;
+            this.bugCallServer.on(CallEvent.CLOSED, this.hearBugCallServerCallClosed, this);
+            this.bugCallServer.registerCallPreProcessor(this);
+        }
+        callback();
     },
 
 
@@ -205,7 +258,7 @@ var MeldBucketService = Class.extend(Obj, {
      */
     hearBugCallServerCallClosed: function(event) {
         var data            = event.getData();
-        var callManager     = data.callManager;
+        var call     = data.call;
         //TODO
     }
 });
@@ -215,7 +268,23 @@ var MeldBucketService = Class.extend(Obj, {
 // Implement Interfaces
 //-------------------------------------------------------------------------------
 
+Class.implement(MeldBucketService, IInitializeModule);
 Class.implement(MeldBucketService, IPreProcessCall);
+
+
+//-------------------------------------------------------------------------------
+// BugMeta
+//-------------------------------------------------------------------------------
+
+bugmeta.annotate(MeldBucketService).with(
+    module("meldBucketService")
+        .args([
+            arg().ref("bugCallServer"),
+            arg().ref("meldBucketManager"),
+            arg().ref("meldBuilder")
+        ])
+);
+
 
 
 //-------------------------------------------------------------------------------

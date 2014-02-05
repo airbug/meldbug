@@ -143,17 +143,35 @@ var MeldWorkerConfiguration = Class.extend(Obj, {
      */
     deinitializeConfiguration: function(callback) {
         var _this = this;
-        console.log("Initializing MeldWorkerConfiguration");
+        console.log("Deinitializing MeldWorkerConfiguration");
         $series([
             $task(function(flow) {
-                var hearProcessorStopped = function(event) {
-                    _this._meldTaskProcessor.removeEventListener(TaskProcessor.EventTypes.STOPPED, hearProcessorStopped);
+                if (!_this._meldTaskProcessor.isStopped()) {
+                    var hearProcessorStopped = function(event) {
+
+                        //TEST
+                        console.log("SHUTDOWN - meld task processor STOPPED");
+
+                        _this._meldTaskProcessor.removeEventListener(TaskProcessor.EventTypes.STOPPED, hearProcessorStopped);
+                        flow.complete();
+                    };
+                    _this._meldTaskProcessor.addEventListener(TaskProcessor.EventTypes.STOPPED, hearProcessorStopped);
+                    if (_this._meldTaskProcessor.isStarted()) {
+                        _this._meldTaskProcessor.stop();
+                    }
+                } else {
+
+                    //TEST
+                    console.log("SHUTDOWN - meld task processor already stopped");
+
                     flow.complete();
-                };
-                _this._meldTaskProcessor.addEventListener(TaskProcessor.EventTypes.STOPPED, hearProcessorStopped);
-                _this._meldTaskProcessor.stop();
+                }
             }),
             $task(function(flow) {
+
+                //TEST
+                console.log("SHUTDOWN - deinitialize pubsub");
+
                 _this._redisPubSub.deinitialize(function(throwable) {
                     flow.complete(throwable);
                 });
@@ -182,7 +200,14 @@ var MeldWorkerConfiguration = Class.extend(Obj, {
                 _this._subscriberRedisClient.addEventListener(RedisEvent.EventTypes.END, hearRedisEnd);
                 _this._subscriberRedisClient.quit();
             })
-        ]).execute(callback);
+        ]).execute(function(throwable) {
+            if (!throwable) {
+                console.log("MeldWorkerConfiguration successfully initialized!");
+            } else {
+                console.log("MeldWorkerConfiguration encountered an error while initializing - throwable:", throwable);
+            }
+            callback(throwable);
+        });
     },
 
     /**
@@ -253,14 +278,15 @@ var MeldWorkerConfiguration = Class.extend(Obj, {
     },
 
     /**
+     * @param {Logger} logger
      * @param {MeldTaskManager} meldTaskManager
      * @param {MeldBucketManager} meldBucketManager
-     * @param {MeldTransactionManager} meldTransactionManager
+     * @param {MeldTransactionPublisher} meldTransactionPublisher
      * @param {MeldTransactionGenerator} meldTransactionGenerator
      * @return {MeldTaskProcessor}
      */
-    meldTaskProcessor: function(meldTaskManager, meldBucketManager, meldTransactionManager, meldTransactionGenerator) {
-        this._meldTaskProcessor = new MeldTaskProcessor(meldTaskManager, meldBucketManager, meldTransactionManager, meldTransactionGenerator);
+    meldTaskProcessor: function(logger, meldTaskManager, meldBucketManager, meldTransactionPublisher, meldTransactionGenerator) {
+        this._meldTaskProcessor = new MeldTaskProcessor(logger, meldTaskManager, meldBucketManager, meldTransactionPublisher, meldTransactionGenerator);
         return this._meldTaskProcessor;
     },
 
@@ -370,9 +396,10 @@ bugmeta.annotate(MeldWorkerConfiguration).with(
         module("configbug"),
         module("meldTaskProcessor")
             .args([
+                arg().ref("logger"),
                 arg().ref("meldTaskManager"),
                 arg().ref("meldBucketManager"),
-                arg().ref("meldTransactionManager"),
+                arg().ref("meldTransactionPublisher"),
                 arg().ref("meldTransactionGenerator")
             ]),
         module("redis"),

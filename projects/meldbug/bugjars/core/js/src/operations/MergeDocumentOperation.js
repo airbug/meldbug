@@ -8,6 +8,9 @@
 
 //@Require('Class')
 //@Require('Obj')
+//@Require('bugmarsh.MarshAnnotation');
+//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmeta.BugMeta')
 //@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldOperation')
 
@@ -16,17 +19,29 @@
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack             = require('bugpack').context();
+var bugpack                     = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class               = bugpack.require('Class');
-var Obj                 = bugpack.require('Obj');
-var MeldDocument        = bugpack.require('meldbug.MeldDocument');
-var MeldOperation       = bugpack.require('meldbug.MeldOperation');
+var Class                       = bugpack.require('Class');
+var Obj                         = bugpack.require('Obj');
+var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
+var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+var MeldDocument                = bugpack.require('meldbug.MeldDocument');
+var MeldOperation               = bugpack.require('meldbug.MeldOperation');
+
+
+//-------------------------------------------------------------------------------
+// Simplify References
+//-------------------------------------------------------------------------------
+
+var bugmeta                     = BugMeta.context();
+var marsh                       = MarshAnnotation.marsh;
+var property                    = MarshPropertyAnnotation.property;
 
 
 //-------------------------------------------------------------------------------
@@ -118,6 +133,21 @@ var MergeDocumentOperation = Class.extend(MeldOperation, {
  * @const {string}
  */
 MergeDocumentOperation.TYPE = "MergeDocumentOperation";
+
+
+//-------------------------------------------------------------------------------
+// BugMeta
+//-------------------------------------------------------------------------------
+
+bugmeta.annotate(MergeDocumentOperation).with(
+    marsh("MergeDocumentOperation")
+        .properties([
+            property("data"),
+            property("meldDocumentKey"),
+            property("type"),
+            property("uuid")
+        ])
+);
 
 
 //-------------------------------------------------------------------------------

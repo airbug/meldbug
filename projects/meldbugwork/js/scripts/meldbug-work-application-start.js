@@ -29,6 +29,7 @@ meldbugWorkApplication.start(function(throwable) {
     if (!throwable) {
         console.log("Meldbug worker application server successfully started");
     } else {
+        console.log("Meldbug worker application error on startup");
         console.error(throwable.message);
         console.error(throwable.stack);
         process.exit(1);

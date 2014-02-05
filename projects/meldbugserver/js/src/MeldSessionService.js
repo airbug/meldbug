@@ -14,6 +14,7 @@
 //@Require('bugcall.IProcessCall')
 //@Require('bugflow.BugFlow')
 //@Require('bugioc.ArgAnnotation')
+//@Require('bugioc.IInitializeModule')
 //@Require('bugioc.ModuleAnnotation')
 //@Require('bugmeta.BugMeta')
 
@@ -22,22 +23,23 @@
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack                 = require('bugpack').context();
+var bugpack                     = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // Bugpack Modules
 //-------------------------------------------------------------------------------
 
-var Class                   = bugpack.require('Class');
-var Exception               = bugpack.require('Exception');
-var Obj                     = bugpack.require('Obj');
-var CallEvent               = bugpack.require('bugcall.CallEvent');
-var IProcessCall            = bugpack.require('bugcall.IProcessCall');
-var BugFlow                 = bugpack.require('bugflow.BugFlow');
-var ArgAnnotation           = bugpack.require('bugioc.ArgAnnotation');
-var ModuleAnnotation        = bugpack.require('bugioc.ModuleAnnotation');
-var BugMeta                 = bugpack.require('bugmeta.BugMeta');
+var Class                       = bugpack.require('Class');
+var Exception                   = bugpack.require('Exception');
+var Obj                         = bugpack.require('Obj');
+var CallEvent                   = bugpack.require('bugcall.CallEvent');
+var IProcessCall                = bugpack.require('bugcall.IProcessCall');
+var BugFlow                     = bugpack.require('bugflow.BugFlow');
+var ArgAnnotation               = bugpack.require('bugioc.ArgAnnotation');
+var IInitializeModule           = bugpack.require('bugioc.IInitializeModule');
+var ModuleAnnotation            = bugpack.require('bugioc.ModuleAnnotation');
+var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 
 
 
@@ -45,13 +47,13 @@ var BugMeta                 = bugpack.require('bugmeta.BugMeta');
 // Simplify References
 //-------------------------------------------------------------------------------
 
-var arg                     = ArgAnnotation.arg;
-var bugmeta                 = BugMeta.context();
-var module                  = ModuleAnnotation.module;
-var $if                     = BugFlow.$if;
-var $parallel               = BugFlow.$parallel;
-var $series                 = BugFlow.$series;
-var $task                   = BugFlow.$task;
+var arg                         = ArgAnnotation.arg;
+var bugmeta                     = BugMeta.context();
+var module                      = ModuleAnnotation.module;
+var $if                         = BugFlow.$if;
+var $parallel                   = BugFlow.$parallel;
+var $series                     = BugFlow.$series;
+var $task                       = BugFlow.$task;
 
 
 //-------------------------------------------------------------------------------
@@ -61,6 +63,7 @@ var $task                   = BugFlow.$task;
 /**
  * @class
  * @extends {Obj}
+ * @implements {IInitializeModule}
  * @implements {IProcessCall}
  */
 var MeldSessionService = Class.extend(Obj, {
@@ -91,11 +94,15 @@ var MeldSessionService = Class.extend(Obj, {
 
         /**
          * @private
+         * @type {boolean}
+         */
+        this.initialized                    = false;
+
+        /**
+         * @private
          * @type {MeldSessionManager}
          */
         this.meldSessionManager              = meldSessionManager;
-
-        this.initialize();
     },
 
 
@@ -117,24 +124,31 @@ var MeldSessionService = Class.extend(Obj, {
         return this.meldSessionManager;
     },
 
+    /**
+     * @return {boolean}
+     */
+    isInitialized: function() {
+        return this.initialized;
+    },
+
 
     //-------------------------------------------------------------------------------
     // ICallProcessor Implementation
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {CallManager} callManager
+     * @param {Call} call
      * @param {function(Throwable=)} callback
      */
-    processCall: function(callManager, callback) {
+    processCall: function(call, callback) {
         var _this               = this;
-        var callConnection      = callManager.getConnection();
+        var callConnection      = call.getConnection();
         var sessionId           = callConnection.getHandshake().sessionId;
         var meldSessionKey      = this.meldSessionManager.generateMeldSessionKey(sessionId);
 
         $series([
             $task(function(flow) {
-                _this.meldSessionManager.addCallUuidToMeldSession(callManager.getCallUuid(), meldSessionKey, function(throwable) {
+                _this.meldSessionManager.addCallUuidToMeldSession(call.getCallUuid(), meldSessionKey, function(throwable) {
                     flow.complete(throwable);
                 });
             })
@@ -143,15 +157,31 @@ var MeldSessionService = Class.extend(Obj, {
 
 
     //-------------------------------------------------------------------------------
-    // Private Methods
+    // IInitializeModule Implementation
     //-------------------------------------------------------------------------------
 
     /**
-     * @private
+     * @param {function(Throwable=)} callback
      */
-    initialize: function() {
-        this.bugCallServer.on(CallEvent.CLOSED, this.hearBugCallServerCallClosed, this);
-        this.bugCallServer.registerCallProcessor(this);
+    deinitializeModule: function(callback) {
+        if (this.isInitialized()) {
+            this.initialized = false;
+            this.bugCallServer.off(CallEvent.CLOSED, this.hearBugCallServerCallClosed, this);
+            this.bugCallServer.deregisterCallProcessor(this);
+        }
+        callback();
+    },
+
+    /**
+     * @param {function(Throwable=)} callback
+     */
+    initializeModule: function(callback) {
+        if (!this.isInitialized()) {
+            this.initialized = true;
+            this.bugCallServer.on(CallEvent.CLOSED, this.hearBugCallServerCallClosed, this);
+            this.bugCallServer.registerCallProcessor(this);
+        }
+        callback();
     },
 
 
@@ -174,14 +204,14 @@ var MeldSessionService = Class.extend(Obj, {
 
         /*var _this               = this;
         var data                = event.getData();
-        var callManager         = data.callManager;
-        var callConnection      = callManager.getConnection();
+        var call         = data.call;
+        var callConnection      = call.getConnection();
         var sessionId           = callConnection.getHandshake().sessionId;
         var meldSessionKey      = this.meldSessionManager.generateMeldSessionKey(sessionId);
 
         $series([
             $task(function(flow) {
-                _this.meldSessionManager.removeCallUuidFromMeldSession(meldSessionKey, callManager.getCallUuid(), function(throwable) {
+                _this.meldSessionManager.removeCallUuidFromMeldSession(meldSessionKey, call.getCallUuid(), function(throwable) {
                     flow.complete(throwable);
                 });
             })
@@ -199,6 +229,7 @@ var MeldSessionService = Class.extend(Obj, {
 // Implement Interfaces
 //-------------------------------------------------------------------------------
 
+Class.implement(MeldSessionService, IInitializeModule);
 Class.implement(MeldSessionService, IProcessCall);
 
 

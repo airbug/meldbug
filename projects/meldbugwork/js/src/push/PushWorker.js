@@ -146,6 +146,10 @@ var PushWorker = Class.extend(Worker, {
         try {
             this.configurationScan.scanBugpack("meldbug.PushWorkerConfiguration");
             this.moduleScan.scanBugpacks([
+                "bugmarsh.Marshaller",
+                "bugmarsh.MarshRegistry",
+                "bugsub.PubSub",
+                "loggerbug.Logger",
                 "meldbug.CleanupTaskManager",
                 "meldbug.MeldBucketManager",
                 "meldbug.MeldBuilder",
@@ -153,8 +157,7 @@ var PushWorker = Class.extend(Worker, {
                 "meldbug.MeldManager",
                 "meldbug.MeldTaskManager",
                 "meldbug.PushBuilder",
-                "meldbug.PushTaskManager",
-                "meldbug.PubSub"
+                "meldbug.PushTaskManager"
             ]);
             this.iocContext.process();
         } catch(t) {

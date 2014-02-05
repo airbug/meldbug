@@ -9,28 +9,48 @@
 //@Require('Class')
 //@Require('List')
 //@Require('Obj')
+//@Require('bugmarsh.MarshAnnotation');
+//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmeta.BugMeta')
+
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack         = require('bugpack').context();
+var bugpack                     = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class           = bugpack.require('Class');
-var List            = bugpack.require('List');
-var Obj             = bugpack.require('Obj');
+var Class                       = bugpack.require('Class');
+var List                        = bugpack.require('List');
+var Obj                         = bugpack.require('Obj');
+var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
+var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+
+
+//-------------------------------------------------------------------------------
+// Simplify References
+//-------------------------------------------------------------------------------
+
+var bugmeta                     = BugMeta.context();
+var marsh                       = MarshAnnotation.marsh;
+var property                    = MarshPropertyAnnotation.property;
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
+/**
+ * @class
+ * @extends {Obj}
+ */
 var MeldTransaction = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
@@ -38,7 +58,7 @@ var MeldTransaction = Class.extend(Obj, {
     //-------------------------------------------------------------------------------
 
     /**
-     *
+     * @constructs
      */
     _constructor: function() {
 
@@ -99,6 +119,18 @@ var MeldTransaction = Class.extend(Obj, {
         return this.meldOperationList.isEmpty();
     }
 });
+
+
+//-------------------------------------------------------------------------------
+// BugMeta
+//-------------------------------------------------------------------------------
+
+bugmeta.annotate(MeldTransaction).with(
+    marsh("MeldTransaction")
+        .properties([
+            property("meldOperationList")
+        ])
+);
 
 
 //-------------------------------------------------------------------------------

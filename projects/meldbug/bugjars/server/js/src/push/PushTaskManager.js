@@ -59,15 +59,16 @@ var PushTaskManager = Class.extend(TaskManager, {
 
     /**
      * @constructs
+     * @param {Logger} logger
      * @param {RedisClient} blockingRedisClient
      * @param {RedisClient} redisClient
      * @param {PubSub} pubSub
      * @param {string} taskQueueName
      * @param {PushBuilder} pushBuilder
      */
-    _constructor: function(blockingRedisClient, redisClient, pubSub, taskQueueName, pushBuilder) {
+    _constructor: function(logger, blockingRedisClient, redisClient, pubSub, taskQueueName, pushBuilder) {
 
-        this._super(blockingRedisClient, redisClient, pubSub, taskQueueName);
+        this._super(logger, blockingRedisClient, redisClient, pubSub, taskQueueName);
 
 
         //-------------------------------------------------------------------------------
@@ -169,6 +170,7 @@ PushTaskManager.PUSH_TASK_QUEUE = "pushTaskQueue";
 bugmeta.annotate(PushTaskManager).with(
     module("pushTaskManager")
         .args([
+            arg().ref("logger"),
             arg().ref("blockingRedisClient"),
             arg().ref("redisClient"),
             arg().ref("pubSub"),

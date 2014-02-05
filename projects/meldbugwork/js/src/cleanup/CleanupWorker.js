@@ -146,12 +146,15 @@ var CleanupWorker = Class.extend(Worker, {
         try {
             this.configurationScan.scanBugpack("meldbug.CleanupWorkerConfiguration");
             this.moduleScan.scanBugpacks([
+                "bugmarsh.Marshaller",
+                "bugmarsh.MarshRegistry",
+                "bugsub.PubSub",
+                "loggerbug.Logger",
                 "meldbug.CleanupTaskManager",
                 "meldbug.MeldBuilder",
                 "meldbug.MeldBucketManager",
                 "meldbug.MeldClientManager",
-                "meldbug.MeldManager",
-                "meldbug.PubSub"
+                "meldbug.MeldManager"
             ]);
             this.iocContext.process();
         } catch(t) {

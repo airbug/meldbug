@@ -4,6 +4,9 @@
 
 //@TestFile
 
+//@Require('TypeUtil')
+//@Require('bugmarsh.MarshRegistry')
+//@Require('bugmarsh.Marshaller')
 //@Require('meldbug.PutMeldDocumentOperation')
 //@Require('meldbug.MeldBuilder')
 //@Require('meldbug.MeldDocument')
@@ -24,10 +27,13 @@ var bugpack                     = require('bugpack').context();
 // BugPack
 //-------------------------------------------------------------------------------
 
+var TypeUtil                    = bugpack.require('TypeUtil');
+var MarshRegistry               = bugpack.require('bugmarsh.MarshRegistry');
+var Marshaller                  = bugpack.require('bugmarsh.Marshaller');
 var PutMeldDocumentOperation    = bugpack.require('meldbug.PutMeldDocumentOperation');
 var MeldBuilder                 = bugpack.require('meldbug.MeldBuilder');
 var MeldDocument                = bugpack.require('meldbug.MeldDocument');
-var MeldDocumentKey                     = bugpack.require('meldbug.MeldDocumentKey');
+var MeldDocumentKey             = bugpack.require('meldbug.MeldDocumentKey');
 var MeldTransaction             = bugpack.require('meldbug.MeldTransaction');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 var TestAnnotation              = bugpack.require('bugunit-annotate.TestAnnotation');
@@ -37,9 +43,22 @@ var TestAnnotation              = bugpack.require('bugunit-annotate.TestAnnotati
 // Simplify References
 //-------------------------------------------------------------------------------
 
-var bugmeta             = BugMeta.context();
-var test                = TestAnnotation.test;
+var bugmeta                     = BugMeta.context();
+var test                        = TestAnnotation.test;
 
+
+//-------------------------------------------------------------------------------
+// Helper Functions
+//-------------------------------------------------------------------------------
+
+var setupMeldBuilder = function() {
+    var testMarshRegistry   = new MarshRegistry();
+    var testMarshaller      = new Marshaller(testMarshRegistry);
+    testMarshRegistry.initializeModule(function() {
+
+    });
+    return new MeldBuilder(testMarshaller);
+};
 
 //-------------------------------------------------------------------------------
 // Declare Tests
@@ -52,9 +71,9 @@ var meldBuilderGenerateMeldDocumentKeyTest = {
     //-------------------------------------------------------------------------------
 
     setup: function(test) {
-        this.testDataType = "testDataType";
-        this.testId = "testId";
-        this.testMeldBuilder = new MeldBuilder();
+        this.testDataType       = "testDataType";
+        this.testId             = "testId";
+        this.testMeldBuilder    = new MeldBuilder();
     },
 
 
@@ -75,30 +94,25 @@ bugmeta.annotate(meldBuilderGenerateMeldDocumentKeyTest).with(
 );
 
 
-var meldBuilderBuildMeldTest = {
+var meldBuilderBuildMeldDocumentTest = {
 
     //-------------------------------------------------------------------------------
     // Setup Test
     //-------------------------------------------------------------------------------
 
     setup: function(test) {
-        this.testMeldDocumentData = {
+        this.testValue              = "value";
+        this.testMeldDocumentData   = {
             meldDocumentKey: {
                 dataType: "testDataType",
                 id: "testId",
                 filterType: "testFilterType"
             },
-            data: {
-                type: MeldBuilder.TYPES.OBJECT,
-                value: {
-                    key: {
-                        type: MeldBuilder.TYPES.STRING,
-                        value: "value"
-                    }
-                }
-            }
+            data: JSON.stringify({
+                key: this.testValue
+            })
         };
-        this.testMeldBuilder = new MeldBuilder();
+        this.testMeldBuilder = setupMeldBuilder();
     },
 
 
@@ -107,13 +121,13 @@ var meldBuilderBuildMeldTest = {
     //-------------------------------------------------------------------------------
 
     test: function(test) {
-        var meld = this.testMeldBuilder.buildMeldDocument(this.testMeldDocumentData);
-
-        //TODO BRN: finish the rest of this test
+        var meldDocument = this.testMeldBuilder.buildMeldDocument(this.testMeldDocumentData);
+        test.assertEqual(meldDocument.getData().key, this.testValue,
+            "Assert that key is 'value'");
     }
 };
-bugmeta.annotate(meldBuilderBuildMeldTest).with(
-    test().name("MeldBuilder #buildMeld Test")
+bugmeta.annotate(meldBuilderBuildMeldDocumentTest).with(
+    test().name("MeldBuilder #buildMeldDocument Test")
 );
 
 var meldBuilderBuildMeldDocumentKeyTest = {
@@ -127,7 +141,7 @@ var meldBuilderBuildMeldDocumentKeyTest = {
             dataType: "testDataType",
             id: "testId"
         };
-        this.testMeldBuilder = new MeldBuilder();
+        this.testMeldBuilder = setupMeldBuilder();
     },
 
 
@@ -157,7 +171,7 @@ var meldBuilderUnbuildMeldDocumentKeyTest = {
         this.testDataType = "testDataType";
         this.testId = "testId";
         this.testMeldDocumentKey    = new MeldDocumentKey(this.testDataType, this.testId);
-        this.testMeldBuilder = new MeldBuilder();
+        this.testMeldBuilder = setupMeldBuilder();
     },
 
 
@@ -196,18 +210,12 @@ var meldBuilderBuildMeldOperationTest = {
                     dataType: "testDataType",
                     id: "testId"
                 },
-                data: {
-                    type: MeldBuilder.TYPES.OBJECT,
-                    value: {
-                        key: {
-                            type: MeldBuilder.TYPES.STRING,
-                            value: "value"
-                        }
-                    }
-                }
+                data: JSON.stringify({
+                    key: "value"
+                })
             }
         };
-        this.testMeldBuilder = new MeldBuilder();
+        this.testMeldBuilder = setupMeldBuilder();
     },
 
 
@@ -221,6 +229,8 @@ var meldBuilderBuildMeldOperationTest = {
             "Assert meldOperation.meldDocumentKey's dataType is testPutMeldDocumentOperationData.meldDocumentKey.dataType");
         test.assertEqual(meldOperation.getMeldDocumentKey().getId(), this.testPutMeldDocumentOperationData.meldDocumentKey.id,
             "Assert meldOperation.meldDocumentKey's id is testPutMeldDocumentOperationData.meldDocumentKey.id");
+        test.assertEqual(meldOperation.getMeldDocument().getData().key, "value",
+            "Assert meldOperation's meldDocument was set correctly");
     }
 };
 bugmeta.annotate(meldBuilderBuildMeldOperationTest).with(
@@ -242,7 +252,7 @@ var meldBuilderUnbuildMeldOperationTest = {
         };
         this.testMeldDocument       = new MeldDocument(this.testMeldDocumentKey, this.testData);
         this.testOperationData      = new PutMeldDocumentOperation(this.testMeldDocumentKey, this.testMeldDocument);
-        this.testMeldBuilder        = new MeldBuilder();
+        this.testMeldBuilder        = setupMeldBuilder();
     },
 
 
@@ -259,13 +269,14 @@ var meldBuilderUnbuildMeldOperationTest = {
         test.assertEqual(operationData.type, PutMeldDocumentOperation.TYPE,
             "Assert operationData.type is PutMeldDocumentOperation.TYPE");
 
+        test.assertTrue(TypeUtil.isString(operationData.meldDocument.data),
+            "Assert operation data was turned in to a string");
         // Assert marshalled data
-        test.assertEqual(operationData.meldDocument.data.type, MeldBuilder.TYPES.OBJECT,
-            "Assert operationData.meld.data.type is MeldBuilder.TYPES.OBJECT");
-        test.assertEqual(operationData.meldDocument.data.value.key.type, MeldBuilder.TYPES.STRING,
-            "Assert value.key is of type String");
-        test.assertEqual(operationData.meldDocument.data.value.key.value, "value",
-            "Assert key value was correct unbuilt");
+        var marshalledData = JSON.parse(operationData.meldDocument.data);
+        test.assertTrue(TypeUtil.isObject(marshalledData),
+            "Assert marshalledData is an object");
+        test.assertEqual(marshalledData.key, "value",
+            "Assert marshalledData.key is 'value'");
     }
 };
 bugmeta.annotate(meldBuilderUnbuildMeldOperationTest).with(

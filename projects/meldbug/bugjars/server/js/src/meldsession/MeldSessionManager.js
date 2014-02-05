@@ -145,7 +145,7 @@ var MeldSessionManager = Class.extend(Obj, {
      * @param {function(Throwable=)} callback
      */
     removeCallUuidFromMeldSession: function(callUuid, meldSessionKey, callback) {
-        this.redisClient.srem(this.generateMeldSessionCallUuidSetKey(meldSessionKey), callUuid, function(error, reply) {
+        this.redisClient.sRem(this.generateMeldSessionCallUuidSetKey(meldSessionKey), callUuid, function(error, reply) {
             if (!error) {
                 callback();
             } else {

@@ -14,6 +14,7 @@
 //@Require('Pair')
 //@Require('Set')
 //@Require('TypeUtil')
+//@Require('bugioc.ArgAnnotation')
 //@Require('bugioc.ModuleAnnotation')
 //@Require('bugmeta.BugMeta')
 //@Require('meldbug.PutMeldDocumentOperation')
@@ -49,6 +50,7 @@ var Obj                                 = bugpack.require('Obj');
 var Pair                                = bugpack.require('Pair');
 var Set                                 = bugpack.require('Set');
 var TypeUtil                            = bugpack.require('TypeUtil');
+var ArgAnnotation                       = bugpack.require('bugioc.ArgAnnotation');
 var ModuleAnnotation                    = bugpack.require('bugioc.ModuleAnnotation');
 var BugMeta                             = bugpack.require('bugmeta.BugMeta');
 var PutMeldDocumentOperation            = bugpack.require('meldbug.PutMeldDocumentOperation');
@@ -70,6 +72,7 @@ var SetObjectPropertyOperation          = bugpack.require('meldbug.SetObjectProp
 // Simplify References
 //-------------------------------------------------------------------------------
 
+var arg                                 = ArgAnnotation.arg;
 var bugmeta                             = BugMeta.context();
 var module                              = ModuleAnnotation.module;
 
@@ -79,6 +82,43 @@ var module                              = ModuleAnnotation.module;
 //-------------------------------------------------------------------------------
 
 var MeldBuilder = Class.extend(Obj, {
+
+    //-------------------------------------------------------------------------------
+    // Constructor
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @constructs
+     * @param {Marshaller} marshaller
+     */
+    _constructor: function(marshaller) {
+
+        this._super();
+
+
+        //-------------------------------------------------------------------------------
+        // Properties
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @private
+         * @type {Marshaller}
+         */
+        this.marshaller     = marshaller;
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Getters and Setters
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @return {Marshaller}
+     */
+    getMarshaller: function() {
+        return this.marshaller;
+    },
+
 
     //-------------------------------------------------------------------------------
     // Public Methods
@@ -233,7 +273,7 @@ var MeldBuilder = Class.extend(Obj, {
      * @return {MeldOperation}
      */
     buildMeldOperation: function(meldOperationData) {
-        var meldOperation = undefined;
+        var meldOperation = null;
         var meldDocumentKey = this.buildMeldDocumentKey(meldOperationData.meldDocumentKey);
         switch (meldOperationData.type) {
             case PutMeldDocumentOperation.TYPE:
@@ -377,132 +417,16 @@ var MeldBuilder = Class.extend(Obj, {
      * @return {Object}
      */
     marshalData: function(data) {
-        var _this = this;
-        var marshalled = undefined;
-        if (TypeUtil.isObject(data)) {
-            if (Class.doesExtend(data, Set)) {
-                var marshalledSet = [];
-                data.forEach(function(value) {
-                    marshalledSet.push(_this.marshalData(value));
-                });
-                marshalled = {
-                    type: "Set",
-                    value: marshalledSet
-                };
-            } else if (Class.doesExtend(data, Pair)) {
-                var marshalledPair = {
-                    a: this.marshalData(data.getA()),
-                    b: this.marshalData(data.getB())
-                };
-                marshalled = {
-                    type: "Pair",
-                    value: marshalledPair
-                };
-            } else {
-                var marshalledObject = {};
-                Obj.forIn(data, function(key, value) {
-                    marshalledObject[key] = _this.marshalData(value);
-                });
-                marshalled = {
-                    type: MeldBuilder.TYPES.OBJECT,
-                    value: marshalledObject
-                };
-            }
-        } else if (TypeUtil.isArray(data)) {
-            var marshalledArray = [];
-            data.forEach(function(value) {
-                marshalledArray.push(_this.marshalData(value));
-            });
-            marshalled = {
-                type: MeldBuilder.TYPES.ARRAY,
-                value: marshalledArray
-            };
-        } else if (TypeUtil.isBoolean(data)) {
-            marshalled = {
-                type: MeldBuilder.TYPES.BOOLEAN,
-                value: data
-            };
-        } else if (TypeUtil.isDate(data)) {
-            marshalled = {
-                type: MeldBuilder.TYPES.DATE,
-                value: data.toString()
-            };
-        } else if (TypeUtil.isNull(data)) {
-            marshalled = {
-                type: MeldBuilder.TYPES.NULL,
-                value: data
-            };
-        } else if (TypeUtil.isNumber(data)) {
-            marshalled = {
-                type: MeldBuilder.TYPES.NUMBER,
-                value: data
-            };
-        } else if (TypeUtil.isString(data)) {
-            marshalled = {
-                type: MeldBuilder.TYPES.STRING,
-                value: data
-            };
-        } else if (TypeUtil.isUndefined(data)) {
-            marshalled = {
-                type: MeldBuilder.TYPES.UNDEFINED,
-                value: data
-            };
-        } else {
-            throw new Error("Unsupported data type cannot be marshalled. data:", data);
-        }
-        return marshalled;
+        return this.marshaller.marshalData(data);
     },
 
     /**
      * @private
-     * @param {Object} marshalledData
+     * @param {string} marshalledData
      * @return {*}
      */
     unmarshalData: function(marshalledData) {
-        var _this = this;
-        var unmarshalled = undefined;
-        switch (marshalledData.type) {
-            case MeldBuilder.TYPES.ARRAY:
-                unmarshalled = [];
-                marshalledData.value.forEach(function(value) {
-                    unmarshalled.push(_this.unmarshalData(value));
-                });
-                break;
-            case MeldBuilder.TYPES.BOOLEAN:
-                unmarshalled = marshalledData.value;
-                break;
-            case MeldBuilder.TYPES.DATE:
-                unmarshalled = new Date(marshalledData.value);
-                break;
-            case MeldBuilder.TYPES.NULL:
-                unmarshalled = marshalledData.value;
-                break;
-            case MeldBuilder.TYPES.NUMBER:
-                unmarshalled = marshalledData.value;
-                break;
-            case MeldBuilder.TYPES.OBJECT:
-                unmarshalled = {};
-                Obj.forIn(marshalledData.value, function(key, value) {
-                    unmarshalled[key] = _this.unmarshalData(value);
-                });
-                break;
-            case MeldBuilder.TYPES.STRING:
-                unmarshalled = marshalledData.value;
-                break;
-            case MeldBuilder.TYPES.UNDEFINED:
-                unmarshalled = marshalledData.value;
-                break;
-            case "Pair":
-                unmarshalled = new Pair(marshalledData.value.a, marshalledData.value.b);
-                break;
-            case "Set":
-                unmarshalled = new Set();
-                marshalledData.value.forEach(function(value) {
-                    unmarshalled.add(_this.unmarshalData(value));
-                });
-                break;
-        }
-        return unmarshalled;
+        return this.marshaller.unmarshalData(marshalledData);
     }
 });
 
@@ -513,26 +437,10 @@ var MeldBuilder = Class.extend(Obj, {
 
 bugmeta.annotate(MeldBuilder).with(
     module("meldBuilder")
+        .args([
+            arg().ref("marshaller")
+        ])
 );
-
-
-//-------------------------------------------------------------------------------
-// Static Properties
-//-------------------------------------------------------------------------------
-
-/**
- * @enum {string}
- */
-MeldBuilder.TYPES = {
-    ARRAY: "array",
-    BOOLEAN: "boolean",
-    DATE: "date",
-    NULL: "null",
-    NUMBER: "number",
-    OBJECT: "object",
-    STRING: "string",
-    UNDEFINED: "undefined"
-};
 
 
 //-------------------------------------------------------------------------------

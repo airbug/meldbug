@@ -7,6 +7,9 @@
 //@Export('RemoveObjectPropertyOperation')
 
 //@Require('Class')
+//@Require('bugmarsh.MarshAnnotation');
+//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmeta.BugMeta')
 //@Require('meldbug.MeldOperation')
 
 
@@ -14,15 +17,27 @@
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack         = require('bugpack').context();
+var bugpack                     = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class           = bugpack.require('Class');
-var MeldOperation   = bugpack.require('meldbug.MeldOperation');
+var Class                       = bugpack.require('Class');
+var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
+var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+var MeldOperation               = bugpack.require('meldbug.MeldOperation');
+
+
+//-------------------------------------------------------------------------------
+// Simplify References
+//-------------------------------------------------------------------------------
+
+var bugmeta                     = BugMeta.context();
+var marsh                       = MarshAnnotation.marsh;
+var property                    = MarshPropertyAnnotation.property;
 
 
 //-------------------------------------------------------------------------------
@@ -126,6 +141,22 @@ var RemoveObjectPropertyOperation = Class.extend(MeldOperation, {
  * @const {string}
  */
 RemoveObjectPropertyOperation.TYPE = "RemoveObjectPropertyOperation";
+
+
+//-------------------------------------------------------------------------------
+// BugMeta
+//-------------------------------------------------------------------------------
+
+bugmeta.annotate(RemoveObjectPropertyOperation).with(
+    marsh("RemoveObjectPropertyOperation")
+        .properties([
+            property("meldDocumentKey"),
+            property("path"),
+            property("propertyName"),
+            property("type"),
+            property("uuid")
+        ])
+);
 
 
 //-------------------------------------------------------------------------------

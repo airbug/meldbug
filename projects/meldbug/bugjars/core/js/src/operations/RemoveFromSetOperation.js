@@ -8,6 +8,9 @@
 
 //@Require('Class')
 //@Require('Obj')
+//@Require('bugmarsh.MarshAnnotation');
+//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmeta.BugMeta')
 //@Require('meldbug.MeldOperation')
 
 
@@ -15,16 +18,28 @@
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack         = require('bugpack').context();
+var bugpack                     = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class           = bugpack.require('Class');
-var Obj             = bugpack.require('Obj');
-var MeldOperation   = bugpack.require('meldbug.MeldOperation');
+var Class                       = bugpack.require('Class');
+var Obj                         = bugpack.require('Obj');
+var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
+var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+var MeldOperation               = bugpack.require('meldbug.MeldOperation');
+
+
+//-------------------------------------------------------------------------------
+// Simplify References
+//-------------------------------------------------------------------------------
+
+var bugmeta                     = BugMeta.context();
+var marsh                       = MarshAnnotation.marsh;
+var property                    = MarshPropertyAnnotation.property;
 
 
 //-------------------------------------------------------------------------------
@@ -125,6 +140,22 @@ var RemoveFromSetOperation = Class.extend(MeldOperation, {
  * @const {string}
  */
 RemoveFromSetOperation.TYPE = "RemoveFromSetOperation";
+
+
+//-------------------------------------------------------------------------------
+// BugMeta
+//-------------------------------------------------------------------------------
+
+bugmeta.annotate(RemoveFromSetOperation).with(
+    marsh("RemoveFromSetOperation")
+        .properties([
+            property("meldDocumentKey"),
+            property("path"),
+            property("setValue"),
+            property("type"),
+            property("uuid")
+        ])
+);
 
 
 //-------------------------------------------------------------------------------

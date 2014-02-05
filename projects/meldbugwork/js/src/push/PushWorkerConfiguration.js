@@ -143,15 +143,19 @@ var PushWorkerConfiguration = Class.extend(Obj, {
      */
     deinitializeConfiguration: function(callback) {
         var _this = this;
-        console.log("Initializing PushWorkerConfiguration");
+        console.log("Deinitializing PushWorkerConfiguration");
         $series([
             $task(function(flow) {
-                var hearProcessorStopped = function(event) {
-                    _this._pushTaskProcessor.removeEventListener(TaskProcessor.EventTypes.STOPPED, hearProcessorStopped);
-                    flow.complete();
-                };
-                _this._redisClient.addEventListener(TaskProcessor.EventTypes.STOPPED, hearProcessorStopped);
-                _this._redisClient.stop();
+                if (!_this._pushTaskProcessor.isStopped()) {
+                    var hearProcessorStopped = function(event) {
+                        _this._pushTaskProcessor.removeEventListener(TaskProcessor.EventTypes.STOPPED, hearProcessorStopped);
+                        flow.complete();
+                    };
+                    _this._pushTaskProcessor.addEventListener(TaskProcessor.EventTypes.STOPPED, hearProcessorStopped);
+                }
+                if (_this._pushTaskProcessor.isStarted()) {
+                    _this._pushTaskProcessor.stop();
+                }
             }),
             $task(function(flow) {
                 _this._redisPubSub.deinitialize(function(throwable) {
@@ -226,7 +230,14 @@ var PushWorkerConfiguration = Class.extend(Obj, {
                 _this._pushTaskProcessor.start();
                 flow.complete();
             })
-        ]).execute(callback);
+        ]).execute(function(throwable) {
+            if (!throwable) {
+                console.log("PushWorkerConfiguration successfully initialized!");
+            } else {
+                console.log("PushWorkerConfiguration encountered an error while initializing - throwable:", throwable);
+            }
+            callback(throwable);
+        });
     },
 
 
@@ -253,6 +264,7 @@ var PushWorkerConfiguration = Class.extend(Obj, {
     },
 
     /**
+     * @param {Logger} logger
      * @param {PushTaskManager} pushTaskManager
      * @param {MeldBucketManager} meldBucketManager
      * @param {MeldTaskManager} meldTaskManager
@@ -261,8 +273,8 @@ var PushWorkerConfiguration = Class.extend(Obj, {
      * @param {CleanupTaskManager} cleanupTaskManager
      * @return {PushTaskProcessor}
      */
-    pushTaskProcessor: function(pushTaskManager, meldBucketManager, meldTaskManager, meldClientManager, meldManager, cleanupTaskManager) {
-        this._pushTaskProcessor = new PushTaskProcessor(pushTaskManager, meldBucketManager, meldTaskManager, meldClientManager, meldManager, cleanupTaskManager);
+    pushTaskProcessor: function(logger, pushTaskManager, meldBucketManager, meldTaskManager, meldClientManager, meldManager, cleanupTaskManager) {
+        this._pushTaskProcessor = new PushTaskProcessor(logger, pushTaskManager, meldBucketManager, meldTaskManager, meldClientManager, meldManager, cleanupTaskManager);
         return this._pushTaskProcessor;
     },
 
@@ -372,6 +384,7 @@ bugmeta.annotate(PushWorkerConfiguration).with(
         module("configbug"),
         module("pushTaskProcessor")
             .args([
+                arg().ref("logger"),
                 arg().ref("pushTaskManager"),
                 arg().ref("meldBucketManager"),
                 arg().ref("meldTaskManager"),

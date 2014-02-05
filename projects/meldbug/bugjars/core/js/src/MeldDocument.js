@@ -18,6 +18,9 @@
 //@Require('bugdelta.DocumentChange')
 //@Require('bugdelta.ObjectChange')
 //@Require('bugdelta.SetChange')
+//@Require('bugmarsh.MarshAnnotation');
+//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmeta.BugMeta')
 //@Require('meldbug.MeldDocumentEvent')
 
 
@@ -25,26 +28,38 @@
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack                             = require('bugpack').context();
+var bugpack                     = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class                               = bugpack.require('Class');
-var Event                               = bugpack.require('Event');
-var EventDispatcher                     = bugpack.require('EventDispatcher');
-var IDocument                           = bugpack.require('IDocument');
-var ISet                                = bugpack.require('ISet');
-var Set                                 = bugpack.require('Set');
-var TypeUtil                            = bugpack.require('TypeUtil');
-var DeltaBuilder                        = bugpack.require('bugdelta.DeltaBuilder');
-var DeltaDocument                       = bugpack.require('bugdelta.DeltaDocument');
-var DocumentChange                      = bugpack.require('bugdelta.DocumentChange');
-var ObjectChange                        = bugpack.require('bugdelta.ObjectChange');
-var SetChange                           = bugpack.require('bugdelta.SetChange');
-var MeldDocumentEvent                   = bugpack.require('meldbug.MeldDocumentEvent');
+var Class                       = bugpack.require('Class');
+var Event                       = bugpack.require('Event');
+var EventDispatcher             = bugpack.require('EventDispatcher');
+var IDocument                   = bugpack.require('IDocument');
+var ISet                        = bugpack.require('ISet');
+var Set                         = bugpack.require('Set');
+var TypeUtil                    = bugpack.require('TypeUtil');
+var DeltaBuilder                = bugpack.require('bugdelta.DeltaBuilder');
+var DeltaDocument               = bugpack.require('bugdelta.DeltaDocument');
+var DocumentChange              = bugpack.require('bugdelta.DocumentChange');
+var ObjectChange                = bugpack.require('bugdelta.ObjectChange');
+var SetChange                   = bugpack.require('bugdelta.SetChange');
+var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
+var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+var MeldDocumentEvent           = bugpack.require('meldbug.MeldDocumentEvent');
+
+
+//-------------------------------------------------------------------------------
+// Simplify References
+//-------------------------------------------------------------------------------
+
+var bugmeta                     = BugMeta.context();
+var marsh                       = MarshAnnotation.marsh;
+var property                    = MarshPropertyAnnotation.property;
 
 
 //-------------------------------------------------------------------------------
@@ -54,7 +69,7 @@ var MeldDocumentEvent                   = bugpack.require('meldbug.MeldDocumentE
 /**
  * @class
  * @extends {EventDispatcher}
- * @implement {IDocument}
+ * @implements {IDocument}
  */
 var MeldDocument = Class.extend(EventDispatcher, {
 
@@ -365,6 +380,21 @@ MeldDocument.ChangeTypes = {
     PROPERTY_SET: "MeldDocument:PropertySet",
     REMOVED_FROM_SET: "MeldDocument:RemovedFromSet"
 };
+
+
+//-------------------------------------------------------------------------------
+// BugMeta
+//-------------------------------------------------------------------------------
+
+bugmeta.annotate(MeldDocument).with(
+    marsh("MeldDocument")
+        .properties([
+            property("data")
+                .getter("getData")
+                .setter("setData"),
+            property("meldDocumentKey")
+        ])
+);
 
 
 //-------------------------------------------------------------------------------

@@ -45,7 +45,6 @@ var BugMeta                         = bugpack.require('bugmeta.BugMeta');
 var Configbug                       = bugpack.require('configbug.Configbug');
 
 
-
 //-------------------------------------------------------------------------------
 // Simplify References
 //-------------------------------------------------------------------------------
@@ -141,8 +140,7 @@ var MeldbugWorkConfiguration = Class.extend(Obj, {
                     });
                 })
             ])
-        ])
-        .execute(callback);
+        ]).execute(callback);
     },
 
 
