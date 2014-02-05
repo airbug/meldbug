@@ -170,7 +170,7 @@ var TaskManager = Class.extend(Obj, {
      */
     dequeueTask: function(callback) {
         var _this = this;
-        this.blockingRedisClient.bRPopLPush(this.getTaskQueueName(), this.getProcessingQueueName(), 15, $traceWithError(function(error, reply) {
+        this.blockingRedisClient.bRPopLPush(this.getTaskQueueName(), this.getProcessingQueueName(), 15, function(error, reply) {
             if (!error) {
                 if (reply) {
                     callback(null, _this.buildTaskFromDataString(reply));
@@ -184,7 +184,7 @@ var TaskManager = Class.extend(Obj, {
             } else {
                 callback(new Exception("RedisError", {}, "An error occurred in the redis DB", [error]));
             }
-        }));
+        });
     },
 
     /**
