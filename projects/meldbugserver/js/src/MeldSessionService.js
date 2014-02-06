@@ -142,8 +142,7 @@ var MeldSessionService = Class.extend(Obj, {
      */
     processCall: function(call, callback) {
         var _this               = this;
-        var callConnection      = call.getConnection();
-        var sessionId           = callConnection.getHandshake().sessionId;
+        var sessionId           = call.getHandshake().sessionId;
         var meldSessionKey      = this.meldSessionManager.generateMeldSessionKey(sessionId);
 
         $series([
@@ -204,9 +203,8 @@ var MeldSessionService = Class.extend(Obj, {
 
         /*var _this               = this;
         var data                = event.getData();
-        var call         = data.call;
-        var callConnection      = call.getConnection();
-        var sessionId           = callConnection.getHandshake().sessionId;
+        var call                = data.call;
+        var sessionId           = call.getHandshake().sessionId;
         var meldSessionKey      = this.meldSessionManager.generateMeldSessionKey(sessionId);
 
         $series([
