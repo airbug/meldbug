@@ -221,7 +221,7 @@ var TaskProcessor = Class.extend(EventDispatcher, {
      */
     processTask: function(callback) {
         var _this       = this;
-        var meldTask = null;
+        var meldTask    = null;
         $series([
             $task(function(flow) {
                 _this.dequeueTask(function(throwable, dequeuedMeldTask) {
@@ -296,7 +296,7 @@ var TaskProcessor = Class.extend(EventDispatcher, {
      * @protected
      */
     startProcessingTasks: function() {
-        this.state =TaskProcessor.States.STARTED;
+        this.state = TaskProcessor.States.STARTED;
         this.dispatchStarted();
         this.tryProcessTask();
     },

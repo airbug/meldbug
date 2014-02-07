@@ -319,13 +319,12 @@ var TaskManager = Class.extend(Obj, {
     subscribeToTaskResult: function(task, subscriberFunction, subscriberContext, callback) {
         var _this           = this;
         var channel         = this.generateTaskResultChannel(task);
-        $series([
-            $task(function(flow) {
-                _this.pubSub.subscribe(channel, subscriberFunction, subscriberContext, function(throwable) {
-                    flow.complete(throwable);
-                });
-            })
-        ]).execute(callback);
+
+        $task(function(flow) {
+            _this.pubSub.subscribeOnce(channel, subscriberFunction, subscriberContext, function(throwable) {
+                flow.complete(throwable);
+            });
+        }).execute(callback);
     },
 
 
