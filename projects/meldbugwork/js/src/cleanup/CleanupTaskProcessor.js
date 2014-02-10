@@ -190,7 +190,8 @@ var CleanupTaskProcessor = Class.extend(TaskProcessor, {
             })
         ]).execute(function(throwable) {
             if (throwable) {
-                _this.logger.warn("CleanupTask throwable - taskUuid:", cleanupTask.getTaskUuid(), " throwable:", throwable);
+                _this.logger.info("CleanupTask throwable - taskUuid:", cleanupTask.getTaskUuid());
+                _this.logger.error(throwable);
             }
             if (Class.doesExtend(throwable, Exception)) {
                 _this.requeueTask(cleanupTask, callback);

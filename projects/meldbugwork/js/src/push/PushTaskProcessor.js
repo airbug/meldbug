@@ -223,7 +223,8 @@ var PushTaskProcessor = Class.extend(TaskProcessor, {
             })
         ]).execute(function(throwable) {
             if (throwable) {
-                _this.logger.warn("PushTask throwable - taskUuid:", pushTask.getTaskUuid(), " throwable:", throwable);
+                _this.logger.info("PushTask throwable - taskUuid:", pushTask.getTaskUuid());
+                _this.logger.error(throwable);
             }
             if (Class.doesExtend(throwable, Exception)) {
                 _this.requeueTask(pushTask, callback);

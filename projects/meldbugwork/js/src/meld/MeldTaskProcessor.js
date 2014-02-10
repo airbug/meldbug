@@ -238,7 +238,8 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
                     callback(error);
                 } else if (taskThrowable) {
                     if (throwable) {
-                        _this.logger.warn("MeldTask throwable - taskUuid:", meldTask.getTaskUuid(), " throwable:", throwable);
+                        _this.logger.info("MeldTask throwable - taskUuid:", meldTask.getTaskUuid());
+                        _this.logger.error(throwable);
                     }
                     if (Class.doesExtend(taskThrowable, Exception)) {
                          _this.requeueTask(meldTask, callback);
