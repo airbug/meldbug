@@ -1,12 +1,12 @@
 {
     "cleanupWorker": {
-        "maxConcurrency": 10
+        "maxConcurrency": 1
     },
     "meldWorker": {
-        "maxConcurrency": 10
+        "maxConcurrency": 5
     },
     "pushWorker": {
-        "maxConcurrency": 10
+        "maxConcurrency": 3
     },
     "redis": {
         "host": "redis-us-east-1a.ogttef.0001.use1.cache.amazonaws.com"
