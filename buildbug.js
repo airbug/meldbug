@@ -34,7 +34,7 @@ var nodejs          = enableModule('nodejs');
 // Values
 //-------------------------------------------------------------------------------
 
-var version         = "0.0.7";
+var version         = "0.0.8";
 var dependencies    = {
     bugpack: "https://s3.amazonaws.com/airbug/bugpack-0.0.5.tgz",
     redis: "0.10.0",
@@ -64,7 +64,7 @@ buildProperties({
             "./projects/meldbug/bugjars/server/js/src",
             "./projects/meldbugwork/js/src",
             "../bugjs/projects/bugcall/bugjars/core/js/src",
-            "../bugjs/projects/bugcall/bugjars/server/js/src",
+            "../bugjs/projects/bugcall/bugjars/publisher/js/src",
             "../bugjs/projects/bugdelta/js/src",
             "../bugjs/projects/bugflow/js/src",
             "../bugjs/projects/bugfs/js/src",
@@ -78,7 +78,6 @@ buildProperties({
             "../bugjs/projects/configbug/js/src",
             "../bugjs/projects/loggerbug/js/src",
             "../bugjs/projects/redis/js/src",
-            "../bugjs/projects/socketio/bugjars/server/js/src",
             "../bugjs/projects/socketio/bugjars/socket/js/src"
         ],
         scriptPaths: [
@@ -96,6 +95,7 @@ buildProperties({
             }
         },
         sourcePaths: [
+            "../bugjs/projects/bugyarn/js/src",
             "../bugunit/projects/bugdouble/js/src",
             "../bugunit/projects/bugunit/js/src"
         ],
@@ -107,7 +107,7 @@ buildProperties({
             "./projects/meldbug/bugjars/server/js/test",
             "./projects/meldbugwork/js/test",
             "../bugjs/projects/bugcall/bugjars/core/js/test",
-            "../bugjs/projects/bugcall/bugjars/server/js/test",
+            "../bugjs/projects/bugcall/bugjars/publisher/js/test",
             "../bugjs/projects/bugdelta/js/test",
             "../bugjs/projects/bugflow/js/test",
             "../bugjs/projects/bugioc/js/test",
@@ -117,7 +117,10 @@ buildProperties({
             "../bugjs/projects/bugsub/js/test",
             "../bugjs/projects/bugtrace/js/test",
             "../bugjs/projects/bugwork/js/test",
-            "../bugjs/projects/configbug/js/test"
+            "../bugjs/projects/configbug/js/test",
+            "../bugjs/projects/loggerbug/js/test",
+            "../bugjs/projects/redis/js/test",
+            "../bugjs/projects/socketio/bugjars/socket/js/test"
         ]
     }
 });
@@ -270,7 +273,8 @@ buildTarget('prod').buildFlow(
                             buildProject.getProperty("unitTest.packageJson.version")
                         );
                         task.updateProperties({
-                            modulePath: packedNodePackage.getFilePath()
+                            modulePath: packedNodePackage.getFilePath(),
+                            checkCoverage: true
                         });
                     }
                 })

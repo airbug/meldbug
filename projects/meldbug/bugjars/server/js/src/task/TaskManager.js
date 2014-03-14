@@ -13,6 +13,7 @@
 //@Require('Obj')
 //@Require('bugflow.BugFlow')
 //@Require('bugtrace.BugTrace')
+//@Require('meldbug.Task')
 //@Require('meldbug.TaskDefines')
 
 
@@ -34,6 +35,7 @@ var Exception           = bugpack.require('Exception');
 var Obj                 = bugpack.require('Obj');
 var BugFlow             = bugpack.require('bugflow.BugFlow');
 var BugTrace            = bugpack.require('bugtrace.BugTrace');
+var Task                = bugpack.require('meldbug.Task');
 var TaskDefines         = bugpack.require('meldbug.TaskDefines');
 
 
@@ -67,19 +69,23 @@ var TaskManager = Class.extend(Obj, {
      * @param {RedisClient} blockingRedisClient
      * @param {RedisClient} redisClient
      * @param {PubSub} pubSub
+     * @param {Marshaller} marshaller
      * @param {string} taskQueueName
      */
-    _constructor: function(logger, blockingRedisClient, redisClient, pubSub, taskQueueName) {
+    _constructor: function(logger, blockingRedisClient, redisClient, pubSub, marshaller, taskQueueName) {
         var args = ArgUtil.process(arguments, [
             {name: "logger", optional: false, type: "object"},
             {name: "blockingRedisClient", optional: false, type: "object"},
             {name: "redisClient", optional: false, type: "object"},
             {name: "pubSub", optional: false, type: "object"},
+            {name: "marshaller", optional: false, type: "object"},
             {name: "taskQueueName", optional: false, type: "string"}
         ]);
+        logger                  = args.logger;
         blockingRedisClient     = args.blockingRedisClient;
         redisClient             = args.redisClient;
         pubSub                  = args.pubSub;
+        marshaller              = args.marshaller;
         taskQueueName           = args.taskQueueName;
 
         this._super();
@@ -100,6 +106,12 @@ var TaskManager = Class.extend(Obj, {
          * @type {Logger}
          */
         this.logger                 = logger;
+
+        /**
+         * @private
+         * @type {Marshaller}
+         */
+        this.marshaller             = marshaller;
 
         /**
          * @private
@@ -133,10 +145,17 @@ var TaskManager = Class.extend(Obj, {
     },
 
     /**
-     * @return {string}
+     * @return {Logger}
      */
-    getProcessingQueueName: function() {
-        return "processing:" + this.getTaskQueueName();
+    getLogger: function() {
+        return this.logger;
+    },
+
+    /**
+     * @return {Marshaller}
+     */
+    getMarshaller: function() {
+        return this.marshaller;
     },
 
     /**
@@ -162,6 +181,25 @@ var TaskManager = Class.extend(Obj, {
 
 
     //-------------------------------------------------------------------------------
+    // Convenience Methods
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @return {string}
+     */
+    getProcessingQueueName: function() {
+        return "processing:" + this.getTaskQueueName();
+    },
+
+    /**
+     * @return {string}
+     */
+    getTaskQueueMapName: function() {
+        return "taskQueueMap:" + this.getTaskQueueName();
+    },
+
+
+    //-------------------------------------------------------------------------------
     // Public Methods
     //-------------------------------------------------------------------------------
 
@@ -169,40 +207,72 @@ var TaskManager = Class.extend(Obj, {
      * @param {function(Throwable, Task=)} callback
      */
     dequeueTask: function(callback) {
-        var _this = this;
-        this.blockingRedisClient.bRPopLPush(this.getTaskQueueName(), this.getProcessingQueueName(), 15, function(error, reply) {
-            if (!error) {
-                if (reply) {
-                    callback(null, _this.buildTaskFromDataString(reply));
+        var _this       = this;
+        var taskUuid    = null;
+        var task        = null;
+        $series([
+            $task(function(flow) {
+                _this.blockingRedisClient.bRPopLPush(_this.getTaskQueueName(), _this.getProcessingQueueName(), 15, function(error, reply) {
+                    if (!error) {
+                        taskUuid = reply;
+                        flow.complete();
+                    } else {
+                        flow.error(new Exception("RedisError", {}, "An error occurred in the redis DB", [error]));
+                    }
+                });
+            }),
+            $task(function(flow) {
+                if (taskUuid) {
+                    _this.redisClient.hGet(_this.getTaskQueueMapName(), taskUuid, function(error, reply) {
+                        if (!error) {
+                            if (reply) {
+                                task = _this.buildTaskFromDataString(reply);
+                                flow.complete();
+                            } else {
+                                flow.error(new Exception("NotFound", {}, "Could not find task with the uuid '" + taskUuid + "'"));
+                            }
+
+                        } else {
+                            flow.error(new Exception("RedisError", {}, "An error occurred in the redis DB", [error]));
+                        }
+                    });
                 } else {
-
-                    //TEST
-                    _this.logger.log("dequeue task timed out");
-
-                    callback(null, null);
+                    _this.logger.info("dequeue task timed out");
+                    flow.complete();
                 }
+            })
+        ]).execute(function(throwable) {
+            if (!throwable) {
+                callback(null, task);
             } else {
-                callback(new Exception("RedisError", {}, "An error occurred in the redis DB", [error]));
+                callback(task);
             }
         });
     },
 
     /**
-     * @param {Task} task
+     * @param {(Task | string)} task
      * @param {function(Throwable=)} callback
      */
     finishTask: function(task, callback) {
         var _this           = this;
-        var taskDataString  = this.unbuildTaskToDataString(task);
-
+        var taskUuid        = task;
+        if (Class.doesExtend(task, Task)) {
+            taskUuid = task.getTaskUuid();
+        }
         $task(function(flow) {
-            _this.redisClient.lRem(_this.getProcessingQueueName(), -1, taskDataString, $traceWithError(function(error, reply) {
-                if (!error) {
-                    flow.complete();
-                } else {
-                    flow.error(new Exception("RedisError", {}, "An error occurred in the redis DB", [error]));
-                }
-            }));
+            var multi           = _this.redisClient.multi();
+            multi
+                .lrem(_this.getProcessingQueueName(), -1, taskUuid)
+                .hdel(_this.getTaskQueueMapName(), taskUuid)
+                .exec($traceWithError(function(errors, replies) {
+                    if (!errors) {
+                        _this.logger.info("TASK FINISHED - taskUuid:", taskUuid);
+                        flow.complete();
+                    } else {
+                        flow.error(new Exception("RedisError", {}, "An error occurred in the redis DB", errors));
+                    }
+                }));
         }).execute(callback);
     },
 
@@ -212,35 +282,45 @@ var TaskManager = Class.extend(Obj, {
      */
     queueTask: function(task, callback) {
         var _this           = this;
+        var taskUuid        = task.getTaskUuid();
         var taskDataString  = this.unbuildTaskToDataString(task);
 
         $task(function(flow) {
-            _this.redisClient.lPush(_this.getTaskQueueName(), taskDataString, $traceWithError(function(error, reply) {
-                if (!error) {
-                    flow.complete();
-                } else {
-                    flow.error(new Exception("RedisError", {}, "An error occurred in the redis DB", [error]));
-                }
-            }));
+            var multi           = _this.redisClient.multi();
+            multi
+                .lpush(_this.getTaskQueueName(), taskUuid)
+                .hset(_this.getTaskQueueMapName(), taskUuid, taskDataString)
+                .exec($traceWithError(function(errors, replies) {
+                    if (!errors) {
+                        _this.logger.info("TASK QUEUED - taskUuid:", task.getTaskUuid());
+                        flow.complete();
+                    } else {
+                        flow.error(new Exception("RedisError", {}, "An error occurred in the redis DB", errors));
+                    }
+                }));
         }).execute(callback);
     },
 
     /**
-     * @param {Task} task
+     * @param {(Task | string)} task
      * @param {function(Throwable, number=)} callback
      */
     reportTaskComplete: function(task, callback) {
         var _this           = this;
         var numberReceived  = 0;
+        var taskUuid        = task;
+        if (Class.doesExtend(task, Task)) {
+            taskUuid = task.getTaskUuid();
+        }
         $series([
             $task(function(flow) {
                 var message     = _this.pubSub.factoryMessage({
                     messageType: TaskDefines.MessageTypes.TASK_COMPLETE,
                     messageData: {
-                        taskUuid: task.getTaskUuid()
+                        taskUuid: taskUuid
                     }
                 });
-                _this.pubSub.publish(_this.generateTaskResultChannel(task), message, function(throwable, reply) {
+                _this.pubSub.publish(_this.generateTaskResultChannel(taskUuid), message, function(throwable, reply) {
                     if (!throwable) {
                         numberReceived = reply;
                     }
@@ -257,23 +337,27 @@ var TaskManager = Class.extend(Obj, {
     },
 
     /**
-     * @param {Task} task
+     * @param {(Task | string)} task
      * @param {Throwable} throwable
      * @param {function(Throwable, number=)} callback
      */
     reportTaskThrowable: function(task, throwable, callback) {
         var _this           = this;
         var numberReceived  = 0;
+        var taskUuid        = task;
+        if (Class.doesExtend(task, Task)) {
+            taskUuid = task.getTaskUuid();
+        }
         $series([
             $task(function(flow) {
                 var message     = _this.pubSub.factoryMessage({
                     messageType: TaskDefines.MessageTypes.TASK_THROWABLE,
                     messageData: {
-                        taskUuid: task.getTaskUuid(),
+                        taskUuid: taskUuid,
                         throwable: throwable
                     }
                 });
-                _this.pubSub.publish(_this.generateTaskResultChannel(task), message, function(throwable, reply) {
+                _this.pubSub.publish(_this.generateTaskResultChannel(taskUuid), message, function(throwable, reply) {
                     if (!throwable) {
                         numberReceived = reply;
                     }
@@ -290,19 +374,22 @@ var TaskManager = Class.extend(Obj, {
     },
 
     /**
-     * @param {Task} task
+     * @param {(Task | string)} task
      * @param {function(Throwable=)} callback
      */
     requeueTask: function(task, callback) {
         var _this           = this;
-        var taskDataString  = this.unbuildTaskToDataString(task);
+        var taskUuid        = task;
+        if (Class.doesExtend(task, Task)) {
+            taskUuid = task.getTaskUuid();
+        }
         var multi           = this.redisClient.multi();
         multi
-            .lrem(this.getProcessingQueueName(), -1, taskDataString)
-            .lpush(this.getTaskQueueName(), taskDataString)
+            .lrem(this.getProcessingQueueName(), -1, taskUuid)
+            .lpush(this.getTaskQueueName(), taskUuid)
             .exec($traceWithError(function(errors, replies) {
                 if (!errors) {
-                    _this.logger.info("TASK REQUEUED - taskUuid:", task.getTaskUuid());
+                    _this.logger.info("TASK REQUEUED - taskUuid:", taskUuid);
                     callback();
                 } else {
                     callback(new Exception("RedisError", {}, "An error occurred in redis", errors));
@@ -311,7 +398,7 @@ var TaskManager = Class.extend(Obj, {
     },
 
     /**
-     * @param {Task} task
+     * @param {(Task | string)} task
      * @param {function(Message)} subscriberFunction
      * @param {Object} subscriberContext
      * @param {function(Throwable=)} callback
@@ -329,29 +416,6 @@ var TaskManager = Class.extend(Obj, {
 
 
     //-------------------------------------------------------------------------------
-    // Abstract Methods
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @abstract
-     * @param {Object} taskData
-     * @return {Task}
-     */
-    buildTask: function(taskData) {
-        throw new Bug("AbstractMethodNotImplemented");
-    },
-
-    /**
-     * @abstract
-     * @param {Task} task
-     * @return {Object}
-     */
-    unbuildTask: function(task) {
-        throw new Bug("AbstractMethodNotImplemented");
-    },
-
-
-    //-------------------------------------------------------------------------------
     // Private Methods
     //-------------------------------------------------------------------------------
 
@@ -360,17 +424,20 @@ var TaskManager = Class.extend(Obj, {
      * @return {Task}
      */
     buildTaskFromDataString: function(taskDataString) {
-        var taskData = JSON.parse(taskDataString);
-        return this.buildTask(taskData);
+        return this.marshaller.unmarshalData(taskDataString);
     },
 
     /**
      * @private
-     * @param {Task} task
+     * @param {(Task | string)} task
      * @returns {string}
      */
     generateTaskResultChannel: function(task) {
-        return "taskResult:" + task.getTaskUuid();
+        var taskUuid = task;
+        if (Class.doesExtend(task, Task)) {
+            taskUuid = task.getTaskUuid();
+        }
+        return "taskResult:" + taskUuid;
     },
 
     /**
@@ -379,8 +446,7 @@ var TaskManager = Class.extend(Obj, {
      * @return {string}
      */
     unbuildTaskToDataString: function(task) {
-        var taskData = this.unbuildTask(task);
-        return JSON.stringify(taskData);
+        return this.marshaller.marshalData(task);
     }
 });
 

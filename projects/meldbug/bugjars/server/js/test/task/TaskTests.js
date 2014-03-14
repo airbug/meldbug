@@ -4,9 +4,12 @@
 
 //@TestFile
 
-//@Require('meldbug.MeldDocumentKey')
+//@Require('Class')
+//@Require('bugdouble.BugDouble')
 //@Require('bugmeta.BugMeta')
 //@Require('bugunit-annotate.TestAnnotation')
+//@Require('bugyarn.BugYarn')
+//@Require('meldbug.Task')
 
 
 //-------------------------------------------------------------------------------
@@ -20,9 +23,12 @@ var bugpack                 = require('bugpack').context();
 // BugPack
 //-------------------------------------------------------------------------------
 
-var MeldDocumentKey         = bugpack.require('meldbug.MeldDocumentKey');
+var Class                   = bugpack.require('Class');
+var BugDouble               = bugpack.require('bugdouble.BugDouble');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
 var TestAnnotation          = bugpack.require('bugunit-annotate.TestAnnotation');
+var BugYarn                 = bugpack.require('bugyarn.BugYarn');
+var Task                    = bugpack.require('meldbug.Task');
 
 
 //-------------------------------------------------------------------------------
@@ -30,44 +36,52 @@ var TestAnnotation          = bugpack.require('bugunit-annotate.TestAnnotation')
 //-------------------------------------------------------------------------------
 
 var bugmeta                 = BugMeta.context();
+var bugyarn                 = BugYarn.context();
+var stubObject              = BugDouble.stubObject;
 var test                    = TestAnnotation.test;
+
+
+//-------------------------------------------------------------------------------
+// BugYarn
+//-------------------------------------------------------------------------------
+
+bugyarn.registerWeaver("testTask", function(yarn, args) {
+    return new Task(args[0]);
+});
+
+bugyarn.registerWinder("setupTestTask", function(yarn) {
+    yarn.wind({
+        task: new Task("testTaskUuid")
+    });
+});
 
 
 //-------------------------------------------------------------------------------
 // Declare Tests
 //-------------------------------------------------------------------------------
 
-var meldDocumentKeyTest = {
+var taskInstantiationTest = {
+
+    //-------------------------------------------------------------------------------
+    // Setup Test
+    //-------------------------------------------------------------------------------
+
+    setup: function(test) {
+        this.testTaskUuid   = "testTaskUuid";
+        this.testTask       = new Task(this.testTaskUuid);
+    },
 
     //-------------------------------------------------------------------------------
     // Run Test
     //-------------------------------------------------------------------------------
 
     test: function(test) {
-        var _this = this;
-        var meldDocumentKey = new MeldDocumentKey("array", "id");
-        
-        test.assertEqual(meldDocumentKey.getDataType(), "array",
-            "Assert that the data type is what we expect");
-
-        test.assertEqual(meldDocumentKey.getId(), "id",
-            "Assert that the id is what we expect");
-
-        var meldDocumentKey1 = new MeldDocumentKey("array", "id");
-        test.assertTrue(meldDocumentKey.equals(meldDocumentKey1),
-            "Verify equality test returns true for objects with same constructor signature");
-
-        var meldDocumentKey2 = new MeldDocumentKey("array", "id2");
-        test.assertFalse(meldDocumentKey.equals(meldDocumentKey2),
-            "Verify equality test returns false for objects with different constructor signature");
-
-        var meldDocumentKeyObject = meldDocumentKey.toObject();
-        test.assertEqual(meldDocumentKeyObject.id, "id",
-            "Verify that meld key object's id property is the same as what is contained in the MeldDocumentKey object");
-        test.assertEqual(meldDocumentKeyObject.dataType, "array",
-            "Verify that meld key object's dataType property is the same as what is contained in the MeldDocumentKey object");
+        test.assertTrue(Class.doesExtend(this.testTask, Task),
+            "Assert instance of Task");
+        test.assertEqual(this.testTask.getTaskUuid(), this.testTaskUuid,
+            "Assert .taskUuid was set correctly");
     }
 };
-bugmeta.annotate(meldDocumentKeyTest).with(
-    test().name("MeldDocumentKey Tests")
+bugmeta.annotate(taskInstantiationTest).with(
+    test().name("Task - instantiation test")
 );

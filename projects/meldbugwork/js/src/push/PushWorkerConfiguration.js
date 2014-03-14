@@ -264,17 +264,21 @@ var PushWorkerConfiguration = Class.extend(Obj, {
     },
 
     /**
+     * @return {console|Console}
+     */
+    console: function() {
+        return console;
+    },
+
+    /**
      * @param {Logger} logger
      * @param {PushTaskManager} pushTaskManager
-     * @param {MeldBucketManager} meldBucketManager
      * @param {MeldTaskManager} meldTaskManager
-     * @param {MeldClientManager} meldClientManager
      * @param {MeldManager} meldManager
-     * @param {CleanupTaskManager} cleanupTaskManager
      * @return {PushTaskProcessor}
      */
-    pushTaskProcessor: function(logger, pushTaskManager, meldBucketManager, meldTaskManager, meldClientManager, meldManager, cleanupTaskManager) {
-        this._pushTaskProcessor = new PushTaskProcessor(logger, pushTaskManager, meldBucketManager, meldTaskManager, meldClientManager, meldManager, cleanupTaskManager);
+    pushTaskProcessor: function(logger, pushTaskManager, meldTaskManager, meldManager) {
+        this._pushTaskProcessor = new PushTaskProcessor(logger, pushTaskManager, meldTaskManager, meldManager);
         return this._pushTaskProcessor;
     },
 
@@ -382,15 +386,13 @@ bugmeta.annotate(PushWorkerConfiguration).with(
                 arg().ref("redisConfig")
             ]),
         module("configbug"),
+        module("console"),
         module("pushTaskProcessor")
             .args([
                 arg().ref("logger"),
                 arg().ref("pushTaskManager"),
-                arg().ref("meldBucketManager"),
                 arg().ref("meldTaskManager"),
-                arg().ref("meldClientManager"),
-                arg().ref("meldManager"),
-                arg().ref("cleanupTaskManager")
+                arg().ref("meldManager")
             ]),
         module("redis"),
         module("redisClient")

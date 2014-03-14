@@ -155,8 +155,10 @@ var MeldWorker = Class.extend(Worker, {
                 "bugmarsh.MarshRegistry",
                 "bugsub.PubSub",
                 "loggerbug.Logger",
+                "meldbug.CleanupTaskManager",
                 "meldbug.MeldBucketManager",
                 "meldbug.MeldBuilder",
+                "meldbug.MeldClientManager",
                 "meldbug.MeldTaskManager",
                 "meldbug.MeldTransactionGenerator",
                 "meldbug.MeldTransactionPublisher"

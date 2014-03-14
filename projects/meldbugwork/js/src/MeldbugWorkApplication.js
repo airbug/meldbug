@@ -93,7 +93,8 @@ var MeldbugWorkApplication = Class.extend(Obj, {
             "bugwork.WorkerManager",
             "bugwork.WorkerProcessFactory",
             "bugwork.WorkerRegistry",
-            "loggerbug.Logger"
+            "loggerbug.Logger",
+            "meldbugwork.MeldbugWorkInitializer"
         ]);
         this.iocContext.process();
         this.iocContext.initialize(callback);

@@ -59,37 +59,12 @@ var MeldTaskManager = Class.extend(TaskManager, {
 
     /**
      * @param {string} callUuid
+     * @param {MeldTransaction} meldTransaction
      * @returns {MeldTask}
      */
-    generateMeldTask: function(callUuid) {
+    generateMeldTask: function(callUuid, meldTransaction) {
         var taskUuid = UuidGenerator.generateUuid();
-        return new MeldTask(taskUuid, callUuid);
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // TaskManager Methods
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @protected
-     * @param {Object} taskData
-     * @return {Task}
-     */
-    buildTask: function(taskData) {
-        return this.factoryMeldTask(taskData.taskUuid, taskData.callUuid)
-    },
-
-    /**
-     * @protected
-     * @param {MeldTask} task
-     * @return {Object}
-     */
-    unbuildTask: function(task) {
-        return {
-            taskUuid: task.getTaskUuid(),
-            callUuid: task.getCallUuid()
-        };
+        return new MeldTask(taskUuid, callUuid, meldTransaction);
     },
 
 
@@ -101,10 +76,11 @@ var MeldTaskManager = Class.extend(TaskManager, {
      * @private
      * @param {string} taskUuid
      * @param {string} callUuid
+     * @param {MeldTransaction} meldTransaction
      * @returns {MeldTask}
      */
-    factoryMeldTask: function(taskUuid, callUuid) {
-        return new MeldTask(taskUuid, callUuid);
+    factoryMeldTask: function(taskUuid, callUuid, meldTransaction) {
+        return new MeldTask(taskUuid, callUuid, meldTransaction);
     }
 });
 
@@ -131,6 +107,7 @@ bugmeta.annotate(MeldTaskManager).with(
             arg().ref("blockingRedisClient"),
             arg().ref("redisClient"),
             arg().ref("pubSub"),
+            arg().ref("marshaller"),
             arg().value(MeldTaskManager.MELD_TASK_QUEUE)
         ])
 );

@@ -5,26 +5,42 @@
 //@Package('meldbug')
 
 //@Export('MeldBucket')
+//@Autoload
 
 //@Require('Class')
 //@Require('Map')
 //@Require('Obj')
+//@Require('bugmarsh.MarshAnnotation');
+//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmeta.BugMeta')
 
 
 //-------------------------------------------------------------------------------
 // Common Modules
 //-------------------------------------------------------------------------------
 
-var bugpack                 = require('bugpack').context();
+var bugpack                     = require('bugpack').context();
 
 
 //-------------------------------------------------------------------------------
 // BugPack
 //-------------------------------------------------------------------------------
 
-var Class                   = bugpack.require('Class');
-var Map                     = bugpack.require('Map');
-var Obj                     = bugpack.require('Obj');
+var Class                       = bugpack.require('Class');
+var Map                         = bugpack.require('Map');
+var Obj                         = bugpack.require('Obj');
+var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
+var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+
+
+//-------------------------------------------------------------------------------
+// Simplify References
+//-------------------------------------------------------------------------------
+
+var bugmeta                     = BugMeta.context();
+var marsh                       = MarshAnnotation.marsh;
+var property                    = MarshPropertyAnnotation.property;
 
 
 //-------------------------------------------------------------------------------
@@ -66,6 +82,27 @@ var MeldBucket = Class.extend(Obj, {
      */
     getMeldDocumentKeyToMeldDocumentMap: function() {
         return this.meldDocumentKeyToMeldDocumentMap;
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // IClone Implementation
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @param {boolean} deep
+     * @return {*}
+     */
+    clone: function(deep) {
+        var meldBucket = new MeldBucket();
+        this.meldDocumentKeyToMeldDocumentMap.forEach(function(meldDocument) {
+            if (deep) {
+                meldBucket.addMeldDocument(Obj.clone(meldDocument, deep));
+            } else {
+                meldBucket.addMeldDocument(meldDocument);
+            }
+        });
+        return meldBucket;
     },
 
 
@@ -119,6 +156,18 @@ var MeldBucket = Class.extend(Obj, {
         return null;
     }
 });
+
+
+//-------------------------------------------------------------------------------
+// BugMeta
+//-------------------------------------------------------------------------------
+
+bugmeta.annotate(MeldBucket).with(
+    marsh("MeldBucket")
+        .properties([
+            property("meldDocumentKeyToMeldDocumentMap")
+        ])
+);
 
 
 //-------------------------------------------------------------------------------

@@ -153,7 +153,7 @@ var MeldBucketManager = Class.extend(Obj, {
         this.redisClient.get(meldBucketKey.toStringKey(), $traceWithError(function(error, meldBucketData) {
             if (!error) {
                 if (meldBucketData) {
-                    _this.uncompressMeldBucket(meldBucketData, callback);
+                    _this.decompressMeldBucket(meldBucketData, callback);
                 } else {
                     callback(null, null);
                 }
@@ -257,8 +257,8 @@ var MeldBucketManager = Class.extend(Obj, {
      * @param {function(Throwable, string=)} callback
      */
     compressMeldBucket: function(meldBucket, callback) {
-        var meldBucketData = this.meldBuilder.unbuildMeldBucket(meldBucket);
-        zlib.gzip(JSON.stringify(meldBucketData), $traceWithError(function(error, buffer) {
+        var meldBucketString = this.meldBuilder.marshalData(meldBucket);
+        zlib.gzip(meldBucketString, $traceWithError(function(error, buffer) {
             if (!error) {
                 callback(null, buffer.toString('base64'));
             } else {
@@ -272,15 +272,15 @@ var MeldBucketManager = Class.extend(Obj, {
      * @param {string} meldBucketData
      * @param {function(Throwable, MeldBucket=)} callback
      */
-    uncompressMeldBucket: function(meldBucketData, callback) {
+    decompressMeldBucket: function(meldBucketData, callback) {
         var _this = this;
         var buffer = new Buffer(meldBucketData, 'base64');
-        zlib.gunzip(buffer, $traceWithError(function(error, buffer) {
+        zlib.gunzip(buffer, $traceWithError(function(error, resultBuffer) {
             if (!error) {
                 var meldBucket  = null;
                 var throwable   = null;
                 try {
-                    meldBucket = _this.meldBuilder.buildMeldBucket(JSON.parse(buffer.toString()))
+                    meldBucket = _this.meldBuilder.unmarshalData(resultBuffer.toString())
                 } catch(e) {
                     throwable = e;
                 }

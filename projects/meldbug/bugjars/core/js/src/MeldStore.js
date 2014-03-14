@@ -83,7 +83,9 @@ var MeldStore = Class.extend(Obj, {
         var meldDocumentList    = new List();
         meldTransaction.getMeldOperationList().forEach(function(meldOperation) {
             var meldDocument = meldOperation.apply(_this.meldBucket);
-            meldDocumentList.add(meldDocument);
+            if (meldDocument) {
+                meldDocumentList.add(meldDocument);
+            }
         });
         return meldDocumentList;
     },

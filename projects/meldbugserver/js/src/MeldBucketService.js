@@ -156,7 +156,6 @@ var MeldBucketService = Class.extend(Obj, {
     preProcessCall: function(call, callback) {
         var _this               = this;
         var mirrorMeldBucketKey = this.meldBuilder.generateMeldBucketKey("mirrorMeldBucket", call.getCallUuid());
-        var serverMeldBucketKey = this.meldBuilder.generateMeldBucketKey("serverMeldBucket", call.getCallUuid());
         $if (function(flow) {
                 _this.meldBucketManager.hasMeldBucketForKey(mirrorMeldBucketKey, function(throwable, exists) {
                     if (!throwable) {
@@ -168,18 +167,11 @@ var MeldBucketService = Class.extend(Obj, {
             },
             $task(function(flow) {
                 if (!call.isReconnect()) {
-                    $parallel([
-                        $task(function(flow) {
-                            _this.createMeldBucket(mirrorMeldBucketKey, function(throwable, meldBucket) {
-                                flow.complete(throwable);
-                            });
-                        }),
-                        $task(function(flow) {
-                            _this.createMeldBucket(serverMeldBucketKey, function(throwable, meldBucket) {
-                                flow.complete(throwable);
-                            });
-                        })
-                    ]).execute(function(throwable) {
+                    $task(function(flow) {
+                        _this.createMeldBucket(mirrorMeldBucketKey, function(throwable, meldBucket) {
+                            flow.complete(throwable);
+                        });
+                    }).execute(function(throwable) {
                         flow.complete(throwable);
                     });
                 } else {
@@ -237,15 +229,6 @@ var MeldBucketService = Class.extend(Obj, {
         var meldBucket = this.meldBucketManager.generateMeldBucket();
         this.meldBucketManager.setMeldBucket(meldBucketKey, meldBucket, callback);
     },
-
-    /**
-     * @private
-     */
-    initialize: function() {
-        this.bugCallServer.on(CallEvent.CLOSED, this.hearBugCallServerCallClosed, this);
-        this.bugCallServer.registerCallPreProcessor(this);
-    },
-
 
 
     //-------------------------------------------------------------------------------

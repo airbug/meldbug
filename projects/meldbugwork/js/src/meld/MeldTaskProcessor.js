@@ -10,6 +10,7 @@
 //@Require('Class')
 //@Require('Exception')
 //@Require('bugflow.BugFlow')
+//@Require('meldbug.MeldStore')
 //@Require('meldbug.TaskProcessor')
 
 
@@ -28,6 +29,7 @@ var Bug                 = bugpack.require('Bug');
 var Class               = bugpack.require('Class');
 var Exception           = bugpack.require('Exception');
 var BugFlow             = bugpack.require('bugflow.BugFlow');
+var MeldStore           = bugpack.require('meldbug.MeldStore');
 var TaskProcessor       = bugpack.require('meldbug.TaskProcessor');
 
 
@@ -62,8 +64,10 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
      * @param {MeldBucketManager} meldBucketManager
      * @param {MeldTransactionPublisher} meldTransactionPublisher
      * @param {MeldTransactionGenerator} meldTransactionGenerator
+     * @param {MeldClientManager} meldClientManager
+     * @param {CleanupTaskManager} cleanupTaskManager
      */
-    _constructor: function(logger, meldTaskManager, meldBucketManager, meldTransactionPublisher, meldTransactionGenerator) {
+    _constructor: function(logger, meldTaskManager, meldBucketManager, meldTransactionPublisher, meldTransactionGenerator, meldClientManager, cleanupTaskManager) {
 
         this._super(meldTaskManager);
 
@@ -71,6 +75,12 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
         //-------------------------------------------------------------------------------
         // Properties
         //-------------------------------------------------------------------------------
+
+        /**
+         * @private
+         * @type {CleanupTaskManager}
+         */
+        this.cleanupTaskManager         = cleanupTaskManager;
 
         /**
          * @private
@@ -83,6 +93,12 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
          * @type {MeldBucketManager}
          */
         this.meldBucketManager          = meldBucketManager;
+
+        /**
+         * @private
+         * @type {MeldClientManager}
+         */
+        this.meldClientManager          = meldClientManager;
 
         /**
          * @private
@@ -109,6 +125,13 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
     //-------------------------------------------------------------------------------
 
     /**
+     * @return {CleanupTaskManager}
+     */
+    getCleanupTaskManager: function() {
+        return this.cleanupTaskManager;
+    },
+
+    /**
      * @return {Logger}
      */
     getLogger: function() {
@@ -120,6 +143,13 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
      */
     getMeldBucketManager: function() {
         return this.meldBucketManager;
+    },
+
+    /**
+     * @return {MeldClientManager}
+     */
+    getMeldClientManager: function() {
+        return this.meldClientManager;
     },
 
     /**
@@ -154,16 +184,57 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
      * @param {function(Throwable=)} callback
      */
     doTask: function(meldTask, callback) {
+        this.logger.info("Processing MeldTask - taskUuid:", meldTask.getTaskUuid(), " callUuid:", meldTask.getCallUuid());
+
+        var _this                   = this;
+        $series([
+            $task(function(flow) {
+                _this.startMeld(meldTask, function(throwable) {
+                    flow.complete(throwable);
+                });
+            })
+        ]).execute(function(throwable) {
+            if (throwable) {
+                _this.logger.info("MeldTask throwable - taskUuid:", meldTask.getTaskUuid());
+                _this.logger.error(throwable);
+                if (Class.doesExtend(throwable, Exception)) {
+                    _this.requeueTask(meldTask, callback);
+                } else {
+                    _this.requeueTask(meldTask, function() {
+                        callback(throwable)
+                    });
+                }
+            } else {
+                callback();
+            }
+        });
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Private Methods
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @param {MeldTransaction} meldTransaction
+     * @param {MeldBucket} meldBucket
+     */
+    applyTransactionToMeldBucket: function(meldTransaction, meldBucket) {
+        var meldStore = new MeldStore(meldBucket);
+        meldStore.applyMeldTransaction(meldTransaction);
+    },
+
+    /**
+     * @private
+     * @param {MeldTask} meldTask
+     * @param {function(Throwable=)} callback
+     */
+    doMeld: function(meldTask, callback) {
         var _this                   = this;
         var callUuid                = meldTask.getCallUuid();
         var mirrorMeldBucketKey     = this.meldBucketManager.generateMeldBucketKey("mirrorMeldBucket", callUuid);
-        var serverMeldBucketKey     = this.meldBucketManager.generateMeldBucketKey("serverMeldBucket", callUuid);
         var mirrorMeldBucket        = null;
-        var serverMeldBucket        = null;
         var locked                  = false;
-
-        this.logger.info("Processing MeldTask - taskUuid:", meldTask.getTaskUuid(), " callUuid:", meldTask.getCallUuid(),
-            " mirrorMeldBucketKey:", mirrorMeldBucketKey.toStringKey(), " serverMeldBucketKey:", serverMeldBucketKey.toStringKey());
 
         $series([
             $task(function(flow) {
@@ -172,27 +243,19 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
                     flow.complete(throwable);
                 });
             }),
-            $parallel([
-                $task(function(flow) {
-                    _this.meldBucketManager.getMeldBucketForKey(mirrorMeldBucketKey, function(throwable, meldBucket) {
-                        if (!throwable) {
-                            mirrorMeldBucket = meldBucket;
-                        }
-                        flow.complete(throwable);
-                    });
-                }),
-                $task(function(flow) {
-                    _this.meldBucketManager.getMeldBucketForKey(serverMeldBucketKey, function(throwable, meldBucket) {
-                        if (!throwable) {
-                            serverMeldBucket = meldBucket;
-                        }
-                        flow.complete(throwable);
-                    });
-                })
-            ]),
             $task(function(flow) {
-                var meldTransaction = _this.generateTransaction(serverMeldBucket, mirrorMeldBucket);
-                _this.publishTransaction(callUuid, meldTask, meldTransaction, function(throwable) {
+                _this.meldBucketManager.getMeldBucketForKey(mirrorMeldBucketKey, function(throwable, meldBucket) {
+                    if (!throwable) {
+                        mirrorMeldBucket = meldBucket;
+                    }
+                    flow.complete(throwable);
+                });
+            }),
+            $task(function(flow) {
+                var originalMeldBucket = mirrorMeldBucket.clone(true);
+                _this.applyTransactionToMeldBucket(meldTask.getMeldTransaction(), mirrorMeldBucket);
+                var meldTransaction = _this.generateTransaction(originalMeldBucket, mirrorMeldBucket);
+                _this.publishTransaction(callUuid, meldTask.getTaskUuid(), meldTransaction, function(throwable) {
                     flow.complete(throwable);
                 });
             }),
@@ -201,7 +264,7 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
                 //NOTE BRN: We set the mirror to the serverMeldBucket here since we have successfully queued messages
                 // that will update the client to the point of the server
 
-                _this.meldBucketManager.setMeldBucket(mirrorMeldBucketKey, serverMeldBucket, function(throwable) {
+                _this.meldBucketManager.setMeldBucket(mirrorMeldBucketKey, mirrorMeldBucket, function(throwable) {
                     flow.complete(throwable);
                 });
             }),
@@ -212,70 +275,51 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
                     }
                     flow.complete(throwable);
                 });
-            }),
-            $task(function(flow) {
-                _this.meldTaskManager.finishTask(meldTask, function(throwable) {
-                    _this.logger.info("MeldTask complete - taskUuid:", meldTask.getTaskUuid(), " callUuid:", meldTask.getCallUuid());
-                    flow.complete(throwable);
-                });
             })
         ]).execute(function(taskThrowable) {
-            $task(function(flow) {
-                if (locked) {
-                    _this.meldBucketManager.unlockMeldBucketForKey(mirrorMeldBucketKey, function(throwable) {
-                        flow.complete(throwable);
-                    });
-                } else {
-                    flow.complete();
-                }
-            }).execute(function(throwable) {
-                if (throwable) {
-                    var error = new Bug("StuckError", {}, "Error occurred while trying to unlock after task");
-                    error.addCause(throwable);
-                    if (taskThrowable) {
-                        error.addCause(taskThrowable);
-                    }
-                    callback(error);
-                } else if (taskThrowable) {
-                    if (taskThrowable) {
-                        _this.logger.info("MeldTask throwable - taskUuid:", meldTask.getTaskUuid());
-                        _this.logger.error(taskThrowable);
-                    }
-                    if (Class.doesExtend(taskThrowable, Exception)) {
-                         _this.requeueTask(meldTask, callback);
+                $task(function(flow) {
+                    if (locked) {
+                        _this.meldBucketManager.unlockMeldBucketForKey(mirrorMeldBucketKey, function(throwable) {
+                            flow.complete(throwable);
+                        });
                     } else {
-                        callback(taskThrowable)
+                        flow.complete();
                     }
-                } else {
-                     callback();
-                }
+                }).execute(function(throwable) {
+                    if (throwable) {
+                        var error = new Bug("StuckError", {}, "Error occurred while trying to unlock after task");
+                        error.addCause(throwable);
+                        if (taskThrowable) {
+                            error.addCause(taskThrowable);
+                        }
+                        callback(error);
+                    } else if (taskThrowable) {
+                        callback(taskThrowable);
+                    } else {
+                        callback();
+                    }
+                });
             });
-        });
     },
-
-
-    //-------------------------------------------------------------------------------
-    // Private Methods
-    //-------------------------------------------------------------------------------
 
     /**
      * @private
-     * @param {MeldBucket} serverMeldBucket
-     * @param {MeldBucket} mirrorMeldBucket
+     * @param {MeldBucket} originalMeldBucket
+     * @param {MeldBucket} updatedMeldBucket
      * @returns {MeldTransaction}
      */
-    generateTransaction: function(serverMeldBucket, mirrorMeldBucket) {
-        return this.meldTransactionGenerator.generateMeldTransactionBetweenMeldBuckets(serverMeldBucket, mirrorMeldBucket);
+    generateTransaction: function(originalMeldBucket, updatedMeldBucket) {
+        return this.meldTransactionGenerator.generateMeldTransactionBetweenMeldBuckets(updatedMeldBucket, originalMeldBucket);
     },
 
     /**
      * @private
      * @param {string} callUuid
-     * @param {MeldTask} meldTask
+     * @param {string} meldTaskUuid
      * @param {MeldTransaction} meldTransaction
      * @param {function(Throwable=)} callback
      */
-    publishTransaction: function(callUuid, meldTask, meldTransaction, callback) {
+    publishTransaction: function(callUuid, meldTaskUuid, meldTransaction, callback) {
         var _this = this;
         if (!meldTransaction.isEmpty()) {
             $series([
@@ -285,41 +329,175 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
                         //TODO BRN: Handle callResponses
 
                         if (!throwable) {
-                            _this.getTaskManager().reportTaskComplete(meldTask, function(throwable, numberReceived) {
+                            if (callResponse.getType() === "Error") {
+                                _this.logger.error("Error occurred on CLIENT");
+                                _this.logger.error(callResponse.getData().error);
+                                $series([
+                                    $task(function(flow) {
+                                        _this.meldTaskManager.finishTask(meldTaskUuid, function(throwable) {
+                                            _this.logger.info("MeldTask FINISHED - taskUuid:", meldTaskUuid);
+                                            flow.complete(throwable);
+                                        });
+                                    }),
+                                    $task(function(flow) {
+                                        _this.getTaskManager().reportTaskComplete(meldTaskUuid, function(throwable, numberReceived) {
 
-                                //TEST
-                                _this.logger.info("Reporting MeldTask Complete - taskUuid:", meldTask.getTaskUuid());
+                                            //TEST
+                                            _this.logger.info("Reporting MeldTask Complete - taskUuid:", meldTaskUuid);
 
-                                if (!throwable) {
-                                    if (numberReceived >= 1) {
-                                        //TADA! We're done!
+                                            flow.complete(throwable);
+                                        });
+                                    })
+                                ]).execute(function(throwable) {
+                                    if (throwable) {
+                                        _this.logger.error(throwable);
                                     }
-                                } else {
-                                    _this.logger.error(throwable);
-                                }
-                            });
+                                });
+                            } else if (callResponse.getType() === "Exception") {
+                                $series([
+                                    $task(function(flow) {
+                                        _this.requeueTask(meldTaskUuid, function(throwable) {
+                                            flow.complete(throwable);
+                                        });
+                                    }),
+                                    $task(function(flow) {
+                                        _this.getTaskManager().reportTaskThrowable(meldTaskUuid, throwable, function(throwable) {
+                                            //TEST
+                                            _this.logger.info("Reporting MeldTask Throwable - taskUuid:", meldTaskUuid);
+                                            flow.complete(throwable);
+                                        })
+                                    })
+                                ]).execute(function(throwable) {
+                                    if (throwable) {
+                                        _this.logger.error(throwable);
+                                    }
+                                });
+                            } else {
+                                $series([
+                                    $task(function(flow) {
+                                        _this.meldTaskManager.finishTask(meldTaskUuid, function(throwable) {
+                                            _this.logger.info("MeldTask FINISHED - taskUuid:", meldTaskUuid);
+                                            flow.complete(throwable);
+                                        });
+                                    }),
+                                    $task(function(flow) {
+                                        _this.getTaskManager().reportTaskComplete(meldTaskUuid, function(throwable, numberReceived) {
+
+                                            //TEST
+                                            _this.logger.info("Reporting MeldTask Complete - taskUuid:", meldTaskUuid);
+
+                                            flow.complete(throwable);
+                                        });
+                                    })
+                                ]).execute(function(throwable) {
+                                    if (throwable) {
+                                        _this.logger.error(throwable);
+                                    }
+                                });
+                            }
                         } else {
-
-                            //TEST
-                            _this.logger.info("Reporting MeldTask Throwable - taskUuid:", meldTask.getTaskUuid() + " throwable:", throwable);
-
-                            _this.logger.error(throwable);
-                            _this.getTaskManager().reportTaskThrowable(meldTask, throwable, function(throwable) {
+                            $series([
+                                $task(function(flow) {
+                                    _this.requeueTask(meldTaskUuid, function(throwable) {
+                                        flow.complete(throwable);
+                                    });
+                                }),
+                                $task(function(flow) {
+                                    _this.getTaskManager().reportTaskThrowable(meldTaskUuid, throwable, function(throwable) {
+                                        //TEST
+                                        _this.logger.info("Reporting MeldTask Throwable - taskUuid:", meldTaskUuid);
+                                        flow.complete(throwable);
+                                    })
+                                })
+                            ]).execute(function(throwable) {
                                 if (throwable) {
                                     _this.logger.error(throwable);
                                 }
-                            })
+                            });
                         }
                     });
 
                     _this.meldTransactionPublisher.publishTransactionRequest(callUuid, meldTransaction, callResponseHandler, function(throwable) {
-                        flow.complete(throwable);
+                        if (throwable) {
+                            if (Class.doesExtend(throwable, Exception)) {
+                                if (throwable.getType() === "MessageNotDelivered") {
+                                    //TODO BRN: Store transaction in to queue for this callUuid
+                                    flow.complete();
+                                } else {
+                                    flow.error(throwable);
+                                }
+                            } else {
+                                flow.error(throwable);
+                            }
+                        } else {
+                            flow.complete();
+                        }
                     });
                 })
             ]).execute(callback);
         } else {
+            $series([
+                $task(function(flow) {
+                    _this.meldTaskManager.finishTask(meldTaskUuid, function(throwable) {
+                        _this.logger.info("MeldTask FINISHED - taskUuid:", meldTaskUuid);
+                        flow.complete(throwable);
+                    });
+                }),
+                $task(function(flow) {
+                    _this.getTaskManager().reportTaskComplete(meldTaskUuid, function(throwable, numberReceived) {
+
+                        //TEST
+                        _this.logger.info("Reporting MeldTask Complete - taskUuid:", meldTaskUuid);
+
+                        if (!throwable) {
+                            if (numberReceived >= 1) {
+                                flow.complete();
+                            } else {
+                                flow.error(new Exception("MessageNotDelivered", {}, "No one received the report of task complete"));
+                            }
+                        } else {
+                            flow.complete(throwable);
+                        }
+                    });
+                })
+            ]).execute(callback);
+        }
+    },
+
+    /**
+     * @private
+     * @param {MeldTask} meldTask
+     * @param {function(Throwable=)} callback
+     */
+    meldActiveClient: function(meldTask, callback) {
+        var _this                   = this;
+        $task(function(flow) {
+            _this.doMeld(meldTask, function(throwable) {
+                flow.complete(throwable);
+            })
+        }).execute(callback);
+    },
+
+    /**
+     * @private
+     * @param {MeldTask} meldTask
+     * @param {function(Throwable=)} callback
+     */
+    meldDeactiveClient: function(meldTask, callback) {
+        var _this = this;
+        $series([
             $task(function(flow) {
-                _this.getTaskManager().reportTaskComplete(meldTask, function(throwable, numberReceived) {
+                //TODO BRN: Update the meld bucket, generate messages to queue up for the client in case the client becomes active again
+                flow.complete();
+            }),
+            $task(function(flow) {
+                _this.meldTaskManager.finishTask(meldTask.getTaskUuid(), function(throwable) {
+                    _this.logger.info("MeldTask FINISHED - taskUuid:", meldTask.getTaskUuid());
+                    flow.complete(throwable);
+                });
+            }),
+            $task(function(flow) {
+                _this.meldTaskManager.reportTaskComplete(meldTask.getTaskUuid(), function(throwable, numberReceived) {
 
                     //TEST
                     _this.logger.info("Reporting MeldTask Complete - taskUuid:", meldTask.getTaskUuid());
@@ -328,14 +506,102 @@ var MeldTaskProcessor = Class.extend(TaskProcessor, {
                         if (numberReceived >= 1) {
                             flow.complete();
                         } else {
-                            flow.error(new Exception("MessageNotDelivered"));
+                            flow.error(new Exception("MessageNotDelivered", {}, "No one received the report of task complete"));
                         }
                     } else {
                         flow.complete(throwable);
                     }
                 });
-            }).execute(callback);
-        }
+            })
+        ]).execute(callback);
+    },
+
+    /**
+     * @private
+     * @param {MeldTask} meldTask
+     * @param {function(Throwable=)} callback
+     */
+    queueCleanup: function(meldTask, callback) {
+        var _this = this;
+        $series([
+            $task(function(flow) {
+                var cleanupTask = _this.cleanupTaskManager.generateCleanupTask(meldTask.getCallUuid());
+                _this.cleanupTaskManager.queueTask(cleanupTask, function(throwable) {
+                    flow.complete(throwable);
+                });
+            }),
+            $task(function(flow) {
+                _this.meldTaskManager.finishTask(meldTask.getTaskUuid(), function(throwable) {
+                    _this.logger.info("MeldTask FINISHED - taskUuid:", meldTask.getTaskUuid());
+                    flow.complete(throwable);
+                });
+            }),
+            $task(function(flow) {
+                _this.meldTaskManager.reportTaskComplete(meldTask.getTaskUuid(), function(throwable, numberReceived) {
+
+                    //TEST
+                    _this.logger.info("Reporting MeldTask Complete - taskUuid:", meldTask.getTaskUuid());
+
+                    if (!throwable) {
+                        if (numberReceived >= 1) {
+                            flow.complete();
+                        } else {
+                            flow.error(new Exception("MessageNotDelivered", {}, "No one received the report of task complete"));
+                        }
+                    } else {
+                        flow.complete(throwable);
+                    }
+                });
+            })
+        ]).execute(callback);
+    },
+
+    /**
+     * @private
+     * @param {string} callUuid
+     * @param {MeldTransaction} meldTransaction
+     * @param {function(Throwable=)} callback
+     */
+    removeCallFromFutureMelds: function(callUuid, meldTransaction, callback) {
+        var meldDocumentKeys = [];
+        meldTransaction.getMeldOperationList().forEach(function(meldOperation) {
+            meldDocumentKeys.push(meldOperation.getMeldDocumentKey());
+        });
+        this.meldManager.unmeldCallUuidWithMeldDocumentKeys(callUuid, meldDocumentKeys, callback);
+    },
+
+    /**
+     * @private
+     * @param {MeldTask} meldTask
+     * @param {function(Throwable=)} callback
+     */
+    startMeld: function(meldTask, callback) {
+        var _this           = this;
+        var meldClientKey   = this.meldClientManager.generateMeldClientKey(meldTask.getCallUuid());
+        $task(function(flow) {
+            _this.meldClientManager.getMeldClientForKey(meldClientKey, function(throwable, meldClient) {
+                if (meldClient) {
+                    var now = (new Date()).getTime();
+                    if (meldClient.isActive()) {
+                        _this.meldActiveClient(meldTask, function(throwable) {
+                            flow.complete(throwable);
+                        })
+                    } else if ((now - meldClient.getLastActive().getTime())  > (1000 * 60 * 60)) {
+                        _this.queueCleanup(meldTask, function(throwable) {
+                            flow.complete(throwable);
+                        })
+                    } else {
+                        _this.meldDeactiveClient(meldTask, function(throwable) {
+                            flow.complete(throwable);
+                        })
+                    }
+                } else {
+                    _this.queueCleanup(meldTask, function(throwable) {
+                        flow.complete(throwable);
+                    })
+                }
+            });
+        }).execute(callback);
     }
 });
 

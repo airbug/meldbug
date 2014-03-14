@@ -278,15 +278,24 @@ var MeldWorkerConfiguration = Class.extend(Obj, {
     },
 
     /**
+     * @return {console|Console}
+     */
+    console: function() {
+        return console;
+    },
+
+    /**
      * @param {Logger} logger
      * @param {MeldTaskManager} meldTaskManager
      * @param {MeldBucketManager} meldBucketManager
      * @param {MeldTransactionPublisher} meldTransactionPublisher
      * @param {MeldTransactionGenerator} meldTransactionGenerator
+     * @param {MeldClientManager} meldClientManager
+     * @param {CleanupTaskManager} cleanupTaskManager
      * @return {MeldTaskProcessor}
      */
-    meldTaskProcessor: function(logger, meldTaskManager, meldBucketManager, meldTransactionPublisher, meldTransactionGenerator) {
-        this._meldTaskProcessor = new MeldTaskProcessor(logger, meldTaskManager, meldBucketManager, meldTransactionPublisher, meldTransactionGenerator);
+    meldTaskProcessor: function(logger, meldTaskManager, meldBucketManager, meldTransactionPublisher, meldTransactionGenerator, meldClientManager, cleanupTaskManager) {
+        this._meldTaskProcessor = new MeldTaskProcessor(logger, meldTaskManager, meldBucketManager, meldTransactionPublisher, meldTransactionGenerator, meldClientManager, cleanupTaskManager);
         return this._meldTaskProcessor;
     },
 
@@ -394,13 +403,16 @@ bugmeta.annotate(MeldWorkerConfiguration).with(
                 arg().ref("redisConfig")
             ]),
         module("configbug"),
+        module("console"),
         module("meldTaskProcessor")
             .args([
                 arg().ref("logger"),
                 arg().ref("meldTaskManager"),
                 arg().ref("meldBucketManager"),
                 arg().ref("meldTransactionPublisher"),
-                arg().ref("meldTransactionGenerator")
+                arg().ref("meldTransactionGenerator"),
+                arg().ref("meldClientManager"),
+                arg().ref("cleanupTaskManager")
             ]),
         module("redis"),
         module("redisClient")

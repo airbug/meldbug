@@ -11,6 +11,9 @@
 //@Require('Obj')
 //@Require('Set')
 //@Require('bugflow.BugFlow')
+//@Require('bugmarsh.MarshAnnotation');
+//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmeta.BugMeta')
 //@Require('meldbug.AddToSetOperation')
 //@Require('meldbug.MeldTransaction')
 //@Require('meldbug.MergeDocumentOperation')
@@ -38,6 +41,9 @@ var Class                               = bugpack.require('Class');
 var Obj                                 = bugpack.require('Obj');
 var Set                                 = bugpack.require('Set');
 var BugFlow                             = bugpack.require('bugflow.BugFlow');
+var MarshAnnotation                     = bugpack.require('bugmarsh.MarshAnnotation');
+var MarshPropertyAnnotation             = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var BugMeta                             = bugpack.require('bugmeta.BugMeta');
 var AddToSetOperation                   = bugpack.require('meldbug.AddToSetOperation');
 var MeldTransaction                     = bugpack.require('meldbug.MeldTransaction');
 var MergeDocumentOperation              = bugpack.require('meldbug.MergeDocumentOperation');
@@ -53,6 +59,9 @@ var TaskDefines                         = bugpack.require('meldbug.TaskDefines')
 // Simplify References
 //-------------------------------------------------------------------------------
 
+var bugmeta                             = BugMeta.context();
+var marsh                               = MarshAnnotation.marsh;
+var property                            = MarshPropertyAnnotation.property;
 var $series                             = BugFlow.$series;
 var $task                               = BugFlow.$task;
 
@@ -61,6 +70,10 @@ var $task                               = BugFlow.$task;
 // Declare Class
 //-------------------------------------------------------------------------------
 
+/**
+ * @class
+ * @extends {Obj}
+ */
 var Push = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
@@ -140,6 +153,13 @@ var Push = Class.extend(Obj, {
      */
     getMeldTransaction: function() {
         return this.meldTransaction;
+    },
+
+    /**
+     * @return {PushTaskManager}
+     */
+    getPushTaskManager: function() {
+        return this.pushTaskManager;
     },
 
     /**
@@ -310,6 +330,21 @@ var Push = Class.extend(Obj, {
         }
     }
 });
+
+
+//-------------------------------------------------------------------------------
+// BugMeta
+//-------------------------------------------------------------------------------
+
+bugmeta.annotate(Push).with(
+    marsh("Push")
+        .properties([
+            property("all"),
+            property("meldTransaction"),
+            property("toCallUuidSet"),
+            property("waitForCallUuidSet")
+        ])
+);
 
 
 //-------------------------------------------------------------------------------

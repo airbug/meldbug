@@ -5,6 +5,7 @@
 //@TestFile
 
 //@Require('meldbug.PutMeldDocumentOperation')
+//@Require('meldbug.RemoveMeldDocumentOperation')
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldDocumentKey')
@@ -26,6 +27,7 @@ var bugpack                     = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var PutMeldDocumentOperation    = bugpack.require('meldbug.PutMeldDocumentOperation');
+var RemoveMeldDocumentOperation = bugpack.require('meldbug.RemoveMeldDocumentOperation');
 var MeldBucket                  = bugpack.require('meldbug.MeldBucket');
 var MeldDocument                = bugpack.require('meldbug.MeldDocument');
 var MeldDocumentKey             = bugpack.require('meldbug.MeldDocumentKey');
@@ -88,6 +90,7 @@ var meldStoreCommitMeldTransactionTest = {
         this.testMeldTransaction    = new MeldTransaction();
         this.testOperation          = new PutMeldDocumentOperation(this.testMeldDocumentKey, this.testMeldDocument);
         this.testMeldTransaction.addMeldOperation(this.testOperation);
+        test.completeSetup();
     },
 
 
@@ -105,11 +108,51 @@ var meldStoreCommitMeldTransactionTest = {
                     "Assert testMeldStore contains MeldDocumentKey");
                 test.assertEqual(_this.testMeldStore.getMeldDocumentByMeldDocumentKey(_this.testMeldDocumentKey), _this.testMeldDocument,
                     "Assert the Meld returned by testMeldStore.getMeldDocumentByMeldDocumentKey() is testMeldDocument");
+                test.completeTest();
             }
-            test.complete();
         });
     }
 };
 bugmeta.annotate(meldStoreCommitMeldTransactionTest).with(
     test().name("MeldStore #commitMeldTransaction Test")
+);
+
+var meldStoreCommitMeldTransactionWitRemoveOperationEmptyBucketTest = {
+
+    async: true,
+
+    //-------------------------------------------------------------------------------
+    // Setup Test
+    //-------------------------------------------------------------------------------
+
+    setup: function(test) {
+        this.testMeldDocumentKey    = new MeldDocumentKey("array", "id");
+        this.testMeldBucket         = new MeldBucket();
+        this.testMeldStore          = new MeldStore(this.testMeldBucket);
+        this.testMeldTransaction    = new MeldTransaction();
+        this.testOperation          = new RemoveMeldDocumentOperation(this.testMeldDocumentKey);
+        this.testMeldTransaction.addMeldOperation(this.testOperation);
+        test.completeSetup();
+    },
+
+
+    //-------------------------------------------------------------------------------
+    // Run Test
+    //-------------------------------------------------------------------------------
+
+    test: function(test) {
+        var _this = this;
+        this.testMeldStore.commitMeldTransaction(this.testMeldTransaction, function(throwable) {
+            if (throwable) {
+                test.error(throwable);
+            } else {
+                test.assertFalse(_this.testMeldStore.containsMeldDocumentByMeldDocumentKey(_this.testMeldDocumentKey),
+                    "Assert testMeldStore contains MeldDocumentKey");
+                test.completeTest();
+            }
+        });
+    }
+};
+bugmeta.annotate(meldStoreCommitMeldTransactionWitRemoveOperationEmptyBucketTest).with(
+    test().name("MeldStore - #commitMeldTransaction with RemoveMeldDocumentOperation empty MeldBucket Test")
 );

@@ -255,7 +255,7 @@ var TaskProcessor = Class.extend(EventDispatcher, {
 
     /**
      * @protected
-     * @param {Task} task
+     * @param {(Task | string)} task
      * @param {function(Throwable=)} callback
      */
     requeueTask: function(task, callback) {

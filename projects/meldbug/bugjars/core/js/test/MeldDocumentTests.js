@@ -9,6 +9,7 @@
 //@Require('bugdelta.DeltaDocument')
 //@Require('bugmeta.BugMeta')
 //@Require('bugunit-annotate.TestAnnotation')
+//@Require('bugyarn.BugYarn')
 //@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldDocumentKey')
 //@Require('meldbug.MeldBucket')
@@ -30,6 +31,7 @@ var Set                     = bugpack.require('Set');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
 var DeltaDocument           = bugpack.require('bugdelta.DeltaDocument');
 var TestAnnotation          = bugpack.require('bugunit-annotate.TestAnnotation');
+var BugYarn                 = bugpack.require('bugyarn.BugYarn');
 var MeldDocument            = bugpack.require('meldbug.MeldDocument');
 var MeldDocumentKey         = bugpack.require('meldbug.MeldDocumentKey');
 var MeldBucket              = bugpack.require('meldbug.MeldBucket');
@@ -40,12 +42,61 @@ var MeldBucket              = bugpack.require('meldbug.MeldBucket');
 //-------------------------------------------------------------------------------
 
 var bugmeta                 = BugMeta.context();
+var bugyarn                 = BugYarn.context();
 var test                    = TestAnnotation.test;
+
+
+//-------------------------------------------------------------------------------
+// BugYarn
+//-------------------------------------------------------------------------------
+
+bugyarn.registerWeaver("testMeldDocument", function(yarn, args) {
+    return new MeldDocument(args[0], args[1]);
+});
+
+bugyarn.registerWinder("setupTestMeldDocument", function(yarn) {
+    yarn.spin([
+        "setupTestMeldDocumentKey"
+    ]);
+    var testData = {};
+    yarn.wind({
+        meldDocumentKey: new MeldDocumentKey(this.meldDocumentKey, testData)
+    });
+});
 
 
 //-------------------------------------------------------------------------------
 // Declare Tests
 //-------------------------------------------------------------------------------
+
+var meldDocumentInstantiationTest = {
+
+    //-------------------------------------------------------------------------------
+    // Setup Test
+    //-------------------------------------------------------------------------------
+
+    setup: function(test) {
+        var yarn                    = bugyarn.yarn(this);
+        yarn.spin([
+            "setupTestMeldDocumentKey"
+        ]);
+        this.testData               = {};
+        this.testMeldDocument       = new MeldDocument(this.meldDocumentKey, this.testData);
+    },
+
+    //-------------------------------------------------------------------------------
+    // Run Test
+    //-------------------------------------------------------------------------------
+
+    test: function(test) {
+        test.assertTrue(Class.doesExtend(this.testMeldDocument, MeldDocument),
+            "Assert instance of MeldDocument");
+        test.assertEqual(this.testMeldDocument.getData(), this.testData,
+            "Assert .data was set correctly");
+        test.assertEqual(this.testMeldDocument.getMeldDocumentKey(), this.meldDocumentKey,
+            "Assert .meldDocumentKey was set correctly");
+    }
+};
 
 var meldDocumentTest = {
 
@@ -105,10 +156,6 @@ var meldDocumentTest = {
         // test setObjectProperty
     }
 };
-bugmeta.annotate(meldDocumentTest).with(
-    test().name("MeldDocument Tests")
-);
-
 
 var meldDocumentAddToSetNonExistentTest = {
 
@@ -137,6 +184,20 @@ var meldDocumentAddToSetNonExistentTest = {
             "Assert new Set contains the testValue");
     }
 };
+
+
+//-------------------------------------------------------------------------------
+// BugMeta
+//-------------------------------------------------------------------------------
+
+bugmeta.annotate(meldDocumentInstantiationTest).with(
+    test().name("MeldDocument - instantiation Test")
+);
+
+bugmeta.annotate(meldDocumentTest).with(
+    test().name("MeldDocument Tests")
+);
+
 bugmeta.annotate(meldDocumentAddToSetNonExistentTest).with(
     test().name("MeldDocument - addToSet non existent Set test")
 );

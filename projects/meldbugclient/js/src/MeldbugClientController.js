@@ -114,7 +114,7 @@ var MeldbugClientController = Class.extend(Obj, {
             /**
              * @param {IncomingRequest} request
              * @param {CallResponder} responder
-             * @param {function(Throwable)} callback
+             * @param {function(Throwable=)} callback
              */
             commitMeldTransaction: function(request, responder, callback) {
                 var data                = request.getData();
@@ -123,23 +123,27 @@ var MeldbugClientController = Class.extend(Obj, {
                     var response    = null;
                     if (!throwable) {
                         response    = responder.response(MeldDefines.ResponseTypes.SUCCESS);
+                        responder.sendResponse(response, callback);
                     } else {
 
                         //TODO BRN: Route these through a client logger so they can be logged back to the server
 
-                        console.log(throwable.message);
-                        console.log(throwable.stack);
+                        console.error(throwable.message);
+                        console.error(throwable.stack);
                         if (Class.doesExtend(throwable, Exception)) {
                             response    = responder.response(MeldDefines.ResponseTypes.EXCEPTION, {
                                 exception: throwable.toObject()
                             });
+                            responder.sendResponse(response, callback);
                         } else {
                             response    = responder.response(MeldDefines.ResponseTypes.ERROR, {
                                 error: throwable
                             });
+                            responder.sendResponse(response, function(responseThrowable) {
+                                callback(responseThrowable || throwable);
+                            });
                         }
                     }
-                    responder.sendResponse(response, callback);
                 });
             }
         });

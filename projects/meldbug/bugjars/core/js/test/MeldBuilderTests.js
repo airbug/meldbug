@@ -4,16 +4,18 @@
 
 //@TestFile
 
+//@Require('Class')
 //@Require('TypeUtil')
 //@Require('bugmarsh.MarshRegistry')
 //@Require('bugmarsh.Marshaller')
+//@Require('bugmeta.BugMeta')
+//@Require('bugunit-annotate.TestAnnotation')
+//@Require('bugyarn.BugYarn')
 //@Require('meldbug.PutMeldDocumentOperation')
 //@Require('meldbug.MeldBuilder')
 //@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldDocumentKey')
 //@Require('meldbug.MeldTransaction')
-//@Require('bugmeta.BugMeta')
-//@Require('bugunit-annotate.TestAnnotation')
 
 
 //-------------------------------------------------------------------------------
@@ -27,16 +29,18 @@ var bugpack                     = require('bugpack').context();
 // BugPack
 //-------------------------------------------------------------------------------
 
+var Class                       = bugpack.require('Class');
 var TypeUtil                    = bugpack.require('TypeUtil');
 var MarshRegistry               = bugpack.require('bugmarsh.MarshRegistry');
 var Marshaller                  = bugpack.require('bugmarsh.Marshaller');
+var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+var TestAnnotation              = bugpack.require('bugunit-annotate.TestAnnotation');
+var BugYarn                     = bugpack.require('bugyarn.BugYarn');
 var PutMeldDocumentOperation    = bugpack.require('meldbug.PutMeldDocumentOperation');
 var MeldBuilder                 = bugpack.require('meldbug.MeldBuilder');
 var MeldDocument                = bugpack.require('meldbug.MeldDocument');
 var MeldDocumentKey             = bugpack.require('meldbug.MeldDocumentKey');
 var MeldTransaction             = bugpack.require('meldbug.MeldTransaction');
-var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation              = bugpack.require('bugunit-annotate.TestAnnotation');
 
 
 //-------------------------------------------------------------------------------
@@ -44,25 +48,62 @@ var TestAnnotation              = bugpack.require('bugunit-annotate.TestAnnotati
 //-------------------------------------------------------------------------------
 
 var bugmeta                     = BugMeta.context();
+var bugyarn                     = BugYarn.context();
 var test                        = TestAnnotation.test;
+
+
+//-------------------------------------------------------------------------------
+// BugYarn
+//-------------------------------------------------------------------------------
+
+bugyarn.registerWinder("setupTestMeldBuilder", function(yarn) {
+    yarn.spin([
+        "setupTestMarshaller"
+    ]);
+    yarn.wind({
+        meldBuilder: new MeldBuilder(this.marshaller)
+    });
+});
 
 
 //-------------------------------------------------------------------------------
 // Helper Functions
 //-------------------------------------------------------------------------------
 
-var setupMeldBuilder = function() {
-    var testMarshRegistry   = new MarshRegistry();
-    var testMarshaller      = new Marshaller(testMarshRegistry);
-    testMarshRegistry.initializeModule(function() {
-
-    });
-    return new MeldBuilder(testMarshaller);
+var setupMeldBuilder = function(setupObject) {
+    setupObject.marshRegistry.processModule();
 };
+
 
 //-------------------------------------------------------------------------------
 // Declare Tests
 //-------------------------------------------------------------------------------
+
+var meldBuilderInstantiationTest = {
+
+    //-------------------------------------------------------------------------------
+    // Setup Test
+    //-------------------------------------------------------------------------------
+
+    setup: function(test) {
+        var yarn    = bugyarn.yarn(this);
+        yarn.spin([
+            "setupTestMarshaller"
+        ]);
+        this.testMeldBuilder    = new MeldBuilder(this.marshaller);
+    },
+
+    //-------------------------------------------------------------------------------
+    // Run Test
+    //-------------------------------------------------------------------------------
+
+    test: function(test) {
+        test.assertTrue(Class.doesExtend(this.testMeldBuilder, MeldBuilder),
+            "Assert instance of MeldBuilder");
+        test.assertEqual(this.testMeldBuilder.getMarshaller(), this.marshaller,
+            "Assert .marshaller was set correctly");
+    }
+};
 
 var meldBuilderGenerateMeldDocumentKeyTest = {
 
@@ -71,9 +112,13 @@ var meldBuilderGenerateMeldDocumentKeyTest = {
     //-------------------------------------------------------------------------------
 
     setup: function(test) {
+        var yarn                = bugyarn.yarn(this);
+        yarn.spin([
+            "setupTestMeldBuilder"
+        ]);
+        setupMeldBuilder(this);
         this.testDataType       = "testDataType";
         this.testId             = "testId";
-        this.testMeldBuilder    = new MeldBuilder();
     },
 
 
@@ -82,37 +127,34 @@ var meldBuilderGenerateMeldDocumentKeyTest = {
     //-------------------------------------------------------------------------------
 
     test: function(test) {
-        var meldDocumentKey = this.testMeldBuilder.generateMeldDocumentKey(this.testDataType, this.testId);
+        var meldDocumentKey = this.meldBuilder.generateMeldDocumentKey(this.testDataType, this.testId);
         test.assertEqual(meldDocumentKey.getDataType(), this.testDataType,
             "Assert meldDocumentKey's dataType is testDataType");
         test.assertEqual(meldDocumentKey.getId(), this.testId,
             "Assert meldDocumentKey's id is testId");
     }
 };
-bugmeta.annotate(meldBuilderGenerateMeldDocumentKeyTest).with(
-    test().name("MeldBuilder #generateMeldDocumentKey Test")
-);
 
 
-var meldBuilderBuildMeldDocumentTest = {
+var meldBuilderMarshalUnmarshalMeldDocumentTest = {
 
     //-------------------------------------------------------------------------------
     // Setup Test
     //-------------------------------------------------------------------------------
 
     setup: function(test) {
-        this.testValue              = "value";
-        this.testMeldDocumentData   = {
-            meldDocumentKey: {
-                dataType: "testDataType",
-                id: "testId",
-                filterType: "testFilterType"
-            },
-            data: JSON.stringify({
-                key: this.testValue
-            })
+        var yarn                = bugyarn.yarn(this);
+        yarn.spin([
+            "setupTestMeldBuilder"
+        ]);
+        setupMeldBuilder(this);
+        this.testDataType           = "testDataType";
+        this.testId                 = "testId";
+        this.testMeldDocumentKey    = yarn.weave("testMeldDocumentKey", [this.testDataType, this.testId]);
+        this.testData               = {
+            key: this.testValue
         };
-        this.testMeldBuilder = setupMeldBuilder();
+        this.testMeldDocument       = yarn.weave("testMeldDocument", [this.testMeldDocumentKey, this.testData]);
     },
 
 
@@ -121,16 +163,20 @@ var meldBuilderBuildMeldDocumentTest = {
     //-------------------------------------------------------------------------------
 
     test: function(test) {
-        var meldDocument = this.testMeldBuilder.buildMeldDocument(this.testMeldDocumentData);
+        var meldDocumentData = this.meldBuilder.marshalData(this.testMeldDocument);
+        test.assertTrue(TypeUtil.isString(meldDocumentData),
+            "Assert MeldDocument was converted in to a string");
+        var meldDocument = this.meldBuilder.unmarshalData(meldDocumentData);
         test.assertEqual(meldDocument.getData().key, this.testValue,
-            "Assert that key is 'value'");
+            "Assert data was correctly marshalled/unmarshalled");
+        test.assertEqual(meldDocument.getMeldDocumentKey(), this.testMeldDocumentKey,
+            "Assert MeldDocumentKey was marshalled/unmarshalled");
+        test.assertTrue(meldDocument.getMeldDocumentKey() !== this.testMeldDocumentKey,
+            "Assert MeldDocumentKey is not the same instance as the testMeldDocumentKey")
     }
 };
-bugmeta.annotate(meldBuilderBuildMeldDocumentTest).with(
-    test().name("MeldBuilder #buildMeldDocument Test")
-);
 
-var meldBuilderBuildMeldDocumentKeyTest = {
+/*var meldBuilderBuildMeldDocumentKeyTest = {
 
     //-------------------------------------------------------------------------------
     // Setup Test
@@ -141,7 +187,6 @@ var meldBuilderBuildMeldDocumentKeyTest = {
             dataType: "testDataType",
             id: "testId"
         };
-        this.testMeldBuilder = setupMeldBuilder();
     },
 
 
@@ -278,52 +323,25 @@ var meldBuilderUnbuildMeldOperationTest = {
         test.assertEqual(marshalledData.key, "value",
             "Assert marshalledData.key is 'value'");
     }
-};
-bugmeta.annotate(meldBuilderUnbuildMeldOperationTest).with(
-    test().name("MeldBuilder #unbuildMeldOperation Test")
+};*/
+
+
+//-------------------------------------------------------------------------------
+// BugMeta
+//-------------------------------------------------------------------------------
+
+bugmeta.annotate(meldBuilderInstantiationTest).with(
+    test().name("MeldBuilder - instantiation test")
 );
 
-// var meldBuilderBuildMeldTransactionTest = {
+bugmeta.annotate(meldBuilderGenerateMeldDocumentKeyTest).with(
+    test().name("MeldBuilder #generateMeldDocumentKey Test")
+);
 
-//     setup: function(test) {
-//         this.meldTransaction = new MeldTransaction();
-//         this.meldBuilder = new MeldBuilder();
-//     },
+bugmeta.annotate(meldBuilderMarshalUnmarshalMeldDocumentTest).with(
+    test().name("MeldBuilder - marshal and unmarshal Test")
+);
 
-//     test: function(test) {
-
-//     }
-// };
-// bugmeta.annotate(meldBuilderBuildMeldTransactionTest).with(
-//     test().name("MeldBuilder #buildMeldTransaction Test")
-// );
-
-// var meldBuilderUnbuildMeldTransactionTest = {
-
-//     setup: function(test) {
-//         this.meldTransaction = new MeldTransaction();
-//         this.meldBuilder = new MeldBuilder();
-//     },
-
-//     test: function(test) {
-
-//     }
-// };
-// bugmeta.annotate(meldBuilderUnbuildMeldTransactionTest).with(
-//     test().name("MeldBuilder #unbuildMeldTransaction Test")
-// );
-
-// var meldBuilderUnmarshalDataTest = {
-
-//     setup: function(test) {
-//         this.meldBuilder = new MeldBuilder();
-//     },
-
-//     test: function(test) {
-
-//     }
-// };
-// bugmeta.annotate(meldBuilderUnmarshalDataTest).with(
-//     test().name("MeldBuilder #unmarshalData Test")
-// );
-//
+/*bugmeta.annotate(meldBuilderUnbuildMeldOperationTest).with(
+    test().name("MeldBuilder #unbuildMeldOperation Test")
+);*/

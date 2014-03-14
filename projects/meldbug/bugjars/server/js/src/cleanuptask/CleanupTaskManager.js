@@ -69,32 +69,6 @@ var CleanupTaskManager = Class.extend(TaskManager, {
 
 
     //-------------------------------------------------------------------------------
-    // TaskManager Methods
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @protected
-     * @param {Object} taskData
-     * @return {Task}
-     */
-    buildTask: function(taskData) {
-        return this.factoryCleanupTask(taskData.taskUuid, taskData.callUuid)
-    },
-
-    /**
-     * @protected
-     * @param {CleanupTask} task
-     * @return {Object}
-     */
-    unbuildTask: function(task) {
-        return {
-            taskUuid: task.getTaskUuid(),
-            callUuid: task.getCallUuid()
-        };
-    },
-
-
-    //-------------------------------------------------------------------------------
     // Private Methods
     //-------------------------------------------------------------------------------
 
@@ -132,6 +106,7 @@ bugmeta.annotate(CleanupTaskManager).with(
             arg().ref("blockingRedisClient"),
             arg().ref("redisClient"),
             arg().ref("pubSub"),
+            arg().ref("marshaller"),
             arg().value(CleanupTaskManager.CLEANUP_TASK_QUEUE)
         ])
 );

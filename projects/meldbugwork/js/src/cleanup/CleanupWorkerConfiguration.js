@@ -278,6 +278,13 @@ var CleanupWorkerConfiguration = Class.extend(Obj, {
     },
 
     /**
+     * @return {console|Console}
+     */
+    console: function() {
+        return console;
+    },
+
+    /**
      * @return {redis}
      */
     redis: function() {
@@ -389,6 +396,7 @@ bugmeta.annotate(CleanupWorkerConfiguration).with(
                 arg().ref("meldClientManager")
             ]),
         module("configbug"),
+        module("console"),
         module("redis"),
         module("redisClient")
             .args([

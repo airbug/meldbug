@@ -51,49 +51,11 @@ var module              = ModuleAnnotation.module;
 // Declare Class
 //-------------------------------------------------------------------------------
 
+/**
+ * @class
+ * @extends {TaskManager}
+ */
 var PushTaskManager = Class.extend(TaskManager, {
-
-    //-------------------------------------------------------------------------------
-    // Constructor
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @constructs
-     * @param {Logger} logger
-     * @param {RedisClient} blockingRedisClient
-     * @param {RedisClient} redisClient
-     * @param {PubSub} pubSub
-     * @param {string} taskQueueName
-     * @param {PushBuilder} pushBuilder
-     */
-    _constructor: function(logger, blockingRedisClient, redisClient, pubSub, taskQueueName, pushBuilder) {
-
-        this._super(logger, blockingRedisClient, redisClient, pubSub, taskQueueName);
-
-
-        //-------------------------------------------------------------------------------
-        // Properties
-        //-------------------------------------------------------------------------------
-
-        /**
-         * @private
-         * @type {PushBuilder}
-         */
-        this.pushBuilder    = pushBuilder;
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // Getters and Setters
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @return {PushBuilder}
-     */
-    getPushBuilder: function() {
-        return this.pushBuilder;
-    },
-
 
     //-------------------------------------------------------------------------------
     // Public Methods
@@ -106,33 +68,6 @@ var PushTaskManager = Class.extend(TaskManager, {
     generatePushTask: function(push) {
         var taskUuid = UuidGenerator.generateUuid();
         return new PushTask(taskUuid, push);
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // TaskManager Methods
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @protected
-     * @param {Object} taskData
-     * @return {Task}
-     */
-    buildTask: function(taskData) {
-        var push = this.pushBuilder.buildPush(taskData.push);
-        return this.factoryPushTask(taskData.taskUuid, push);
-    },
-
-    /**
-     * @protected
-     * @param {PushTask} task
-     * @return {Object}
-     */
-    unbuildTask: function(task) {
-        return {
-            taskUuid: task.getTaskUuid(),
-            push: this.pushBuilder.unbuildPush(task.getPush())
-        };
     },
 
 
@@ -174,8 +109,8 @@ bugmeta.annotate(PushTaskManager).with(
             arg().ref("blockingRedisClient"),
             arg().ref("redisClient"),
             arg().ref("pubSub"),
-            arg().value(PushTaskManager.PUSH_TASK_QUEUE),
-            arg().ref("pushBuilder")
+            arg().ref("marshaller"),
+            arg().value(PushTaskManager.PUSH_TASK_QUEUE)
         ])
 );
 

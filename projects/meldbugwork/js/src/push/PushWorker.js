@@ -156,7 +156,6 @@ var PushWorker = Class.extend(Worker, {
                 "meldbug.MeldClientManager",
                 "meldbug.MeldManager",
                 "meldbug.MeldTaskManager",
-                "meldbug.PushBuilder",
                 "meldbug.PushTaskManager"
             ]);
             this.iocContext.process();

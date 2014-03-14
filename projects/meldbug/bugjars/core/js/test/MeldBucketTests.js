@@ -4,8 +4,10 @@
 
 //@TestFile
 
+//@Require('Class')
 //@Require('bugmeta.BugMeta')
 //@Require('bugunit-annotate.TestAnnotation')
+//@Require('bugyarn.BugYarn')
 //@Require('meldbug.PutMeldDocumentOperation')
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldDocument')
@@ -25,13 +27,15 @@ var bugpack                     = require('bugpack').context();
 // BugPack
 //-------------------------------------------------------------------------------
 
+var Class                       = bugpack.require('Class');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 var TestAnnotation              = bugpack.require('bugunit-annotate.TestAnnotation');
+var BugYarn                     = bugpack.require('bugyarn.BugYarn');
 var PutMeldDocumentOperation    = bugpack.require('meldbug.PutMeldDocumentOperation');
 var MeldBucket                  = bugpack.require('meldbug.MeldBucket');
 var MeldDocument                = bugpack.require('meldbug.MeldDocument');
 var MeldEvent                   = bugpack.require('meldbug.MeldEvent');
-var MeldDocumentKey                     = bugpack.require('meldbug.MeldDocumentKey');
+var MeldDocumentKey             = bugpack.require('meldbug.MeldDocumentKey');
 var RemoveMeldDocumentOperation = bugpack.require('meldbug.RemoveMeldDocumentOperation');
 
 
@@ -40,12 +44,78 @@ var RemoveMeldDocumentOperation = bugpack.require('meldbug.RemoveMeldDocumentOpe
 //-------------------------------------------------------------------------------
 
 var bugmeta                     = BugMeta.context();
+var bugyarn                     = BugYarn.context();
 var test                        = TestAnnotation.test;
+
+
+//-------------------------------------------------------------------------------
+// BugYarn
+//-------------------------------------------------------------------------------
+
+bugyarn.registerWeaver("testMeldBucket", function(yarn) {
+    return new MeldBucket();
+});
 
 
 //-------------------------------------------------------------------------------
 // Declare Tests
 //-------------------------------------------------------------------------------
+
+
+var meldBucketInstantiationTest = {
+
+    //-------------------------------------------------------------------------------
+    // Setup Test
+    //-------------------------------------------------------------------------------
+
+    setup: function(test) {
+        this.meldBucket     = new MeldBucket();
+    },
+
+    //-------------------------------------------------------------------------------
+    // Run Test
+    //-------------------------------------------------------------------------------
+
+    test: function(test) {
+        test.assertTrue(Class.doesExtend(this.meldBucket, MeldBucket),
+            "Assert instance of MeldBucket");
+    }
+};
+bugmeta.annotate(meldBucketInstantiationTest).with(
+    test().name("MeldBucket - instantiation Test")
+);
+
+var meldBucketCloneDeepTest = {
+
+    //-------------------------------------------------------------------------------
+    // Setup Test
+    //-------------------------------------------------------------------------------
+
+    setup: function(test) {
+        this.testData           = {};
+        this.meldBucket         = new MeldBucket();
+        this.meldDocumentKey    = new MeldDocumentKey("TestType", "testId");
+        this.meldDocument       = new MeldDocument(this.meldDocumentKey, this.testData);
+        this.meldBucket.addMeldDocument(this.meldDocument);
+    },
+
+    //-------------------------------------------------------------------------------
+    // Run Test
+    //-------------------------------------------------------------------------------
+
+    test: function(test) {
+        /** @type {MeldBucket} */
+        var cloneMeldBucket = this.meldBucket.clone(true);
+        test.assertTrue(cloneMeldBucket !== this.meldBucket,
+            "Assert clone is a new instance");
+        var cloneMeldDocument = cloneMeldBucket.getMeldDocumentByMeldDocumentKey(this.meldDocumentKey);
+        test.assertTrue(cloneMeldDocument !== this.meldDocument,
+            "Assert deep clone has been performed");
+    }
+};
+bugmeta.annotate(meldBucketCloneDeepTest).with(
+    test().name("MeldBucket - #clone deep Test")
+);
 
 var meldBucketContainsMeldDocumentTest = {
 
