@@ -2,9 +2,9 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbugwork')
+//@Package('meldbugworker')
 
-//@Export('MeldbugWorkApplication')
+//@Export('MeldbugWorkerApplication')
 //@Autoload
 
 //@Require('Class')
@@ -14,7 +14,6 @@
 //@Require('bugioc.IocContext')
 //@Require('bugioc.ModuleAnnotationProcessor')
 //@Require('bugioc.ModuleScan')
-//@Require('meldbug.MeldbugWorkConfiguration')
 
 
 //-------------------------------------------------------------------------------
@@ -41,7 +40,7 @@ var ModuleScan                          = bugpack.require('bugioc.ModuleScan');
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldbugWorkApplication = Class.extend(Obj, {
+var MeldbugWorkerApplication = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -84,7 +83,7 @@ var MeldbugWorkApplication = Class.extend(Obj, {
      * @param {function(Throwable=)} callback
      */
     start: function(callback) {
-        this.configurationScan.scanBugpack('meldbugwork.MeldbugWorkConfiguration');
+        this.configurationScan.scanBugpack('meldbugworker.MeldbugWorkerConfiguration');
         this.moduleScan.scanBugpacks([
             "bugmarsh.MarshRegistry",
             "bugmarsh.Marshaller",
@@ -94,7 +93,7 @@ var MeldbugWorkApplication = Class.extend(Obj, {
             "bugwork.WorkerProcessFactory",
             "bugwork.WorkerRegistry",
             "loggerbug.Logger",
-            "meldbugwork.MeldbugWorkInitializer"
+            "meldbugworker.MeldbugWorkerInitializer"
         ]);
         this.iocContext.process();
         this.iocContext.initialize(callback);
@@ -113,4 +112,4 @@ var MeldbugWorkApplication = Class.extend(Obj, {
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbugwork.MeldbugWorkApplication', MeldbugWorkApplication);
+bugpack.export('meldbugworker.MeldbugWorkerApplication', MeldbugWorkerApplication);

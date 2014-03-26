@@ -49,20 +49,20 @@ var dependencies    = {
 buildProperties({
     work: {
         packageJson: {
-            name: "meldbugwork",
+            name: "meldbugworker",
             version: version,
             dependencies: dependencies,
             scripts: {
-                start: "node ./scripts/meldbug-work-application-start.js"
+                start: "node ./scripts/meldbug-worker-application-start.js"
             }
         },
         resourcePaths: [
-            "./projects/meldbugwork/resources"
+            "./projects/meldbugworker/resources"
         ],
         sourcePaths: [
             "./projects/meldbug/bugjars/core/js/src",
             "./projects/meldbug/bugjars/server/js/src",
-            "./projects/meldbugwork/js/src",
+            "./projects/meldbugworker/js/src",
             "../bugjs/projects/bugcall/bugjars/core/js/src",
             "../bugjs/projects/bugcall/bugjars/publisher/js/src",
             "../bugjs/projects/bugdelta/js/src",
@@ -82,16 +82,16 @@ buildProperties({
         ],
         scriptPaths: [
             "../bugjs/projects/bugwork/js/scripts",
-            "./projects/meldbugwork/js/scripts"
+            "./projects/meldbugworker/js/scripts"
         ]
     },
     unitTest: {
         packageJson: {
-            name: "meldbugwork-test",
+            name: "meldbugworker-test",
             version: version,
             dependencies: dependencies,
             scripts: {
-                start: "node ./scripts/meldbug-work-application-start.js"
+                start: "node ./scripts/meldbug-worker-application-start.js"
             }
         },
         sourcePaths: [
@@ -105,7 +105,7 @@ buildProperties({
         testPaths: [
             "./projects/meldbug/bugjars/core/js/test",
             "./projects/meldbug/bugjars/server/js/test",
-            "./projects/meldbugwork/js/test",
+            "./projects/meldbugworker/js/test",
             "../bugjs/projects/bugcall/bugjars/core/js/test",
             "../bugjs/projects/bugcall/bugjars/publisher/js/test",
             "../bugjs/projects/bugdelta/js/test",

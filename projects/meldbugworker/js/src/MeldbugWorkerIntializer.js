@@ -2,9 +2,9 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbugwork')
+//@Package('meldbugworker')
 
-//@Export('MeldbugWorkInitializer')
+//@Export('MeldbugWorkerInitializer')
 //@Autoload
 
 //@Require('Class')
@@ -55,7 +55,7 @@ var $task                           = BugFlow.$task;
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldbugWorkInitializer = Class.extend(Obj, {
+var MeldbugWorkerInitializer = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
     // Constructor
@@ -101,7 +101,7 @@ var MeldbugWorkInitializer = Class.extend(Obj, {
      */
     initializeModule: function(callback) {
         var _this = this;
-        console.log("Initializing MeldbugWorkConfiguration");
+        console.log("Initializing MeldbugWorkerConfiguration");
 
         /** @type {Config} */
         var config = null;
@@ -171,15 +171,15 @@ var MeldbugWorkInitializer = Class.extend(Obj, {
 // Interfaces
 //-------------------------------------------------------------------------------
 
-Class.implement(MeldbugWorkInitializer, IInitializeModule);
+Class.implement(MeldbugWorkerInitializer, IInitializeModule);
 
 
 //-------------------------------------------------------------------------------
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(MeldbugWorkInitializer).with(
-    module("meldbugWorkInitializer")
+bugmeta.annotate(MeldbugWorkerInitializer).with(
+    module("meldbugWorkerInitializer")
         .properties([
             property("configbug").ref("configbug"),
             property("workerManager").ref("workerManager")
@@ -191,4 +191,4 @@ bugmeta.annotate(MeldbugWorkInitializer).with(
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export("meldbugwork.MeldbugWorkInitializer", MeldbugWorkInitializer);
+bugpack.export("meldbugworker.MeldbugWorkerInitializer", MeldbugWorkerInitializer);

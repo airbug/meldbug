@@ -2,7 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Require('meldbugwork.MeldbugWorkApplication')
+//@Require('meldbugworker.MeldbugWorkerApplication')
 
 
 //-------------------------------------------------------------------------------
@@ -16,15 +16,15 @@ var bugpack                 = require('bugpack').context(module);
 // BugPack
 //-------------------------------------------------------------------------------
 
-var MeldbugWorkApplication  = bugpack.require('meldbugwork.MeldbugWorkApplication');
+var MeldbugWorkerApplication  = bugpack.require('meldbugworker.MeldbugWorkerApplication');
 
 
 //-------------------------------------------------------------------------------
 // Script
 //-------------------------------------------------------------------------------
 
-var meldbugWorkApplication = new MeldbugWorkApplication();
-meldbugWorkApplication.start(function(throwable) {
+var meldbugWorkerApplication = new MeldbugWorkerApplication();
+meldbugWorkerApplication.start(function(throwable) {
     console.log("Starting meldbug worker application...");
     if (!throwable) {
         console.log("Meldbug worker application server successfully started");
@@ -39,7 +39,7 @@ meldbugWorkApplication.start(function(throwable) {
 
 var gracefulShutdown = function() {
     console.log("Shutting down meldbug worker application...");
-    meldbugWorkApplication.stop(function(throwable) {
+    meldbugWorkerApplication.stop(function(throwable) {
         if (throwable) {
             console.error(throwable.message);
             console.error(throwable.stack);

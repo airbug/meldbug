@@ -2,7 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbugwork')
+//@Package('meldbug')
 
 //@Export('MeldWorker')
 //@Autoload
@@ -185,4 +185,4 @@ bugmeta.annotate(MeldWorker).with(
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export('meldbugwork.MeldWorker', MeldWorker);
+bugpack.export('meldbug.MeldWorker', MeldWorker);

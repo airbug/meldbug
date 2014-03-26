@@ -2,9 +2,9 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbugwork')
+//@Package('meldbugworker')
 
-//@Export('MeldbugWorkConfiguration')
+//@Export('MeldbugWorkerConfiguration')
 //@Autoload
 
 //@Require('Class')
@@ -50,7 +50,7 @@ var module                          = ModuleAnnotation.module;
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldbugWorkConfiguration = Class.extend(Obj, {
+var MeldbugWorkerConfiguration = Class.extend(Obj, {
 
     //-------------------------------------------------------------------------------
     // Config Methods
@@ -76,8 +76,8 @@ var MeldbugWorkConfiguration = Class.extend(Obj, {
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(MeldbugWorkConfiguration).with(
-    configuration("meldbugWorkConfiguration")
+bugmeta.annotate(MeldbugWorkerConfiguration).with(
+    configuration("meldbugWorkerConfiguration")
         .modules([
             module("configbug"),
             module("console")
@@ -89,4 +89,4 @@ bugmeta.annotate(MeldbugWorkConfiguration).with(
 // Exports
 //-------------------------------------------------------------------------------
 
-bugpack.export("meldbugwork.MeldbugWorkConfiguration", MeldbugWorkConfiguration);
+bugpack.export("meldbugworker.MeldbugWorkerConfiguration", MeldbugWorkerConfiguration);
