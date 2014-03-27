@@ -11,9 +11,9 @@
 //@Require('Exception')
 //@Require('Set')
 //@Require('bugflow.BugFlow')
+//@Require('bugtask.TaskDefines')
+//@Require('bugtask.TaskProcessor')
 //@Require('meldbug.ActivePush')
-//@Require('meldbug.TaskDefines')
-//@Require('meldbug.TaskProcessor')
 
 
 //-------------------------------------------------------------------------------
@@ -32,9 +32,9 @@ var Class               = bugpack.require('Class');
 var Exception           = bugpack.require('Exception');
 var Set                 = bugpack.require('Set');
 var BugFlow             = bugpack.require('bugflow.BugFlow');
+var TaskDefines         = bugpack.require('bugtask.TaskDefines');
+var TaskProcessor       = bugpack.require('bugtask.TaskProcessor');
 var ActivePush          = bugpack.require('meldbug.ActivePush');
-var TaskDefines         = bugpack.require('meldbug.TaskDefines');
-var TaskProcessor       = bugpack.require('meldbug.TaskProcessor');
 
 
 //-------------------------------------------------------------------------------

@@ -10,8 +10,8 @@
 //@Require('Class')
 //@Require('Exception')
 //@Require('bugflow.BugFlow')
+//@Require('bugtask.TaskProcessor')
 //@Require('meldbug.MeldStore')
-//@Require('meldbug.TaskProcessor')
 
 
 //-------------------------------------------------------------------------------
@@ -29,8 +29,8 @@ var Bug                 = bugpack.require('Bug');
 var Class               = bugpack.require('Class');
 var Exception           = bugpack.require('Exception');
 var BugFlow             = bugpack.require('bugflow.BugFlow');
+var TaskProcessor       = bugpack.require('bugtask.TaskProcessor');
 var MeldStore           = bugpack.require('meldbug.MeldStore');
-var TaskProcessor       = bugpack.require('meldbug.TaskProcessor');
 
 
 //-------------------------------------------------------------------------------

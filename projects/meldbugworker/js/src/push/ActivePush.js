@@ -15,7 +15,7 @@
 //@Require('Obj')
 //@Require('Set')
 //@Require('bugflow.BugFlow')
-//@Require('meldbug.TaskDefines')
+//@Require('bugtask.TaskDefines')
 
 
 //-------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ var Map                 = bugpack.require('Map');
 var Obj                 = bugpack.require('Obj');
 var Set                 = bugpack.require('Set');
 var BugFlow             = bugpack.require('bugflow.BugFlow');
-var TaskDefines         = bugpack.require('meldbug.TaskDefines');
+var TaskDefines         = bugpack.require('bugtask.TaskDefines');
 
 
 //-------------------------------------------------------------------------------

@@ -14,6 +14,7 @@
 //@Require('bugmarsh.MarshAnnotation');
 //@Require('bugmarsh.MarshPropertyAnnotation');
 //@Require('bugmeta.BugMeta')
+//@Require('bugtask.TaskDefines')
 //@Require('meldbug.AddToSetOperation')
 //@Require('meldbug.MeldTransaction')
 //@Require('meldbug.MergeDocumentOperation')
@@ -22,7 +23,6 @@
 //@Require('meldbug.RemoveObjectPropertyOperation')
 //@Require('meldbug.SetDocumentOperation')
 //@Require('meldbug.SetObjectPropertyOperation')
-//@Require('meldbug.TaskDefines')
 
 
 //-------------------------------------------------------------------------------
@@ -44,6 +44,7 @@ var BugFlow                             = bugpack.require('bugflow.BugFlow');
 var MarshAnnotation                     = bugpack.require('bugmarsh.MarshAnnotation');
 var MarshPropertyAnnotation             = bugpack.require('bugmarsh.MarshPropertyAnnotation');
 var BugMeta                             = bugpack.require('bugmeta.BugMeta');
+var TaskDefines                         = bugpack.require('bugtask.TaskDefines');
 var AddToSetOperation                   = bugpack.require('meldbug.AddToSetOperation');
 var MeldTransaction                     = bugpack.require('meldbug.MeldTransaction');
 var MergeDocumentOperation              = bugpack.require('meldbug.MergeDocumentOperation');
@@ -52,7 +53,6 @@ var RemoveMeldDocumentOperation         = bugpack.require('meldbug.RemoveMeldDoc
 var RemoveObjectPropertyOperation       = bugpack.require('meldbug.RemoveObjectPropertyOperation');
 var SetDocumentOperation                = bugpack.require('meldbug.SetDocumentOperation');
 var SetObjectPropertyOperation          = bugpack.require('meldbug.SetObjectPropertyOperation');
-var TaskDefines                         = bugpack.require('meldbug.TaskDefines');
 
 
 //-------------------------------------------------------------------------------

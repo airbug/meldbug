@@ -13,8 +13,8 @@
 //@Require('bugioc.ArgAnnotation')
 //@Require('bugioc.ModuleAnnotation')
 //@Require('bugmeta.BugMeta')
+//@Require('bugtask.TaskManager')
 //@Require('meldbug.CleanupTask')
-//@Require('meldbug.TaskManager')
 
 
 //-------------------------------------------------------------------------------
@@ -34,8 +34,8 @@ var UuidGenerator       = bugpack.require('UuidGenerator');
 var ArgAnnotation       = bugpack.require('bugioc.ArgAnnotation');
 var ModuleAnnotation    = bugpack.require('bugioc.ModuleAnnotation');
 var BugMeta             = bugpack.require('bugmeta.BugMeta');
+var TaskManager         = bugpack.require('bugtask.TaskManager');
 var CleanupTask         = bugpack.require('meldbug.CleanupTask');
-var TaskManager         = bugpack.require('meldbug.TaskManager');
 
 
 //-------------------------------------------------------------------------------
@@ -53,7 +53,6 @@ var module              = ModuleAnnotation.module;
 
 var CleanupTaskManager = Class.extend(TaskManager, {
 
-
     //-------------------------------------------------------------------------------
     // Public Methods
     //-------------------------------------------------------------------------------
@@ -64,7 +63,7 @@ var CleanupTaskManager = Class.extend(TaskManager, {
      */
     generateCleanupTask: function(callUuid) {
         var taskUuid = UuidGenerator.generateUuid();
-        return new CleanupTask(taskUuid, callUuid);
+        return this.factoryCleanupTask(taskUuid, callUuid);
     },
 
 

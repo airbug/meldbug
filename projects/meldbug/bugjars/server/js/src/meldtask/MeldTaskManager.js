@@ -13,8 +13,8 @@
 //@Require('bugioc.ArgAnnotation')
 //@Require('bugioc.ModuleAnnotation')
 //@Require('bugmeta.BugMeta')
+//@Require('bugtask.TaskManager')
 //@Require('meldbug.MeldTask')
-//@Require('meldbug.TaskManager')
 
 
 //-------------------------------------------------------------------------------
@@ -34,8 +34,8 @@ var UuidGenerator       = bugpack.require('UuidGenerator');
 var ArgAnnotation       = bugpack.require('bugioc.ArgAnnotation');
 var ModuleAnnotation    = bugpack.require('bugioc.ModuleAnnotation');
 var BugMeta             = bugpack.require('bugmeta.BugMeta');
+var TaskManager         = bugpack.require('bugtask.TaskManager');
 var MeldTask            = bugpack.require('meldbug.MeldTask');
-var TaskManager         = bugpack.require('meldbug.TaskManager');
 
 
 //-------------------------------------------------------------------------------
@@ -51,6 +51,10 @@ var module              = ModuleAnnotation.module;
 // Declare Class
 //-------------------------------------------------------------------------------
 
+/**
+ * @class
+ * @extends {TaskManager}
+ */
 var MeldTaskManager = Class.extend(TaskManager, {
 
     //-------------------------------------------------------------------------------
@@ -64,7 +68,7 @@ var MeldTaskManager = Class.extend(TaskManager, {
      */
     generateMeldTask: function(callUuid, meldTransaction) {
         var taskUuid = UuidGenerator.generateUuid();
-        return new MeldTask(taskUuid, callUuid, meldTransaction);
+        return this.factoryMeldTask(taskUuid, callUuid, meldTransaction);
     },
 
 
@@ -77,7 +81,7 @@ var MeldTaskManager = Class.extend(TaskManager, {
      * @param {string} taskUuid
      * @param {string} callUuid
      * @param {MeldTransaction} meldTransaction
-     * @returns {MeldTask}
+     * @return {MeldTask}
      */
     factoryMeldTask: function(taskUuid, callUuid, meldTransaction) {
         return new MeldTask(taskUuid, callUuid, meldTransaction);

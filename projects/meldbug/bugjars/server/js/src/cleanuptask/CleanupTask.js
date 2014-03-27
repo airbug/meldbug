@@ -10,7 +10,7 @@
 //@Require('bugmarsh.MarshAnnotation');
 //@Require('bugmarsh.MarshPropertyAnnotation');
 //@Require('bugmeta.BugMeta')
-//@Require('meldbug.Task')
+//@Require('bugtask.Task')
 
 
 //-------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ var Class                       = bugpack.require('Class');
 var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
 var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var Task                        = bugpack.require('meldbug.Task');
+var Task                        = bugpack.require('bugtask.Task');
 
 
 //-------------------------------------------------------------------------------

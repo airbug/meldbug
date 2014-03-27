@@ -13,8 +13,8 @@
 //@Require('bugioc.ArgAnnotation')
 //@Require('bugioc.ModuleAnnotation')
 //@Require('bugmeta.BugMeta')
+//@Require('bugtask.TaskManager')
 //@Require('meldbug.PushTask')
-//@Require('meldbug.TaskManager')
 
 
 //-------------------------------------------------------------------------------
@@ -34,8 +34,8 @@ var UuidGenerator       = bugpack.require('UuidGenerator');
 var ArgAnnotation       = bugpack.require('bugioc.ArgAnnotation');
 var ModuleAnnotation    = bugpack.require('bugioc.ModuleAnnotation');
 var BugMeta             = bugpack.require('bugmeta.BugMeta');
+var TaskManager         = bugpack.require('bugtask.TaskManager');
 var PushTask            = bugpack.require('meldbug.PushTask');
-var TaskManager         = bugpack.require('meldbug.TaskManager');
 
 
 //-------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ var PushTaskManager = Class.extend(TaskManager, {
      */
     generatePushTask: function(push) {
         var taskUuid = UuidGenerator.generateUuid();
-        return new PushTask(taskUuid, push);
+        return this.factoryPushTask(taskUuid, push);
     },
 
 

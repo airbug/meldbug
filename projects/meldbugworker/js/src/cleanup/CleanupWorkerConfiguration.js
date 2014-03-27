@@ -17,9 +17,9 @@
 //@Require('bugioc.ModuleAnnotation')
 //@Require('bugioc.PropertyAnnotation')
 //@Require('bugmeta.BugMeta')
+//@Require('bugtask.TaskProcessor')
 //@Require('configbug.Configbug')
 //@Require('meldbug.CleanupTaskProcessor')
-//@Require('meldbug.TaskProcessor')
 //@Require('redis.RedisClient')
 //@Require('redis.RedisConfig')
 //@Require('redis.RedisEvent')
@@ -48,9 +48,9 @@ var IConfiguration          = bugpack.require('bugioc.IConfiguration');
 var ModuleAnnotation        = bugpack.require('bugioc.ModuleAnnotation');
 var PropertyAnnotation      = bugpack.require('bugioc.PropertyAnnotation');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
+var TaskProcessor           = bugpack.require('bugtask.TaskProcessor');
 var Configbug               = bugpack.require('configbug.Configbug');
 var CleanupTaskProcessor    = bugpack.require('meldbug.CleanupTaskProcessor');
-var TaskProcessor           = bugpack.require('meldbug.TaskProcessor');
 var RedisClient             = bugpack.require('redis.RedisClient');
 var RedisConfig             = bugpack.require('redis.RedisConfig');
 var RedisEvent              = bugpack.require('redis.RedisEvent');

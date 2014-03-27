@@ -8,12 +8,7 @@
 //@Autoload
 
 //@Require('Class')
-//@Require('Obj')
-//@Require('bugioc.ConfigurationAnnotationProcessor')
-//@Require('bugioc.ConfigurationScan')
-//@Require('bugioc.IocContext')
-//@Require('bugioc.ModuleAnnotationProcessor')
-//@Require('bugioc.ModuleScan')
+//@Require('bugapp.Application')
 
 
 //-------------------------------------------------------------------------------
@@ -28,63 +23,29 @@ var bugpack                             = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var Class                               = bugpack.require('Class');
-var Obj                                 = bugpack.require('Obj');
-var ConfigurationAnnotationProcessor    = bugpack.require('bugioc.ConfigurationAnnotationProcessor');
-var ConfigurationScan                   = bugpack.require('bugioc.ConfigurationScan');
-var IocContext                          = bugpack.require('bugioc.IocContext');
-var ModuleAnnotationProcessor           = bugpack.require('bugioc.ModuleAnnotationProcessor');
-var ModuleScan                          = bugpack.require('bugioc.ModuleScan');
+var Application                         = bugpack.require('bugapp.Application');
 
 
 //-------------------------------------------------------------------------------
 // Declare Class
 //-------------------------------------------------------------------------------
 
-var MeldbugWorkerApplication = Class.extend(Obj, {
+/**
+ * @class
+ * @extends {Application}
+ */
+var MeldbugWorkerApplication = Class.extend(Application, {
 
     //-------------------------------------------------------------------------------
-    // Constructor
-    //-------------------------------------------------------------------------------
-
-    _constructor: function() {
-
-        this._super();
-
-
-        //-------------------------------------------------------------------------------
-        // Private Properties
-        //-------------------------------------------------------------------------------
-
-        /**
-         * @private
-         * @type {IocContext}
-         */
-        this.iocContext         = new IocContext();
-
-        /**
-         * @private
-         * @type {ConfigurationScan}
-         */
-        this.configurationScan  = new ConfigurationScan(new ConfigurationAnnotationProcessor(this.iocContext));
-
-        /**
-         * @private
-         * @type {ModuleScan}
-         */
-        this.moduleScan         = new ModuleScan(new ModuleAnnotationProcessor(this.iocContext));
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // Public Methods
+    // Application Methods
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {function(Throwable=)} callback
+     * @protected
      */
-    start: function(callback) {
-        this.configurationScan.scanBugpack('meldbugworker.MeldbugWorkerConfiguration');
-        this.moduleScan.scanBugpacks([
+    preProcessApplication: function() {
+        this.getConfigurationScan().scanBugpack('meldbugworker.MeldbugWorkerConfiguration');
+        this.getModuleScan().scanBugpacks([
             "bugmarsh.MarshRegistry",
             "bugmarsh.Marshaller",
             "bugwork.WorkerCommandFactory",
@@ -95,15 +56,6 @@ var MeldbugWorkerApplication = Class.extend(Obj, {
             "loggerbug.Logger",
             "meldbugworker.MeldbugWorkerInitializer"
         ]);
-        this.iocContext.process();
-        this.iocContext.initialize(callback);
-    },
-
-    /**
-     * @param {function(Throwable=)} callback
-     */
-    stop: function(callback) {
-        this.iocContext.deinitialize(callback);
     }
 });
 

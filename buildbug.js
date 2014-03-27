@@ -47,7 +47,7 @@ var dependencies    = {
 //-------------------------------------------------------------------------------
 
 buildProperties({
-    work: {
+    worker: {
         packageJson: {
             name: "meldbugworker",
             version: version,
@@ -63,6 +63,7 @@ buildProperties({
             "./projects/meldbug/bugjars/core/js/src",
             "./projects/meldbug/bugjars/server/js/src",
             "./projects/meldbugworker/js/src",
+            "../bugjs/projects/bugapp/js/src",
             "../bugjs/projects/bugcall/bugjars/core/js/src",
             "../bugjs/projects/bugcall/bugjars/publisher/js/src",
             "../bugjs/projects/bugdelta/js/src",
@@ -73,6 +74,7 @@ buildProperties({
             "../bugjs/projects/bugmarsh/js/src",
             "../bugjs/projects/bugmeta/js/src",
             "../bugjs/projects/bugsub/js/src",
+            "../bugjs/projects/bugtask/js/src",
             "../bugjs/projects/bugtrace/js/src",
             "../bugjs/projects/bugwork/js/src",
             "../bugjs/projects/configbug/js/src",
@@ -83,45 +85,47 @@ buildProperties({
         scriptPaths: [
             "../bugjs/projects/bugwork/js/scripts",
             "./projects/meldbugworker/js/scripts"
-        ]
-    },
-    unitTest: {
-        packageJson: {
-            name: "meldbugworker-test",
-            version: version,
-            dependencies: dependencies,
-            scripts: {
-                start: "node ./scripts/meldbug-worker-application-start.js"
-            }
-        },
-        sourcePaths: [
-            "../bugjs/projects/bugyarn/js/src",
-            "../bugunit/projects/bugdouble/js/src",
-            "../bugunit/projects/bugunit/js/src"
         ],
-        scriptPaths: [
-            "../bugunit/projects/bugunit/js/scripts"
-        ],
-        testPaths: [
-            "./projects/meldbug/bugjars/core/js/test",
-            "./projects/meldbug/bugjars/server/js/test",
-            "./projects/meldbugworker/js/test",
-            "../bugjs/projects/bugcall/bugjars/core/js/test",
-            "../bugjs/projects/bugcall/bugjars/publisher/js/test",
-            "../bugjs/projects/bugdelta/js/test",
-            "../bugjs/projects/bugflow/js/test",
-            "../bugjs/projects/bugioc/js/test",
-            "../bugjs/projects/bugjs/js/test",
-            "../bugjs/projects/bugmarsh/js/test",
-            "../bugjs/projects/bugmeta/js/test",
-            "../bugjs/projects/bugsub/js/test",
-            "../bugjs/projects/bugtrace/js/test",
-            "../bugjs/projects/bugwork/js/test",
-            "../bugjs/projects/configbug/js/test",
-            "../bugjs/projects/loggerbug/js/test",
-            "../bugjs/projects/redis/js/test",
-            "../bugjs/projects/socketio/bugjars/socket/js/test"
-        ]
+        unitTest: {
+            packageJson: {
+                name: "meldbugworker-test",
+                version: version,
+                dependencies: dependencies,
+                scripts: {
+                    start: "node ./scripts/meldbug-worker-application-start.js"
+                }
+            },
+            sourcePaths: [
+                "../bugjs/projects/bugyarn/js/src",
+                "../bugunit/projects/bugdouble/js/src",
+                "../bugunit/projects/bugunit/js/src"
+            ],
+            scriptPaths: [
+                "../bugunit/projects/bugunit/js/scripts"
+            ],
+            testPaths: [
+                "./projects/meldbug/bugjars/core/js/test",
+                "./projects/meldbug/bugjars/server/js/test",
+                "./projects/meldbugworker/js/test",
+                "../bugjs/projects/bugapp/js/test",
+                "../bugjs/projects/bugcall/bugjars/core/js/test",
+                "../bugjs/projects/bugcall/bugjars/publisher/js/test",
+                "../bugjs/projects/bugdelta/js/test",
+                "../bugjs/projects/bugflow/js/test",
+                "../bugjs/projects/bugioc/js/test",
+                "../bugjs/projects/bugjs/js/test",
+                "../bugjs/projects/bugmarsh/js/test",
+                "../bugjs/projects/bugmeta/js/test",
+                "../bugjs/projects/bugsub/js/test",
+                "../bugjs/projects/bugtask/js/test",
+                "../bugjs/projects/bugtrace/js/test",
+                "../bugjs/projects/bugwork/js/test",
+                "../bugjs/projects/configbug/js/test",
+                "../bugjs/projects/loggerbug/js/test",
+                "../bugjs/projects/redis/js/test",
+                "../bugjs/projects/socketio/bugjars/socket/js/test"
+            ]
+        }
     }
 });
 
@@ -157,22 +161,22 @@ buildTarget('local').buildFlow(
             series([
                 targetTask('createNodePackage', {
                     properties: {
-                        packageJson: buildProject.getProperty("work.packageJson"),
-                        resourcePaths: buildProject.getProperty("work.resourcePaths"),
-                        sourcePaths: buildProject.getProperty("work.sourcePaths").concat(
-                            buildProject.getProperty("unitTest.sourcePaths")
+                        packageJson: buildProject.getProperty("worker.packageJson"),
+                        resourcePaths: buildProject.getProperty("worker.resourcePaths"),
+                        sourcePaths: buildProject.getProperty("worker.sourcePaths").concat(
+                            buildProject.getProperty("worker.unitTest.sourcePaths")
                         ),
-                        scriptPaths: buildProject.getProperty("work.scriptPaths").concat(
-                            buildProject.getProperty("unitTest.scriptPaths")
+                        scriptPaths: buildProject.getProperty("worker.scriptPaths").concat(
+                            buildProject.getProperty("worker.unitTest.scriptPaths")
                         ),
-                        testPaths: buildProject.getProperty("unitTest.testPaths")
+                        testPaths: buildProject.getProperty("worker.unitTest.testPaths")
                     }
                 }),
                 targetTask('generateBugPackRegistry', {
                     init: function(task, buildProject, properties) {
                         var nodePackage = nodejs.findNodePackage(
-                            buildProject.getProperty("work.packageJson.name"),
-                            buildProject.getProperty("work.packageJson.version")
+                            buildProject.getProperty("worker.packageJson.name"),
+                            buildProject.getProperty("worker.packageJson.version")
                         );
                         task.updateProperties({
                             sourceRoot: nodePackage.getBuildPath()
@@ -181,15 +185,15 @@ buildTarget('local').buildFlow(
                 }),
                 targetTask('packNodePackage', {
                     properties: {
-                        packageName: buildProject.getProperty("work.packageJson.name"),
-                        packageVersion: buildProject.getProperty("work.packageJson.version")
+                        packageName: buildProject.getProperty("worker.packageJson.name"),
+                        packageVersion: buildProject.getProperty("worker.packageJson.version")
                     }
                 }),
                 targetTask('startNodeModuleTests', {
                     init: function(task, buildProject, properties) {
                         var packedNodePackage = nodejs.findPackedNodePackage(
-                            buildProject.getProperty("work.packageJson.name"),
-                            buildProject.getProperty("work.packageJson.version")
+                            buildProject.getProperty("worker.packageJson.name"),
+                            buildProject.getProperty("worker.packageJson.version")
                         );
                         task.updateProperties({
                             modulePath: packedNodePackage.getFilePath()
@@ -198,8 +202,8 @@ buildTarget('local').buildFlow(
                 }),
                 targetTask("s3PutFile", {
                     init: function(task, buildProject, properties) {
-                        var packedNodePackage = nodejs.findPackedNodePackage(buildProject.getProperty("work.packageJson.name"),
-                            buildProject.getProperty("work.packageJson.version"));
+                        var packedNodePackage = nodejs.findPackedNodePackage(buildProject.getProperty("worker.packageJson.name"),
+                            buildProject.getProperty("worker.packageJson.version"));
                         task.updateProperties({
                             file: packedNodePackage.getFilePath(),
                             options: {
@@ -238,22 +242,22 @@ buildTarget('prod').buildFlow(
             series([
                 targetTask('createNodePackage', {
                     properties: {
-                        packageJson: buildProject.getProperty("unitTest.packageJson"),
-                        resourcePaths: buildProject.getProperty("work.resourcePaths"),
-                        sourcePaths: buildProject.getProperty("work.sourcePaths").concat(
-                            buildProject.getProperty("unitTest.sourcePaths")
+                        packageJson: buildProject.getProperty("worker.unitTest.packageJson"),
+                        resourcePaths: buildProject.getProperty("worker.resourcePaths"),
+                        sourcePaths: buildProject.getProperty("worker.sourcePaths").concat(
+                            buildProject.getProperty("worker.unitTest.sourcePaths")
                         ),
-                        scriptPaths: buildProject.getProperty("work.scriptPaths").concat(
-                            buildProject.getProperty("unitTest.scriptPaths")
+                        scriptPaths: buildProject.getProperty("worker.scriptPaths").concat(
+                            buildProject.getProperty("worker.unitTest.scriptPaths")
                         ),
-                        testPaths: buildProject.getProperty("unitTest.testPaths")
+                        testPaths: buildProject.getProperty("worker.unitTest.testPaths")
                     }
                 }),
                 targetTask('generateBugPackRegistry', {
                     init: function(task, buildProject, properties) {
                         var nodePackage = nodejs.findNodePackage(
-                            buildProject.getProperty("unitTest.packageJson.name"),
-                            buildProject.getProperty("unitTest.packageJson.version")
+                            buildProject.getProperty("worker.unitTest.packageJson.name"),
+                            buildProject.getProperty("worker.unitTest.packageJson.version")
                         );
                         task.updateProperties({
                             sourceRoot: nodePackage.getBuildPath()
@@ -262,15 +266,15 @@ buildTarget('prod').buildFlow(
                 }),
                 targetTask('packNodePackage', {
                     properties: {
-                        packageName: buildProject.getProperty("unitTest.packageJson.name"),
-                        packageVersion: buildProject.getProperty("unitTest.packageJson.version")
+                        packageName: buildProject.getProperty("worker.unitTest.packageJson.name"),
+                        packageVersion: buildProject.getProperty("worker.unitTest.packageJson.version")
                     }
                 }),
                 targetTask('startNodeModuleTests', {
                     init: function(task, buildProject, properties) {
                         var packedNodePackage = nodejs.findPackedNodePackage(
-                            buildProject.getProperty("unitTest.packageJson.name"),
-                            buildProject.getProperty("unitTest.packageJson.version")
+                            buildProject.getProperty("worker.unitTest.packageJson.name"),
+                            buildProject.getProperty("worker.unitTest.packageJson.version")
                         );
                         task.updateProperties({
                             modulePath: packedNodePackage.getFilePath(),
@@ -285,17 +289,17 @@ buildTarget('prod').buildFlow(
             series([
                 targetTask('createNodePackage', {
                     properties: {
-                        packageJson: buildProject.getProperty("work.packageJson"),
-                        resourcePaths: buildProject.getProperty("work.resourcePaths"),
-                        sourcePaths: buildProject.getProperty("work.sourcePaths"),
-                        scriptPaths: buildProject.getProperty("work.scriptPaths")
+                        packageJson: buildProject.getProperty("worker.packageJson"),
+                        resourcePaths: buildProject.getProperty("worker.resourcePaths"),
+                        sourcePaths: buildProject.getProperty("worker.sourcePaths"),
+                        scriptPaths: buildProject.getProperty("worker.scriptPaths")
                     }
                 }),
                 targetTask('generateBugPackRegistry', {
                     init: function(task, buildProject, properties) {
                         var nodePackage = nodejs.findNodePackage(
-                            buildProject.getProperty("work.packageJson.name"),
-                            buildProject.getProperty("work.packageJson.version")
+                            buildProject.getProperty("worker.packageJson.name"),
+                            buildProject.getProperty("worker.packageJson.version")
                         );
                         task.updateProperties({
                             sourceRoot: nodePackage.getBuildPath()
@@ -304,14 +308,14 @@ buildTarget('prod').buildFlow(
                 }),
                 targetTask('packNodePackage', {
                     properties: {
-                        packageName: buildProject.getProperty("work.packageJson.name"),
-                        packageVersion: buildProject.getProperty("work.packageJson.version")
+                        packageName: buildProject.getProperty("worker.packageJson.name"),
+                        packageVersion: buildProject.getProperty("worker.packageJson.version")
                     }
                 }),
                 targetTask("s3PutFile", {
                     init: function(task, buildProject, properties) {
-                        var packedNodePackage = nodejs.findPackedNodePackage(buildProject.getProperty("work.packageJson.name"),
-                            buildProject.getProperty("work.packageJson.version"));
+                        var packedNodePackage = nodejs.findPackedNodePackage(buildProject.getProperty("worker.packageJson.name"),
+                            buildProject.getProperty("worker.packageJson.version"));
                         task.updateProperties({
                             file: packedNodePackage.getFilePath(),
                             options: {
