@@ -36,7 +36,7 @@ var nodejs          = enableModule('nodejs');
 
 var version         = "0.0.8";
 var dependencies    = {
-    bugpack: "https://s3.amazonaws.com/airbug/bugpack-0.0.5.tgz",
+    bugpack: "https://s3.amazonaws.com/deploy-airbug/bugpack-0.0.5.tgz",
     redis: "0.10.0",
     "socket.io": "0.9.16"
 };
