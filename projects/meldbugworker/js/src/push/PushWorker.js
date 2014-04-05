@@ -80,13 +80,13 @@ var PushWorker = Class.extend(Worker, {
          * @private
          * @type {ConfigurationScan}
          */
-        this.configurationScan  = new ConfigurationScan(new ConfigurationAnnotationProcessor(this.iocContext));
+        this.configurationScan  = new ConfigurationScan(bugmeta, new ConfigurationAnnotationProcessor(this.iocContext));
 
         /**
          * @private
          * @type {ModuleScan}
          */
-        this.moduleScan         = new ModuleScan(new ModuleAnnotationProcessor(this.iocContext));
+        this.moduleScan         = new ModuleScan(bugmeta, new ModuleAnnotationProcessor(this.iocContext));
     },
 
 
