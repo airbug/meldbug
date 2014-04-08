@@ -12,7 +12,7 @@
 //@Require('meldbug.MeldStore')
 //@Require('meldbug.MeldTransaction')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit-annotate.TestAnnotation')
+//@Require('bugunit.TestAnnotation')
 
 
 //-------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ var MeldDocumentKey             = bugpack.require('meldbug.MeldDocumentKey');
 var MeldStore                   = bugpack.require('meldbug.MeldStore');
 var MeldTransaction             = bugpack.require('meldbug.MeldTransaction');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation              = bugpack.require('bugunit-annotate.TestAnnotation');
+var TestAnnotation              = bugpack.require('bugunit.TestAnnotation');
 
 
 //-------------------------------------------------------------------------------

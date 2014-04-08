@@ -8,7 +8,7 @@
 //@Require('Set')
 //@Require('bugdelta.DeltaDocument')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit-annotate.TestAnnotation')
+//@Require('bugunit.TestAnnotation')
 //@Require('bugyarn.BugYarn')
 //@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldDocumentKey')
@@ -30,7 +30,7 @@ var Class                   = bugpack.require('Class');
 var Set                     = bugpack.require('Set');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
 var DeltaDocument           = bugpack.require('bugdelta.DeltaDocument');
-var TestAnnotation          = bugpack.require('bugunit-annotate.TestAnnotation');
+var TestAnnotation          = bugpack.require('bugunit.TestAnnotation');
 var BugYarn                 = bugpack.require('bugyarn.BugYarn');
 var MeldDocument            = bugpack.require('meldbug.MeldDocument');
 var MeldDocumentKey         = bugpack.require('meldbug.MeldDocumentKey');

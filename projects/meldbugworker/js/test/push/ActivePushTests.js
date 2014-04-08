@@ -8,7 +8,7 @@
 //@Require('Set')
 //@Require('TypeUtil')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit-annotate.TestAnnotation')
+//@Require('bugunit.TestAnnotation')
 //@Require('bugyarn.BugYarn')
 //@Require('meldbug.ActivePush')
 
@@ -28,7 +28,7 @@ var Class                       = bugpack.require('Class');
 var Set                         = bugpack.require('Set');
 var TypeUtil                    = bugpack.require('TypeUtil');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation              = bugpack.require('bugunit-annotate.TestAnnotation');
+var TestAnnotation              = bugpack.require('bugunit.TestAnnotation');
 var BugYarn                     = bugpack.require('bugyarn.BugYarn');
 var ActivePush                  = bugpack.require('meldbug.ActivePush');
 

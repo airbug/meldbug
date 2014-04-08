@@ -9,7 +9,7 @@
 //@Require('bugmarsh.MarshRegistry')
 //@Require('bugmarsh.Marshaller')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit-annotate.TestAnnotation')
+//@Require('bugunit.TestAnnotation')
 //@Require('bugyarn.BugYarn')
 //@Require('meldbug.PutMeldDocumentOperation')
 //@Require('meldbug.MeldBuilder')
@@ -34,7 +34,7 @@ var TypeUtil                    = bugpack.require('TypeUtil');
 var MarshRegistry               = bugpack.require('bugmarsh.MarshRegistry');
 var Marshaller                  = bugpack.require('bugmarsh.Marshaller');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation              = bugpack.require('bugunit-annotate.TestAnnotation');
+var TestAnnotation              = bugpack.require('bugunit.TestAnnotation');
 var BugYarn                     = bugpack.require('bugyarn.BugYarn');
 var PutMeldDocumentOperation    = bugpack.require('meldbug.PutMeldDocumentOperation');
 var MeldBuilder                 = bugpack.require('meldbug.MeldBuilder');

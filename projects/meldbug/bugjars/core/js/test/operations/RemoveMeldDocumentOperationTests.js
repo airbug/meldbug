@@ -5,7 +5,7 @@
 //@TestFile
 
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit-annotate.TestAnnotation')
+//@Require('bugunit.TestAnnotation')
 //@Require('meldbug.MeldDocumentKey')
 //@Require('meldbug.RemoveMeldDocumentOperation')
 
@@ -22,7 +22,7 @@ var bugpack                         = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var BugMeta                         = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation                  = bugpack.require('bugunit-annotate.TestAnnotation');
+var TestAnnotation                  = bugpack.require('bugunit.TestAnnotation');
 var MeldDocumentKey                         = bugpack.require('meldbug.MeldDocumentKey');
 var RemoveMeldDocumentOperation     = bugpack.require('meldbug.RemoveMeldDocumentOperation');
 
