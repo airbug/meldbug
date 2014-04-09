@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
-
-//@Export('MergeDocumentOperation')
+//@Export('meldbug.MergeDocumentOperation')
 
 //@Require('Class')
 //@Require('Obj')

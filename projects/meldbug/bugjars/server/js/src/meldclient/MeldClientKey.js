@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
-
-//@Export('MeldClientKey')
+//@Export('meldbug.MeldClientKey')
 
 //@Require('ArgumentBug')
 //@Require('Class')

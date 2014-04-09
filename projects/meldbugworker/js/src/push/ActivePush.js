@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
-
-//@Export('ActivePush')
+//@Export('meldbug.ActivePush')
 
 //@Require('Bug')
 //@Require('Class')

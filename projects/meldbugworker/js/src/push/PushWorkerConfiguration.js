@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
-
-//@Export('PushWorkerConfiguration')
+//@Export('meldbug.PushWorkerConfiguration')
 //@Autoload
 
 //@Require('Class')

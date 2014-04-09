@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
-
-//@Export('MeldTask')
+//@Export('meldbug.MeldTask')
 
 //@Require('Class')
 //@Require('bugmarsh.MarshAnnotation');

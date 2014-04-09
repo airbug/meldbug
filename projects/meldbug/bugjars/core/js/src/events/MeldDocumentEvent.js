@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
-
-//@Export('MeldDocumentEvent')
+//@Export('meldbug.MeldDocumentEvent')
 
 //@Require('Class')
 //@Require('Event')

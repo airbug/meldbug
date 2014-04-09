@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
-
-//@Export('MeldTaskManager')
+//@Export('meldbug.MeldTaskManager')
 //@Autoload
 
 //@Require('Class')

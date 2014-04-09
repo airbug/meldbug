@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
-
-//@Export('PushTaskManager')
+//@Export('meldbug.PushTaskManager')
 //@Autoload
 
 //@Require('Class')

@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
-
-//@Export('RemoveMeldDocumentOperation')
+//@Export('meldbug.RemoveMeldDocumentOperation')
 
 //@Require('Class')
 //@Require('bugmarsh.MarshAnnotation');

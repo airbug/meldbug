@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
-
-//@Export('PutMeldDocumentOperation')
+//@Export('meldbug.PutMeldDocumentOperation')
 
 //@Require('Class')
 //@Require('bugmarsh.MarshAnnotation');

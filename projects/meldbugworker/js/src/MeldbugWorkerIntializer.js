@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbugworker')
-
-//@Export('MeldbugWorkerInitializer')
+//@Export('meldbugworker.MeldbugWorkerInitializer')
 //@Autoload
 
 //@Require('Class')

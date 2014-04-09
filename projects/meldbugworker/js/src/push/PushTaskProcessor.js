@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
-
-//@Export('PushTaskProcessor')
+//@Export('meldbug.PushTaskProcessor')
 
 //@Require('Bug')
 //@Require('Class')

@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
-
-//@Export('MeldBucketKey')
+//@Export('meldbug.MeldBucketKey')
 
 //@Require('Class')
 //@Require('IObjectable')

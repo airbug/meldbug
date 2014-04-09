@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
-
-//@Export('MeldTransactionGenerator')
+//@Export('meldbug.MeldTransactionGenerator')
 //@Autoload
 
 //@Require('Class')

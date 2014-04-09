@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
-
-//@Export('CleanupTaskProcessor')
+//@Export('meldbug.CleanupTaskProcessor')
 
 //@Require('Bug')
 //@Require('Class')

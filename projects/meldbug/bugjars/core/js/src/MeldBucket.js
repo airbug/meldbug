@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
-
-//@Export('MeldBucket')
+//@Export('meldbug.MeldBucket')
 //@Autoload
 
 //@Require('Class')

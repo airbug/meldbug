@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbugclient')
-
-//@Export('MeldbugClientController')
+//@Export('meldbugclient.MeldbugClientController')
 
 //@Require('Class')
 //@Require('Exception')

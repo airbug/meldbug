@@ -2,9 +2,7 @@
 // Annotations
 //-------------------------------------------------------------------------------
 
-//@Package('meldbug')
-
-//@Export('AddToSetOperation')
+//@Export('meldbug.AddToSetOperation')
 
 //@Require('Class')
 //@Require('Obj')
