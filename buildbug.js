@@ -2,41 +2,42 @@
 // Requires
 //-------------------------------------------------------------------------------
 
-var buildbug        = require('buildbug');
+var buildbug            = require('buildbug');
 
 
 //-------------------------------------------------------------------------------
 // Simplify References
 //-------------------------------------------------------------------------------
 
-var buildProject    = buildbug.buildProject;
-var buildProperties = buildbug.buildProperties;
-var buildTarget     = buildbug.buildTarget;
-var enableModule    = buildbug.enableModule;
-var parallel        = buildbug.parallel;
-var series          = buildbug.series;
-var targetTask      = buildbug.targetTask;
+var buildProject        = buildbug.buildProject;
+var buildProperties     = buildbug.buildProperties;
+var buildScript         = buildbug.buildScript;
+var buildTarget         = buildbug.buildTarget;
+var enableModule        = buildbug.enableModule;
+var parallel            = buildbug.parallel;
+var series              = buildbug.series;
+var targetTask          = buildbug.targetTask;
 
 
 //-------------------------------------------------------------------------------
 // Enable Modules
 //-------------------------------------------------------------------------------
 
-var aws             = enableModule("aws");
-var bugpack         = enableModule('bugpack');
-var bugunit         = enableModule('bugunit');
-var clientjs        = enableModule('clientjs');
-var core            = enableModule('core');
-var nodejs          = enableModule('nodejs');
+var aws                 = enableModule("aws");
+var bugpack             = enableModule('bugpack');
+var bugunit             = enableModule('bugunit');
+var core                = enableModule('core');
+var lintbug             = enableModule("lintbug");
+var nodejs              = enableModule('nodejs');
 
 
 //-------------------------------------------------------------------------------
 // Values
 //-------------------------------------------------------------------------------
 
-var version         = "0.0.8";
+var version         = "0.0.9";
 var dependencies    = {
-    bugpack: "https://s3.amazonaws.com/deploy-airbug/bugpack-0.0.5.tgz",
+    bugpack: "0.1.5",
     redis: "0.10.0",
     "socket.io": "0.9.16"
 };
@@ -63,24 +64,24 @@ buildProperties({
             "./projects/meldbug/bugjars/core/js/src",
             "./projects/meldbug/bugjars/server/js/src",
             "./projects/meldbugworker/js/src",
+            "../bugcore/projects/bugcore/js/src",
+            "../bugflow/projects/bugflow/js/src",
+            "../bugfs/projects/bugfs/js/src",
             "../bugjs/projects/bugapp/js/src",
             "../bugjs/projects/bugcall/bugjars/core/js/src",
             "../bugjs/projects/bugcall/bugjars/publisher/js/src",
             "../bugjs/projects/bugdelta/js/src",
-            "../bugjs/projects/bugflow/js/src",
-            "../bugjs/projects/bugfs/js/src",
             "../bugjs/projects/bugioc/js/src",
-            "../bugjs/projects/bugjs/js/src",
             "../bugjs/projects/bugmarsh/js/src",
-            "../bugjs/projects/bugmeta/js/src",
             "../bugjs/projects/bugsub/js/src",
             "../bugjs/projects/bugtask/js/src",
-            "../bugjs/projects/bugtrace/js/src",
             "../bugjs/projects/bugwork/js/src",
             "../bugjs/projects/configbug/js/src",
             "../bugjs/projects/loggerbug/js/src",
             "../bugjs/projects/redis/js/src",
-            "../bugjs/projects/socketio/bugjars/socket/js/src"
+            "../bugjs/projects/socketio/bugjars/socket/js/src",
+            "../bugmeta/projects/bugmeta/js/src",
+            "../bugtrace/projects/bugtrace/js/src"
         ],
         scriptPaths: [
             "../bugjs/projects/bugwork/js/scripts",
@@ -96,50 +97,59 @@ buildProperties({
                 }
             },
             sourcePaths: [
+                "../buganno/projects/buganno/js/src",
                 "../bugjs/projects/bugyarn/js/src",
                 "../bugunit/projects/bugdouble/js/src",
                 "../bugunit/projects/bugunit/js/src"
             ],
             scriptPaths: [
+                "../buganno/projects/buganno/js/scripts",
                 "../bugunit/projects/bugunit/js/scripts"
             ],
             testPaths: [
                 "./projects/meldbug/bugjars/core/js/test",
                 "./projects/meldbug/bugjars/server/js/test",
                 "./projects/meldbugworker/js/test",
+                "../bugcore/projects/bugcore/js/test",
+                "../bugflow/projects/bugflow/js/test",
+                "../bugfs/projects/bugfs/js/test",
                 "../bugjs/projects/bugapp/js/test",
                 "../bugjs/projects/bugcall/bugjars/core/js/test",
                 "../bugjs/projects/bugcall/bugjars/publisher/js/test",
                 "../bugjs/projects/bugdelta/js/test",
-                "../bugjs/projects/bugflow/js/test",
                 "../bugjs/projects/bugioc/js/test",
-                "../bugjs/projects/bugjs/js/test",
                 "../bugjs/projects/bugmarsh/js/test",
-                "../bugjs/projects/bugmeta/js/test",
                 "../bugjs/projects/bugsub/js/test",
                 "../bugjs/projects/bugtask/js/test",
-                "../bugjs/projects/bugtrace/js/test",
                 "../bugjs/projects/bugwork/js/test",
                 "../bugjs/projects/configbug/js/test",
                 "../bugjs/projects/loggerbug/js/test",
                 "../bugjs/projects/redis/js/test",
-                "../bugjs/projects/socketio/bugjars/socket/js/test"
+                "../bugjs/projects/socketio/bugjars/socket/js/test",
+                "../bugmeta/projects/bugmeta/js/test",
+                "../bugtrace/projects/bugtrace/js/test"
             ]
         }
+    },
+    lint: {
+        targetPaths: [
+            "."
+        ],
+        ignorePatterns: [
+            ".*\\.buildbug$",
+            ".*\\.bugunit$",
+            ".*\\.git$",
+            ".*node_modules$"
+        ]
     }
 });
 
 
 //-------------------------------------------------------------------------------
-// Declare Tasks
+// Declare BuildTargets
 //-------------------------------------------------------------------------------
 
-
-//-------------------------------------------------------------------------------
-// Declare Flows
-//-------------------------------------------------------------------------------
-
-// Clean Flow
+// Clean BuildTarget
 //-------------------------------------------------------------------------------
 
 buildTarget('clean').buildFlow(
@@ -147,7 +157,7 @@ buildTarget('clean').buildFlow(
 );
 
 
-// Local Flow
+// Local BuildTarget
 //-------------------------------------------------------------------------------
 
 buildTarget('local').buildFlow(
@@ -157,6 +167,15 @@ buildTarget('local').buildFlow(
         // old source files are removed. We should figure out a better way of doing that.
 
         targetTask('clean'),
+        targetTask('lint', {
+            properties: {
+                targetPaths: buildProject.getProperty("lint.targetPaths"),
+                ignores: buildProject.getProperty("lint.ignorePatterns"),
+                lintTasks: [
+                    "fixExportAndRemovePackageAnnotations"
+                ]
+            }
+        }),
         parallel([
             series([
                 targetTask('createNodePackage', {
@@ -225,7 +244,7 @@ buildTarget('local').buildFlow(
 ).makeDefault();
 
 
-// Prod Flow
+// Prod BuildTarget
 //-------------------------------------------------------------------------------
 
 buildTarget('prod').buildFlow(
@@ -235,6 +254,15 @@ buildTarget('prod').buildFlow(
         // old source files are removed. We should figure out a better way of doing that.
 
         targetTask('clean'),
+        targetTask('lint', {
+            properties: {
+                targetPaths: buildProject.getProperty("lint.targetPaths"),
+                ignores: buildProject.getProperty("lint.ignorePatterns"),
+                lintTasks: [
+                    "fixExportAndRemovePackageAnnotations"
+                ]
+            }
+        }),
         parallel([
 
             //Create test package (this is not the production package). We create a different package for testing so that the production code does not have the unit test code in it.
@@ -335,3 +363,16 @@ buildTarget('prod').buildFlow(
         ])
     ])
 );
+
+
+//-------------------------------------------------------------------------------
+// Build Scripts
+//-------------------------------------------------------------------------------
+
+buildScript({
+    dependencies: [
+        "bugcore",
+        "bugflow"
+    ],
+    script: "../bugjs/lintbug.js"
+});
