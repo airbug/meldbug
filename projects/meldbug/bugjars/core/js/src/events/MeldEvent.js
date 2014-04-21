@@ -9,77 +9,88 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack             = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var Class               = bugpack.require('Class');
-var Event               = bugpack.require('Event');
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-var MeldEvent = Class.extend(Event, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Constructor
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var Class               = bugpack.require('Class');
+    var Event               = bugpack.require('Event');
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     *
+     * @class
+     * @extends {Event}
      */
-    _constructor: function(type, meldDocumentKey, data) {
+    var MeldEvent = Class.extend(Event, {
 
-        this._super(type, data);
+        _name: "meldbug.MeldEvent",
 
 
         //-------------------------------------------------------------------------------
-        // Properties
+        // Constructor
         //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {MeldDocumentKey}
+         * @constructs
+         * @param {string} type
+         * @param {MeldDocumentKey} meldDocumentKey
+         * @param {*} data
          */
-        this.meldDocumentKey = meldDocumentKey;
-    },
+        _constructor: function(type, meldDocumentKey, data) {
+
+            this._super(type, data);
+
+
+            //-------------------------------------------------------------------------------
+            // Properties
+            //-------------------------------------------------------------------------------
+
+            /**
+             * @private
+             * @type {MeldDocumentKey}
+             */
+            this.meldDocumentKey = meldDocumentKey;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Getters and Setters
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @return {MeldDocumentKey}
+         */
+        getMeldDocumentKey: function() {
+            return this.meldDocumentKey;
+        }
+    });
 
 
     //-------------------------------------------------------------------------------
-    // Getters and Setters
+    // Static Properties
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {MeldDocumentKey}
+     * @static
+     * @enum {string}
      */
-    getMeldDocumentKey: function() {
-        return this.meldDocumentKey;
-    }
+    MeldEvent.EventTypes = {
+        OPERATION: "MeldEvent:Operation"
+    };
+
+
+    //-------------------------------------------------------------------------------
+    // Exports
+    //-------------------------------------------------------------------------------
+
+    bugpack.export('meldbug.MeldEvent', MeldEvent);
 });
-
-
-//-------------------------------------------------------------------------------
-// Static Variables
-//-------------------------------------------------------------------------------
-
-/**
- * @enum {string}
- */
-MeldEvent.EventTypes = {
-    OPERATION: "MeldEvent:Operation"
-};
-
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbug.MeldEvent', MeldEvent);

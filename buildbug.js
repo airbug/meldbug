@@ -35,9 +35,9 @@ var nodejs              = enableModule('nodejs');
 // Values
 //-------------------------------------------------------------------------------
 
-var version         = "0.0.9";
+var version         = "0.0.10";
 var dependencies    = {
-    bugpack: "0.1.6",
+    bugpack: "0.1.11",
     redis: "0.10.0",
     "socket.io": "0.9.16"
 };

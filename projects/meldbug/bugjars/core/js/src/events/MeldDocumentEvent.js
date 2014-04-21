@@ -9,43 +9,50 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack             = require('bugpack').context();
+require('bugpack').context("*", function(bugpack) {
+
+    //-------------------------------------------------------------------------------
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var Class               = bugpack.require('Class');
+    var Event               = bugpack.require('Event');
 
 
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
+    // Declare Class
+    //-------------------------------------------------------------------------------
 
-var Class               = bugpack.require('Class');
-var Event               = bugpack.require('Event');
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-var MeldDocumentEvent = Class.extend(Event, {});
+    /**
+     * @class
+     * @extends {Event}
+     */
+    var MeldDocumentEvent = Class.extend(Event, {
+        _name: "meldbug.MeldDocumentEvent"
+    });
 
 
-//-------------------------------------------------------------------------------
-// Static Variables
-//-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
+    // Static Variables
+    //-------------------------------------------------------------------------------
 
-/**
- * @enum {string}
- */
-MeldDocumentEvent.EventTypes = {
-    CHANGE: "MeldDocumentEvent:Change",
-    CHANGES: "MeldDocumentEvent:Changes",
-    RESET: "MeldDocumentEvent:Reset"
-};
+    /**
+     * @static
+     * @enum {string}
+     */
+    MeldDocumentEvent.EventTypes = {
+        CHANGE: "MeldDocumentEvent:Change",
+        CHANGES: "MeldDocumentEvent:Changes",
+        RESET: "MeldDocumentEvent:Reset"
+    };
 
 
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
+    // Exports
+    //-------------------------------------------------------------------------------
 
-bugpack.export('meldbug.MeldDocumentEvent', MeldDocumentEvent);
+    bugpack.export('meldbug.MeldDocumentEvent', MeldDocumentEvent);
+});

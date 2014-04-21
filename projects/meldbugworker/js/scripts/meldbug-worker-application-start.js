@@ -30,6 +30,9 @@ bugpack.loadContext(module, function(error, bugpack) {
                 var applicationDomain = domain.create();
                 applicationDomain.on('error', function(error) {
 
+                    console.log(error.message);
+                    console.log(error.stack);
+
                     // Note: we're in dangerous territory!
                     // By definition, something unexpected occurred,
                     // which we probably didn't want.
@@ -54,17 +57,15 @@ bugpack.loadContext(module, function(error, bugpack) {
                     });
                     application.addEventListener(Application.EventTypes.ERROR, function(event) {
                         var error = event.getData().error;
+                        console.log(error.message);
+                        console.log(error.stack);
                         if (application.isStarting()) {
-                            console.log(error.message);
-                            console.log(error.stack);
                             process.exit(1);
                         } else if (application.isStarted()) {
                             gracefulShutdown();
                         } else if (application.isStopping()) {
                             //do nothing (try to finish up the stop)
                         } else {
-                            console.log(error.message);
-                            console.log(error.stack);
                             process.exit(1);
                         }
                     });
