@@ -14,162 +14,169 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack                     = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var Class                       = bugpack.require('Class');
-var Map                         = bugpack.require('Map');
-var Obj                         = bugpack.require('Obj');
-var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
-var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
-var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var bugmeta                     = BugMeta.context();
-var marsh                       = MarshAnnotation.marsh;
-var property                    = MarshPropertyAnnotation.property;
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-var MeldBucket = Class.extend(Obj, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Constructor
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var Class                       = bugpack.require('Class');
+    var Map                         = bugpack.require('Map');
+    var Obj                         = bugpack.require('Obj');
+    var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
+    var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+    var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+
+
+    //-------------------------------------------------------------------------------
+    // Simplify References
+    //-------------------------------------------------------------------------------
+
+    var bugmeta                     = BugMeta.context();
+    var marsh                       = MarshAnnotation.marsh;
+    var property                    = MarshPropertyAnnotation.property;
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     * @constructs
+     * @class
+     * @extends {Obj}
      */
-    _constructor: function() {
+    var MeldBucket = Class.extend(Obj, {
 
-        this._super();
+        _name: "meldbug.MeldBucket",
 
 
         //-------------------------------------------------------------------------------
-        // Private Properties
+        // Constructor
         //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {Map.<MeldDocumentKey, MeldDocument>}
+         * @constructs
          */
-        this.meldDocumentKeyToMeldDocumentMap   = new Map();
-    },
+        _constructor: function() {
+
+            this._super();
 
 
-    //-------------------------------------------------------------------------------
-    // Getters and Setters
-    //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
+            // Private Properties
+            //-------------------------------------------------------------------------------
 
-    /**
-     * @return {Map.<MeldDocumentKey, MeldDocument>}
-     */
-    getMeldDocumentKeyToMeldDocumentMap: function() {
-        return this.meldDocumentKeyToMeldDocumentMap;
-    },
+            /**
+             * @private
+             * @type {Map.<MeldDocumentKey, MeldDocument>}
+             */
+            this.meldDocumentKeyToMeldDocumentMap   = new Map();
+        },
 
 
-    //-------------------------------------------------------------------------------
-    // IClone Implementation
-    //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
+        // Getters and Setters
+        //-------------------------------------------------------------------------------
 
-    /**
-     * @param {boolean} deep
-     * @return {*}
-     */
-    clone: function(deep) {
-        var meldBucket = new MeldBucket();
-        this.meldDocumentKeyToMeldDocumentMap.forEach(function(meldDocument) {
-            if (deep) {
-                meldBucket.addMeldDocument(Obj.clone(meldDocument, deep));
-            } else {
-                meldBucket.addMeldDocument(meldDocument);
+        /**
+         * @return {Map.<MeldDocumentKey, MeldDocument>}
+         */
+        getMeldDocumentKeyToMeldDocumentMap: function() {
+            return this.meldDocumentKeyToMeldDocumentMap;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Obj Methods
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @param {boolean} deep
+         * @return {*}
+         */
+        clone: function(deep) {
+            var meldBucket = new MeldBucket();
+            this.meldDocumentKeyToMeldDocumentMap.forEach(function(meldDocument) {
+                if (deep) {
+                    meldBucket.addMeldDocument(Obj.clone(meldDocument, deep));
+                } else {
+                    meldBucket.addMeldDocument(meldDocument);
+                }
+            });
+            return meldBucket;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Public Methods
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @param {MeldDocument} meldDocument
+         */
+        addMeldDocument: function(meldDocument) {
+            if (!this.meldDocumentKeyToMeldDocumentMap.containsKey(meldDocument.getMeldDocumentKey())) {
+                meldDocument.setMeldBucket(this);
+                this.meldDocumentKeyToMeldDocumentMap.put(meldDocument.getMeldDocumentKey(), meldDocument);
             }
-        });
-        return meldBucket;
-    },
+        },
+
+        /**
+         * @param {MeldDocument} meldDocument
+         * @return {boolean}
+         */
+        containsMeldDocument: function(meldDocument) {
+            return this.meldDocumentKeyToMeldDocumentMap.containsKey(meldDocument.getMeldDocumentKey());
+        },
+
+        /**
+         * @param {MeldDocumentKey} meldDocumentKey
+         */
+        containsMeldDocumentByMeldDocumentKey: function(meldDocumentKey) {
+            return this.meldDocumentKeyToMeldDocumentMap.containsKey(meldDocumentKey);
+        },
+
+        /**
+         * @param {MeldDocumentKey} meldDocumentKey
+         * @return {MeldDocument}
+         */
+        getMeldDocumentByMeldDocumentKey: function(meldDocumentKey) {
+            return this.meldDocumentKeyToMeldDocumentMap.get(meldDocumentKey);
+        },
+
+        /**
+         * @param {MeldDocumentKey} meldDocumentKey
+         * @return {MeldDocument}
+         */
+        removeMeldDocumentByMeldDocumentKey: function(meldDocumentKey) {
+            if (this.containsMeldDocumentByMeldDocumentKey(meldDocumentKey)) {
+                var meldDocument = this.meldDocumentKeyToMeldDocumentMap.remove(meldDocumentKey);
+                meldDocument.setMeldBucket(null);
+                return meldDocument;
+            }
+            return null;
+        }
+    });
 
 
     //-------------------------------------------------------------------------------
-    // Public Methods
+    // BugMeta
     //-------------------------------------------------------------------------------
 
-    /**
-     * @param {MeldDocument} meldDocument
-     */
-    addMeldDocument: function(meldDocument) {
-        if (!this.meldDocumentKeyToMeldDocumentMap.containsKey(meldDocument.getMeldDocumentKey())) {
-            meldDocument.setMeldBucket(this);
-            this.meldDocumentKeyToMeldDocumentMap.put(meldDocument.getMeldDocumentKey(), meldDocument);
-        }
-    },
+    bugmeta.annotate(MeldBucket).with(
+        marsh("MeldBucket")
+            .properties([
+                property("meldDocumentKeyToMeldDocumentMap")
+            ])
+    );
 
-    /**
-     * @param {MeldDocument} meldDocument
-     * @return {boolean}
-     */
-    containsMeldDocument: function(meldDocument) {
-        return this.meldDocumentKeyToMeldDocumentMap.containsKey(meldDocument.getMeldDocumentKey());
-    },
 
-    /**
-     * @param {MeldDocumentKey} meldDocumentKey
-     */
-    containsMeldDocumentByMeldDocumentKey: function(meldDocumentKey) {
-        return this.meldDocumentKeyToMeldDocumentMap.containsKey(meldDocumentKey);
-    },
+    //-------------------------------------------------------------------------------
+    // Exports
+    //-------------------------------------------------------------------------------
 
-    /**
-     * @param {MeldDocumentKey} meldDocumentKey
-     * @return {MeldDocument}
-     */
-    getMeldDocumentByMeldDocumentKey: function(meldDocumentKey) {
-        return this.meldDocumentKeyToMeldDocumentMap.get(meldDocumentKey);
-    },
-
-    /**
-     * @param {MeldDocumentKey} meldDocumentKey
-     * @return {MeldDocument}
-     */
-    removeMeldDocumentByMeldDocumentKey: function(meldDocumentKey) {
-        if (this.containsMeldDocumentByMeldDocumentKey(meldDocumentKey)) {
-            var meldDocument = this.meldDocumentKeyToMeldDocumentMap.remove(meldDocumentKey);
-            meldDocument.setMeldBucket(null);
-            return meldDocument;
-        }
-        return null;
-    }
+    bugpack.export('meldbug.MeldBucket', MeldBucket);
 });
-
-
-//-------------------------------------------------------------------------------
-// BugMeta
-//-------------------------------------------------------------------------------
-
-bugmeta.annotate(MeldBucket).with(
-    marsh("MeldBucket")
-        .properties([
-            property("meldDocumentKeyToMeldDocumentMap")
-        ])
-);
-
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbug.MeldBucket', MeldBucket);

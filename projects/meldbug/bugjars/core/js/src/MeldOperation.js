@@ -13,154 +13,161 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack                     = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var Class                       = bugpack.require('Class');
-var Obj                         = bugpack.require('Obj');
-var UuidGenerator               = bugpack.require('UuidGenerator');
-var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
-var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
-var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var bugmeta                     = BugMeta.context();
-var marsh                       = MarshAnnotation.marsh;
-var property                    = MarshPropertyAnnotation.property;
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-var MeldOperation = Class.extend(Obj, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Constructor
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var Class                       = bugpack.require('Class');
+    var Obj                         = bugpack.require('Obj');
+    var UuidGenerator               = bugpack.require('UuidGenerator');
+    var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
+    var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+    var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+
+
+    //-------------------------------------------------------------------------------
+    // Simplify References
+    //-------------------------------------------------------------------------------
+
+    var bugmeta                     = BugMeta.context();
+    var marsh                       = MarshAnnotation.marsh;
+    var property                    = MarshPropertyAnnotation.property;
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     * @constructs
-     * @param {MeldDocumentKey} meldDocumentKey
-     * @param {string} type
+     * @class
+     * @extends {Obj}
      */
-    _constructor: function(meldDocumentKey, type) {
+    var MeldOperation = Class.extend(Obj, {
 
-        this._super();
+        _name: "meldbug.MeldOperation",
 
 
         //-------------------------------------------------------------------------------
-        // Private Properties
+        // Constructor
         //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {MeldDocumentKey}
+         * @constructs
+         * @param {MeldDocumentKey} meldDocumentKey
+         * @param {string} type
          */
-        this.meldDocumentKey        = meldDocumentKey;
+        _constructor: function(meldDocumentKey, type) {
+
+            this._super();
+
+
+            //-------------------------------------------------------------------------------
+            // Private Properties
+            //-------------------------------------------------------------------------------
+
+            /**
+             * @private
+             * @type {MeldDocumentKey}
+             */
+            this.meldDocumentKey        = meldDocumentKey;
+
+            /**
+             * @private
+             * @type {string}
+             */
+            this.type                   = type;
+
+            /**
+             * @private
+             * @type {string}
+             */
+            this.uuid                   = UuidGenerator.generateUuid();
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Getters and Setters
+        //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {string}
+         * @return {MeldDocumentKey}
          */
-        this.type                   = type;
+        getMeldDocumentKey: function() {
+            return this.meldDocumentKey;
+        },
 
         /**
-         * @private
-         * @type {string}
+         * @return {string}
          */
-        this.uuid                   = UuidGenerator.generateUuid();
-    },
+        getType: function() {
+            return this.type;
+        },
+
+        /**
+         * @return {string}
+         */
+        getUuid: function() {
+            return this.uuid;
+        },
+
+        /**
+         * @protected
+         */
+        setUuid: function(uuid) {
+            this.uuid = uuid;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Obj Methods
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @param {boolean} deep
+         * @return {*}
+         */
+        clone: function(deep) {
+            //abstract
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Abstract Methods
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @abstract
+         * @param {MeldBucket} meldBucket
+         * @return {MeldDocument}
+         */
+        apply: function(meldBucket) {
+            return meldBucket.getMeldDocumentByMeldDocumentKey(this.meldDocumentKey);
+        }
+    });
 
 
     //-------------------------------------------------------------------------------
-    // Getters and Setters
+    // BugMeta
     //-------------------------------------------------------------------------------
 
-    /**
-     * @return {MeldDocumentKey}
-     */
-    getMeldDocumentKey: function() {
-        return this.meldDocumentKey;
-    },
-
-    /**
-     * @return {string}
-     */
-    getType: function() {
-        return this.type;
-    },
-
-    /**
-     * @return {string}
-     */
-    getUuid: function() {
-        return this.uuid;
-    },
-
-    /**
-     * @protected
-     */
-    setUuid: function(uuid) {
-        this.uuid = uuid;
-    },
+    bugmeta.annotate(MeldOperation).with(
+        marsh("MeldOperation")
+            .properties([
+                property("meldDocumentKey"),
+                property("type"),
+                property("uuid")
+            ])
+    );
 
 
     //-------------------------------------------------------------------------------
-    // IClone Implementation
+    // Exports
     //-------------------------------------------------------------------------------
 
-    /**
-     * @param {boolean} deep
-     * @return {*}
-     */
-    clone: function(deep) {
-        //abstract
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // Abstract Methods
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @abstract
-     * @param {MeldBucket} meldBucket
-     * @return {MeldDocument}
-     */
-    apply: function(meldBucket) {
-        return meldBucket.getMeldDocumentByMeldDocumentKey(this.meldDocumentKey);
-    }
+    bugpack.export('meldbug.MeldOperation', MeldOperation);
 });
-
-
-//-------------------------------------------------------------------------------
-// BugMeta
-//-------------------------------------------------------------------------------
-
-bugmeta.annotate(MeldOperation).with(
-    marsh("MeldOperation")
-        .properties([
-            property("meldDocumentKey"),
-            property("type"),
-            property("uuid")
-        ])
-);
-
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbug.MeldOperation', MeldOperation);

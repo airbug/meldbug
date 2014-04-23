@@ -11,148 +11,155 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack             = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var Class               = bugpack.require('Class');
-var Exception           = bugpack.require('Exception');
-var Obj                 = bugpack.require('Obj');
-var MeldDefines         = bugpack.require('meldbug.MeldDefines');
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-var MeldbugClientController = Class.extend(Obj, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Constructor
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var Class               = bugpack.require('Class');
+    var Exception           = bugpack.require('Exception');
+    var Obj                 = bugpack.require('Obj');
+    var MeldDefines         = bugpack.require('meldbug.MeldDefines');
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     * @constructs
-     * @param {BugCallRouter} bugCallRouter
-     * @param {MeldbugClientService} meldbugClientService
-     * @param {MeldBuilder} meldBuilder
+     * @class
+     * @extends {Obj}
      */
-    _constructor: function(bugCallRouter, meldbugClientService, meldBuilder) {
+    var MeldbugClientController = Class.extend(Obj, {
 
-        this._super();
+        _name: "meldbugclient.MeldbugClientController",
 
 
         //-------------------------------------------------------------------------------
-        // Private Properties
+        // Constructor
         //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {BugCallRouter}
+         * @constructs
+         * @param {BugCallRouter} bugCallRouter
+         * @param {MeldbugClientService} meldbugClientService
+         * @param {MeldBuilder} meldBuilder
          */
-        this.bugCallRouter          = bugCallRouter;
+        _constructor: function(bugCallRouter, meldbugClientService, meldBuilder) {
 
-        /**
-         * @private
-         * @type {MeldbugClientService}
-         */
-        this.meldbugClientService   = meldbugClientService;
-
-        /**
-         * @private
-         * @type {MeldBuilder}
-         */
-        this.meldBuilder            = meldBuilder;
-    },
+            this._super();
 
 
-    //-------------------------------------------------------------------------------
-    // Getters and Setters
-    //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
+            // Private Properties
+            //-------------------------------------------------------------------------------
 
-    /**
-     * @return {BugCallRouter}
-     */
-    getBugCallRouter: function() {
-        return this.bugCallRouter;
-    },
-
-    /**
-     * @return {MeldbugClientService}
-     */
-    getMeldbugClientService: function() {
-        return this.meldbugClientService;
-    },
-
-    /**
-     * @return {MeldBuilder}
-     */
-    getMeldBuilder: function() {
-        return this.meldBuilder;
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // Public Methods
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @param {function(Throwable)} callback
-     */
-    configure: function(callback) {
-        var _this = this;
-        this.bugCallRouter.addAll({
-            
             /**
-             * @param {IncomingRequest} request
-             * @param {CallResponder} responder
-             * @param {function(Throwable=)} callback
+             * @private
+             * @type {BugCallRouter}
              */
-            commitMeldTransaction: function(request, responder, callback) {
-                var data                = request.getData();
-                var meldTransaction     = data.meldTransaction;
-                _this.meldbugClientService.commitMeldTransaction(meldTransaction, function(throwable) {
-                    var response    = null;
-                    if (!throwable) {
-                        response    = responder.response(MeldDefines.ResponseTypes.SUCCESS);
-                        responder.sendResponse(response, callback);
-                    } else {
+            this.bugCallRouter          = bugCallRouter;
 
-                        //TODO BRN: Route these through a client logger so they can be logged back to the server
+            /**
+             * @private
+             * @type {MeldbugClientService}
+             */
+            this.meldbugClientService   = meldbugClientService;
 
-                        console.error(throwable.message);
-                        console.error(throwable.stack);
-                        if (Class.doesExtend(throwable, Exception)) {
-                            response    = responder.response(MeldDefines.ResponseTypes.EXCEPTION, {
-                                exception: throwable.toObject()
-                            });
+            /**
+             * @private
+             * @type {MeldBuilder}
+             */
+            this.meldBuilder            = meldBuilder;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Getters and Setters
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @return {BugCallRouter}
+         */
+        getBugCallRouter: function() {
+            return this.bugCallRouter;
+        },
+
+        /**
+         * @return {MeldbugClientService}
+         */
+        getMeldbugClientService: function() {
+            return this.meldbugClientService;
+        },
+
+        /**
+         * @return {MeldBuilder}
+         */
+        getMeldBuilder: function() {
+            return this.meldBuilder;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Public Methods
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @param {function(Throwable)} callback
+         */
+        configure: function(callback) {
+            var _this = this;
+            this.bugCallRouter.addAll({
+
+                /**
+                 * @param {IncomingRequest} request
+                 * @param {CallResponder} responder
+                 * @param {function(Throwable=)} callback
+                 */
+                commitMeldTransaction: function(request, responder, callback) {
+                    var data                = request.getData();
+                    var meldTransaction     = data.meldTransaction;
+                    _this.meldbugClientService.commitMeldTransaction(meldTransaction, function(throwable) {
+                        var response    = null;
+                        if (!throwable) {
+                            response    = responder.response(MeldDefines.ResponseTypes.SUCCESS);
                             responder.sendResponse(response, callback);
                         } else {
-                            response    = responder.response(MeldDefines.ResponseTypes.ERROR, {
-                                error: throwable
-                            });
-                            responder.sendResponse(response, function(responseThrowable) {
-                                callback(responseThrowable || throwable);
-                            });
+
+                            //TODO BRN: Route these through a client logger so they can be logged back to the server
+
+                            console.error(throwable.message);
+                            console.error(throwable.stack);
+                            if (Class.doesExtend(throwable, Exception)) {
+                                response    = responder.response(MeldDefines.ResponseTypes.EXCEPTION, {
+                                    exception: throwable.toObject()
+                                });
+                                responder.sendResponse(response, callback);
+                            } else {
+                                response    = responder.response(MeldDefines.ResponseTypes.ERROR, {
+                                    error: throwable
+                                });
+                                responder.sendResponse(response, function(responseThrowable) {
+                                    callback(responseThrowable || throwable);
+                                });
+                            }
                         }
-                    }
-                });
-            }
-        });
+                    });
+                }
+            });
 
-        callback();
-    }
+            callback();
+        }
+    });
+
+
+    //-------------------------------------------------------------------------------
+    // Exports
+    //-------------------------------------------------------------------------------
+
+    bugpack.export('meldbugclient.MeldbugClientController', MeldbugClientController);
 });
-
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbugclient.MeldbugClientController', MeldbugClientController);
