@@ -6,7 +6,7 @@
 
 //@Require('Class')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('bugyarn.BugYarn')
 //@Require('meldbug.Push')
 //@Require('meldbug.PushManager')
@@ -25,7 +25,7 @@ var bugpack                 = require('bugpack').context();
 
 var Class                   = bugpack.require('Class');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation          = bugpack.require('bugunit.TestAnnotation');
+var TestTag          = bugpack.require('bugunit.TestTag');
 var BugYarn                 = bugpack.require('bugyarn.BugYarn');
 var Push                    = bugpack.require('meldbug.Push');
 var PushManager             = bugpack.require('meldbug.PushManager');
@@ -37,7 +37,7 @@ var PushManager             = bugpack.require('meldbug.PushManager');
 
 var bugmeta                 = BugMeta.context();
 var bugyarn                 = BugYarn.context();
-var test                    = TestAnnotation.test;
+var test                    = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ var pushManagerInstantiationTest = {
             "Assert .pushTaskManager was set correctly");
     }
 };
-bugmeta.annotate(pushManagerInstantiationTest).with(
+bugmeta.tag(pushManagerInstantiationTest).with(
     test().name("PushManager - instantiation test")
 );
 
@@ -113,6 +113,6 @@ var pushManagerPushTest = {
             "Assert that pushTaskManager was passed to Push correctly");
     }
 };
-bugmeta.annotate(pushManagerPushTest).with(
+bugmeta.tag(pushManagerPushTest).with(
     test().name("PushManager - #push test")
 );

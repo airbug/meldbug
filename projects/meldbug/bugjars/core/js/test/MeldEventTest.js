@@ -5,7 +5,7 @@
 //@TestFile
 
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('meldbug.MeldEvent')
 //@Require('meldbug.MeldDocumentKey')
 
@@ -22,7 +22,7 @@ var bugpack                 = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation          = bugpack.require('bugunit.TestAnnotation');
+var TestTag          = bugpack.require('bugunit.TestTag');
 var MeldEvent               = bugpack.require('meldbug.MeldEvent');
 var MeldDocumentKey                 = bugpack.require('meldbug.MeldDocumentKey');
 
@@ -32,7 +32,7 @@ var MeldDocumentKey                 = bugpack.require('meldbug.MeldDocumentKey')
 //-------------------------------------------------------------------------------
 
 var bugmeta                 = BugMeta.context();
-var test                    = TestAnnotation.test;
+var test                    = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -64,6 +64,6 @@ var meldEventGetMeldDocumentKeyTest = {
             "Assert meldEvent#getMeldDocumentKey returns the correct meldDocumentKey");
     }
 };
-bugmeta.annotate(meldEventGetMeldDocumentKeyTest).with(
+bugmeta.tag(meldEventGetMeldDocumentKeyTest).with(
     test().name("MeldEvent - #getMeldDocumentKey Test")
 );

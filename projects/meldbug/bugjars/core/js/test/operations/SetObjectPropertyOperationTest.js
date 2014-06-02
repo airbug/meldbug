@@ -7,7 +7,7 @@
 //@Require('Class')
 //@Require('Set')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldDocumentKey')
@@ -28,7 +28,7 @@ var bugpack                         = require('bugpack').context();
 var Class                           = bugpack.require('Class');
 var Set                             = bugpack.require('Set');
 var BugMeta                         = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation                  = bugpack.require('bugunit.TestAnnotation');
+var TestTag                  = bugpack.require('bugunit.TestTag');
 var MeldBucket                      = bugpack.require('meldbug.MeldBucket');
 var MeldDocument                    = bugpack.require('meldbug.MeldDocument');
 var MeldDocumentKey                 = bugpack.require('meldbug.MeldDocumentKey');
@@ -40,7 +40,7 @@ var SetObjectPropertyOperation      = bugpack.require('meldbug.SetObjectProperty
 //-------------------------------------------------------------------------------
 
 var bugmeta                         = BugMeta.context();
-var test                            = TestAnnotation.test;
+var test                            = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ var setObjectPropertyOperationInstantiationTest = {
             "Assert setObjectPropertyOperation's propertyValue property is set to the propertyValue given at construction");
     }
 };
-bugmeta.annotate(setObjectPropertyOperationInstantiationTest).with(
+bugmeta.tag(setObjectPropertyOperationInstantiationTest).with(
     test().name("SetObjectPropertyOperation - instantiation Test")
 );
 
@@ -111,7 +111,7 @@ var setObjectPropertyOperationGetPathTest = {
             "Assert SetObjectPropertyOperation#getPath does not default to'testPath'");
     }
 };
-bugmeta.annotate(setObjectPropertyOperationGetPathTest).with(
+bugmeta.tag(setObjectPropertyOperationGetPathTest).with(
     test().name("SetObjectPropertyOperation - #getPath Test")
 );
 
@@ -143,7 +143,7 @@ var setObjectPropertyOperationGetPropertyNameTest = {
             "Assert RemoveFromSetOperation#getPropertyName does not default to'testPropertyName'");
     }
 };
-bugmeta.annotate(setObjectPropertyOperationGetPropertyNameTest).with(
+bugmeta.tag(setObjectPropertyOperationGetPropertyNameTest).with(
     test().name("SetObjectPropertyOperation - #getPropertyName Test")
 );
 
@@ -179,7 +179,7 @@ var setObjectPropertyOperationGetPropertyValueTest = {
             "Assert SetObjectPropertyOperation#getPropertyValue does not default to'newSetValueOne'");
     }
 };
-bugmeta.annotate(setObjectPropertyOperationGetPropertyValueTest).with(
+bugmeta.tag(setObjectPropertyOperationGetPropertyValueTest).with(
     test().name("SetObjectPropertyOperation - #getPropertyValue Test")
 );
 
@@ -224,7 +224,7 @@ var setObjectPropertyOperationApplyTest = {
             "Assert testPropertyName property was reset");
     }
 };
-bugmeta.annotate(setObjectPropertyOperationApplyTest).with(
+bugmeta.tag(setObjectPropertyOperationApplyTest).with(
     test().name("SetObjectPropertyOperation - #apply Test")
 );
 
@@ -274,7 +274,7 @@ var setObjectPropertyOperationComplexPathApplyTest = {
             "Assert testPropertyNameTwo property was reset");
     }
 };
-bugmeta.annotate(setObjectPropertyOperationComplexPathApplyTest).with(
+bugmeta.tag(setObjectPropertyOperationComplexPathApplyTest).with(
     test().name("SetObjectPropertyOperation - complex path #apply Test")
 );
 
@@ -315,6 +315,6 @@ var setObjectPropertyOperationCloneTest = {
             "Assert the clone is not the same object as the original");
     }
 };
-bugmeta.annotate(setObjectPropertyOperationCloneTest).with(
+bugmeta.tag(setObjectPropertyOperationCloneTest).with(
     test().name("SetObjectPropertyOperation - #clone Test")
 );

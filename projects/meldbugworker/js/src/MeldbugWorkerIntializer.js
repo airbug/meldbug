@@ -10,8 +10,8 @@
 //@Require('bugflow.BugFlow')
 //@Require('bugfs.BugFs')
 //@Require('bugioc.IInitializeModule')
-//@Require('bugioc.ModuleAnnotation')
-//@Require('bugioc.PropertyAnnotation')
+//@Require('bugioc.ModuleTag')
+//@Require('bugioc.PropertyTag')
 //@Require('bugmeta.BugMeta')
 
 
@@ -32,8 +32,8 @@ var Obj                             = bugpack.require('Obj');
 var BugFlow                         = bugpack.require('bugflow.BugFlow');
 var BugFs                           = bugpack.require('bugfs.BugFs');
 var IInitializeModule               = bugpack.require('bugioc.IInitializeModule');
-var ModuleAnnotation                = bugpack.require('bugioc.ModuleAnnotation');
-var PropertyAnnotation              = bugpack.require('bugioc.PropertyAnnotation');
+var ModuleTag                = bugpack.require('bugioc.ModuleTag');
+var PropertyTag              = bugpack.require('bugioc.PropertyTag');
 var BugMeta                         = bugpack.require('bugmeta.BugMeta');
 
 
@@ -42,8 +42,8 @@ var BugMeta                         = bugpack.require('bugmeta.BugMeta');
 //-------------------------------------------------------------------------------
 
 var bugmeta                         = BugMeta.context();
-var module                          = ModuleAnnotation.module;
-var property                        = PropertyAnnotation.property;
+var module                          = ModuleTag.module;
+var property                        = PropertyTag.property;
 var $parallel                       = BugFlow.$parallel;
 var $series                         = BugFlow.$series;
 var $task                           = BugFlow.$task;
@@ -176,7 +176,7 @@ Class.implement(MeldbugWorkerInitializer, IInitializeModule);
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(MeldbugWorkerInitializer).with(
+bugmeta.tag(MeldbugWorkerInitializer).with(
     module("meldbugWorkerInitializer")
         .properties([
             property("configbug").ref("configbug"),

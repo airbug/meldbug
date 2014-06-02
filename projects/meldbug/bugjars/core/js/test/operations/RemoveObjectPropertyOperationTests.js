@@ -7,7 +7,7 @@
 //@Require('Class')
 //@Require('Set')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldDocumentKey')
@@ -28,7 +28,7 @@ var bugpack                 = require('bugpack').context();
 var Class                           = bugpack.require('Class');
 var Set                             = bugpack.require('Set');
 var BugMeta                         = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation                  = bugpack.require('bugunit.TestAnnotation');
+var TestTag                  = bugpack.require('bugunit.TestTag');
 var MeldBucket                      = bugpack.require('meldbug.MeldBucket');
 var MeldDocument                    = bugpack.require('meldbug.MeldDocument');
 var MeldDocumentKey                 = bugpack.require('meldbug.MeldDocumentKey');
@@ -40,7 +40,7 @@ var RemoveObjectPropertyOperation   = bugpack.require('meldbug.RemoveObjectPrope
 //-------------------------------------------------------------------------------
 
 var bugmeta                 = BugMeta.context();
-var test                    = TestAnnotation.test;
+var test                    = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ var removeObjectPropertyOperationInstantiationTest = {
             "Assert removeObjectPropertyOperation's propertyName property is set to the propertyName given at construction");
     }
 };
-bugmeta.annotate(removeObjectPropertyOperationInstantiationTest).with(
+bugmeta.tag(removeObjectPropertyOperationInstantiationTest).with(
     test().name("RemoveObjectPropertyOperation - instantiation Test")
 );
 
@@ -111,7 +111,7 @@ var removeObjectPropertyOperationGetPathTest = {
             "Assert RemoveFromSetOperation#getPath does not default to'testPath'");
     }
 };
-bugmeta.annotate(removeObjectPropertyOperationGetPathTest).with(
+bugmeta.tag(removeObjectPropertyOperationGetPathTest).with(
     test().name("RemoveObjectPropertyOperation - #getPath Test")
 );
 
@@ -145,7 +145,7 @@ var removeObjectPropertyOperationGetPropertyNameTest = {
             "Assert RemoveFromSetOperation#getPropertyName does not default to'testPropertyName'");
     }
 };
-bugmeta.annotate(removeObjectPropertyOperationGetPropertyNameTest).with(
+bugmeta.tag(removeObjectPropertyOperationGetPropertyNameTest).with(
     test().name("RemoveObjectPropertyOperation - #getPropertyName Test")
 );
 
@@ -209,7 +209,7 @@ var removeObjectPropertyOperationApplyTest = {
             "Assert testPropertyNameTwo property was removed");
     }
 };
-bugmeta.annotate(removeObjectPropertyOperationApplyTest).with(
+bugmeta.tag(removeObjectPropertyOperationApplyTest).with(
     test().name("RemoveObjectPropertyOperation - #apply Test")
 );
 
@@ -252,6 +252,6 @@ var removeObjectPropertyOperationCloneTest = {
             "Assert the clone is not the same object as the original");
     }
 };
-bugmeta.annotate(removeObjectPropertyOperationCloneTest).with(
+bugmeta.tag(removeObjectPropertyOperationCloneTest).with(
     test().name("RemoveObjectPropertyOperation - #clone Test")
 );

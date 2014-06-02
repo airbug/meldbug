@@ -42,8 +42,8 @@ var MeldbugWorkerApplication = Class.extend(Application, {
      * @protected
      */
     preProcessApplication: function() {
-        this.getConfigurationScan().scanBugpack('meldbugworker.MeldbugWorkerConfiguration');
-        this.getModuleScan().scanBugpacks([
+        this.getConfigurationTagScan().scanBugpack('meldbugworker.MeldbugWorkerConfiguration');
+        this.getModuleTagScan().scanBugpacks([
             "bugmarsh.MarshRegistry",
             "bugmarsh.Marshaller",
             "bugwork.WorkerCommandFactory",

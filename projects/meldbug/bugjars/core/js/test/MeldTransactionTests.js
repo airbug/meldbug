@@ -6,7 +6,7 @@
 
 //@Require('meldbug.MeldTransaction')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 
 
 //-------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ var bugpack                 = require('bugpack').context();
 
 var MeldTransaction         = bugpack.require('meldbug.MeldTransaction');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation          = bugpack.require('bugunit.TestAnnotation');
+var TestTag          = bugpack.require('bugunit.TestTag');
 
 
 //-------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ var TestAnnotation          = bugpack.require('bugunit.TestAnnotation');
 //-------------------------------------------------------------------------------
 
 var bugmeta                 = BugMeta.context();
-var test                    = TestAnnotation.test;
+var test                    = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ var meldTransactionInstantiationTest = {
             "Assert meldTransaction's operation list is empty");
     }
 };
-bugmeta.annotate(meldTransactionInstantiationTest).with(
+bugmeta.tag(meldTransactionInstantiationTest).with(
     test().name("MeldTransaction - Instantiation Test")
 );
 
@@ -83,6 +83,6 @@ var meldTransactionAddMeldOperationTest = {
             "Assert meldOperationList contains the added meldOperation");
     }
 };
-bugmeta.annotate(meldTransactionAddMeldOperationTest).with(
+bugmeta.tag(meldTransactionAddMeldOperationTest).with(
     test().name("MeldTransaction #addMeldOperation Test")
 );

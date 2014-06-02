@@ -5,8 +5,8 @@
 //@Export('meldbug.CleanupTask')
 
 //@Require('Class')
-//@Require('bugmarsh.MarshAnnotation');
-//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmarsh.MarshTag');
+//@Require('bugmarsh.MarshPropertyTag');
 //@Require('bugmeta.BugMeta')
 //@Require('bugtask.Task')
 
@@ -23,8 +23,8 @@ var bugpack                     = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var Class                       = bugpack.require('Class');
-var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
-var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var MarshTag             = bugpack.require('bugmarsh.MarshTag');
+var MarshPropertyTag     = bugpack.require('bugmarsh.MarshPropertyTag');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 var Task                        = bugpack.require('bugtask.Task');
 
@@ -34,8 +34,8 @@ var Task                        = bugpack.require('bugtask.Task');
 //-------------------------------------------------------------------------------
 
 var bugmeta                     = BugMeta.context();
-var marsh                       = MarshAnnotation.marsh;
-var property                    = MarshPropertyAnnotation.property;
+var marsh                       = MarshTag.marsh;
+var property                    = MarshPropertyTag.property;
 
 
 //-------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ var CleanupTask = Class.extend(Task, {
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(CleanupTask).with(
+bugmeta.tag(CleanupTask).with(
     marsh("CleanupTask")
         .properties([
             property("callUuid"),

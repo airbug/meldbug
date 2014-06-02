@@ -8,7 +8,7 @@
 //@Require('Set')
 //@Require('TypeUtil')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('bugyarn.BugYarn')
 //@Require('meldbug.ActivePush')
 
@@ -28,7 +28,7 @@ var Class                       = bugpack.require('Class');
 var Set                         = bugpack.require('Set');
 var TypeUtil                    = bugpack.require('TypeUtil');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation              = bugpack.require('bugunit.TestAnnotation');
+var TestTag              = bugpack.require('bugunit.TestTag');
 var BugYarn                     = bugpack.require('bugyarn.BugYarn');
 var ActivePush                  = bugpack.require('meldbug.ActivePush');
 
@@ -39,7 +39,7 @@ var ActivePush                  = bugpack.require('meldbug.ActivePush');
 
 var bugmeta                     = BugMeta.context();
 var bugyarn                     = BugYarn.context();
-var test                        = TestAnnotation.test;
+var test                        = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -104,6 +104,6 @@ var activePushInstantiationTest = {
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(activePushInstantiationTest).with(
+bugmeta.tag(activePushInstantiationTest).with(
     test().name("ActivePush - instantiation Test")
 );

@@ -6,7 +6,7 @@
 
 //@Require('Class')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldDocumentKey')
@@ -26,7 +26,7 @@ var bugpack                 = require('bugpack').context();
 
 var Class                   = bugpack.require('Class');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation          = bugpack.require('bugunit.TestAnnotation');
+var TestTag          = bugpack.require('bugunit.TestTag');
 var MeldBucket              = bugpack.require('meldbug.MeldBucket');
 var MeldDocument            = bugpack.require('meldbug.MeldDocument');
 var MeldDocumentKey         = bugpack.require('meldbug.MeldDocumentKey');
@@ -38,7 +38,7 @@ var MeldOperation           = bugpack.require('meldbug.MeldOperation');
 //-------------------------------------------------------------------------------
 
 var bugmeta                 = BugMeta.context();
-var test                    = TestAnnotation.test;
+var test                    = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ var meldOperationInstantiationTest = {
             "Assert meldOperation.type is the type passed in at construction");
     }
 };
-bugmeta.annotate(meldOperationInstantiationTest).with(
+bugmeta.tag(meldOperationInstantiationTest).with(
     test().name("MeldOperation - instantiation Test")
 );
 
@@ -104,7 +104,7 @@ var meldOperationGetMeldDocumentKeyTest = {
             "Assert meldOperation#getMeldDocumentKey retrieves correct meldDocumentKey");
     }
 };
-bugmeta.annotate(meldOperationGetMeldDocumentKeyTest).with(
+bugmeta.tag(meldOperationGetMeldDocumentKeyTest).with(
     test().name("MeldOperation - #getMeldDocumentKey Test")
 );
 
@@ -133,7 +133,7 @@ var meldOperationGetUuidTest = {
             "Assert meldOperation#getUuid retrieves correct uuid");
     }
 };
-bugmeta.annotate(meldOperationGetUuidTest).with(
+bugmeta.tag(meldOperationGetUuidTest).with(
     test().name("MeldOperation - #getUuid Test")
 );
 
@@ -164,7 +164,7 @@ var meldOperationSetUuidTest = {
             "Assert meldOperation.uuid is set to the new uuid");
     }
 };
-bugmeta.annotate(meldOperationSetUuidTest).with(
+bugmeta.tag(meldOperationSetUuidTest).with(
     test().name("MeldOperation - #setUuid Test")
 );
 
@@ -203,6 +203,6 @@ var meldOperationApplyTest = {
             "Assert meldOperation#apply returns a MeldDocument object");
     }
 };
-bugmeta.annotate(meldOperationApplyTest).with(
+bugmeta.tag(meldOperationApplyTest).with(
     test().name("MeldOperation - #apply Test")
 );

@@ -8,8 +8,8 @@
 //@Require('Class')
 //@Require('Obj')
 //@Require('UuidGenerator')
-//@Require('bugioc.ArgAnnotation')
-//@Require('bugioc.ModuleAnnotation')
+//@Require('bugioc.ArgTag')
+//@Require('bugioc.ModuleTag')
 //@Require('bugmeta.BugMeta')
 //@Require('bugtask.TaskManager')
 //@Require('meldbug.MeldTask')
@@ -29,8 +29,8 @@ var bugpack             = require('bugpack').context();
 var Class               = bugpack.require('Class');
 var Obj                 = bugpack.require('Obj');
 var UuidGenerator       = bugpack.require('UuidGenerator');
-var ArgAnnotation       = bugpack.require('bugioc.ArgAnnotation');
-var ModuleAnnotation    = bugpack.require('bugioc.ModuleAnnotation');
+var ArgTag       = bugpack.require('bugioc.ArgTag');
+var ModuleTag    = bugpack.require('bugioc.ModuleTag');
 var BugMeta             = bugpack.require('bugmeta.BugMeta');
 var TaskManager         = bugpack.require('bugtask.TaskManager');
 var MeldTask            = bugpack.require('meldbug.MeldTask');
@@ -40,9 +40,9 @@ var MeldTask            = bugpack.require('meldbug.MeldTask');
 // Simplify References
 //-------------------------------------------------------------------------------
 
-var arg                 = ArgAnnotation.arg;
+var arg                 = ArgTag.arg;
 var bugmeta             = BugMeta.context();
-var module              = ModuleAnnotation.module;
+var module              = ModuleTag.module;
 
 
 //-------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ MeldTaskManager.MELD_TASK_QUEUE = "meldTaskQueue";
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(MeldTaskManager).with(
+bugmeta.tag(MeldTaskManager).with(
     module("meldTaskManager")
         .args([
             arg().ref("logger"),

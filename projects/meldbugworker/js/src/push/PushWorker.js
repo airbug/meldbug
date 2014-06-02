@@ -6,14 +6,14 @@
 //@Autoload
 
 //@Require('Class')
-//@Require('bugioc.ConfigurationAnnotationProcessor')
-//@Require('bugioc.ConfigurationScan')
+//@Require('bugioc.ConfigurationTagProcessor')
+//@Require('bugioc.ConfigurationTagScan')
 //@Require('bugioc.IocContext')
-//@Require('bugioc.ModuleAnnotationProcessor')
-//@Require('bugioc.ModuleScan')
+//@Require('bugioc.ModuleTagProcessor')
+//@Require('bugioc.ModuleTagScan')
 //@Require('bugmeta.BugMeta')
 //@Require('bugwork.Worker')
-//@Require('bugwork.WorkerAnnotation')
+//@Require('bugwork.WorkerTag')
 
 
 //-------------------------------------------------------------------------------
@@ -28,21 +28,21 @@ var bugpack                             = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var Class                               = bugpack.require('Class');
-var ConfigurationAnnotationProcessor    = bugpack.require('bugioc.ConfigurationAnnotationProcessor');
-var ConfigurationScan                   = bugpack.require('bugioc.ConfigurationScan');
+var ConfigurationTagProcessor    = bugpack.require('bugioc.ConfigurationTagProcessor');
+var ConfigurationTagScan                   = bugpack.require('bugioc.ConfigurationTagScan');
 var IocContext                          = bugpack.require('bugioc.IocContext');
-var ModuleAnnotationProcessor           = bugpack.require('bugioc.ModuleAnnotationProcessor');
-var ModuleScan                          = bugpack.require('bugioc.ModuleScan');
+var ModuleTagProcessor           = bugpack.require('bugioc.ModuleTagProcessor');
+var ModuleTagScan                          = bugpack.require('bugioc.ModuleTagScan');
 var BugMeta                             = bugpack.require('bugmeta.BugMeta');
 var Worker                              = bugpack.require('bugwork.Worker');
-var WorkerAnnotation                    = bugpack.require('bugwork.WorkerAnnotation');
+var WorkerTag                    = bugpack.require('bugwork.WorkerTag');
 
 
 //-------------------------------------------------------------------------------
 // Simplify References
 //-------------------------------------------------------------------------------
 
-var worker                              = WorkerAnnotation.worker;
+var worker                              = WorkerTag.worker;
 var bugmeta                             = BugMeta.context();
 
 
@@ -76,15 +76,15 @@ var PushWorker = Class.extend(Worker, {
 
         /**
          * @private
-         * @type {ConfigurationScan}
+         * @type {ConfigurationTagScan}
          */
-        this.configurationScan  = new ConfigurationScan(bugmeta, new ConfigurationAnnotationProcessor(this.iocContext));
+        this.configurationTagScan  = new ConfigurationTagScan(bugmeta, new ConfigurationTagProcessor(this.iocContext));
 
         /**
          * @private
-         * @type {ModuleScan}
+         * @type {ModuleTagScan}
          */
-        this.moduleScan         = new ModuleScan(bugmeta, new ModuleAnnotationProcessor(this.iocContext));
+        this.moduleTagScan         = new ModuleTagScan(bugmeta, new ModuleTagProcessor(this.iocContext));
     },
 
 
@@ -93,10 +93,10 @@ var PushWorker = Class.extend(Worker, {
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {ConfigurationScan}
+     * @return {ConfigurationTagScan}
      */
-    getConfigurationScan: function() {
-        return this.configurationScan;
+    getConfigurationTagScan: function() {
+        return this.configurationTagScan;
     },
 
     /**
@@ -107,10 +107,10 @@ var PushWorker = Class.extend(Worker, {
     },
 
     /**
-     * @return {ModuleScan}
+     * @return {ModuleTagScan}
      */
-    getModuleScan: function() {
-        return this.moduleScan;
+    getModuleTagScan: function() {
+        return this.moduleTagScan;
     },
 
 
@@ -142,8 +142,8 @@ var PushWorker = Class.extend(Worker, {
     process: function(callback) {
         var throwable = null;
         try {
-            this.configurationScan.scanBugpack("meldbug.PushWorkerConfiguration");
-            this.moduleScan.scanBugpacks([
+            this.configurationTagScan.scanBugpack("meldbug.PushWorkerConfiguration");
+            this.moduleTagScan.scanBugpacks([
                 "bugmarsh.Marshaller",
                 "bugmarsh.MarshRegistry",
                 "bugsub.PubSub",
@@ -169,7 +169,7 @@ var PushWorker = Class.extend(Worker, {
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(PushWorker).with(
+bugmeta.tag(PushWorker).with(
     worker("pushWorker")
 );
 

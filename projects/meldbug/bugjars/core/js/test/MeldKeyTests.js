@@ -6,7 +6,7 @@
 
 //@Require('meldbug.MeldDocumentKey')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 
 
 //-------------------------------------------------------------------------------
@@ -22,7 +22,7 @@ var bugpack                 = require('bugpack').context();
 
 var MeldDocumentKey         = bugpack.require('meldbug.MeldDocumentKey');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation          = bugpack.require('bugunit.TestAnnotation');
+var TestTag          = bugpack.require('bugunit.TestTag');
 
 
 //-------------------------------------------------------------------------------
@@ -30,7 +30,7 @@ var TestAnnotation          = bugpack.require('bugunit.TestAnnotation');
 //-------------------------------------------------------------------------------
 
 var bugmeta                 = BugMeta.context();
-var test                    = TestAnnotation.test;
+var test                    = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -68,6 +68,6 @@ var meldDocumentKeyTest = {
             "Verify that meld key object's dataType property is the same as what is contained in the MeldDocumentKey object");
     }
 };
-bugmeta.annotate(meldDocumentKeyTest).with(
+bugmeta.tag(meldDocumentKeyTest).with(
     test().name("MeldDocumentKey Tests")
 );

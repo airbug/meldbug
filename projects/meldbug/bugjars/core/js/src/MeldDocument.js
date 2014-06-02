@@ -16,8 +16,8 @@
 //@Require('bugdelta.DocumentChange')
 //@Require('bugdelta.ObjectChange')
 //@Require('bugdelta.SetChange')
-//@Require('bugmarsh.MarshAnnotation');
-//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmarsh.MarshTag');
+//@Require('bugmarsh.MarshPropertyTag');
 //@Require('bugmeta.BugMeta')
 //@Require('meldbug.MeldDocumentEvent')
 
@@ -45,8 +45,8 @@ var DeltaDocument               = bugpack.require('bugdelta.DeltaDocument');
 var DocumentChange              = bugpack.require('bugdelta.DocumentChange');
 var ObjectChange                = bugpack.require('bugdelta.ObjectChange');
 var SetChange                   = bugpack.require('bugdelta.SetChange');
-var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
-var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var MarshTag             = bugpack.require('bugmarsh.MarshTag');
+var MarshPropertyTag     = bugpack.require('bugmarsh.MarshPropertyTag');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 var MeldDocumentEvent           = bugpack.require('meldbug.MeldDocumentEvent');
 
@@ -56,8 +56,8 @@ var MeldDocumentEvent           = bugpack.require('meldbug.MeldDocumentEvent');
 //-------------------------------------------------------------------------------
 
 var bugmeta                     = BugMeta.context();
-var marsh                       = MarshAnnotation.marsh;
-var property                    = MarshPropertyAnnotation.property;
+var marsh                       = MarshTag.marsh;
+var property                    = MarshPropertyTag.property;
 
 
 //-------------------------------------------------------------------------------
@@ -384,7 +384,7 @@ MeldDocument.ChangeTypes = {
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(MeldDocument).with(
+bugmeta.tag(MeldDocument).with(
     marsh("MeldDocument")
         .properties([
             property("data")

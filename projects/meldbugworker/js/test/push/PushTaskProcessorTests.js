@@ -7,7 +7,7 @@
 //@Require('Class')
 //@Require('TypeUtil')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('bugyarn.BugYarn')
 //@Require('meldbug.PushTaskProcessor')
 
@@ -26,7 +26,7 @@ var bugpack                     = require('bugpack').context();
 var Class                       = bugpack.require('Class');
 var TypeUtil                    = bugpack.require('TypeUtil');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation              = bugpack.require('bugunit.TestAnnotation');
+var TestTag              = bugpack.require('bugunit.TestTag');
 var BugYarn                     = bugpack.require('bugyarn.BugYarn');
 var PushTaskProcessor           = bugpack.require('meldbug.PushTaskProcessor');
 
@@ -37,7 +37,7 @@ var PushTaskProcessor           = bugpack.require('meldbug.PushTaskProcessor');
 
 var bugmeta                     = BugMeta.context();
 var bugyarn                     = BugYarn.context();
-var test                        = TestAnnotation.test;
+var test                        = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -102,6 +102,6 @@ var pushTaskProcessorInstantiationTest = {
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(pushTaskProcessorInstantiationTest).with(
+bugmeta.tag(pushTaskProcessorInstantiationTest).with(
     test().name("PushTaskProcessor - instantiation Test")
 );

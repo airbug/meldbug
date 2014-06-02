@@ -9,7 +9,7 @@
 //@Require('bugmarsh.MarshRegistry')
 //@Require('bugmarsh.Marshaller')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('bugyarn.BugYarn')
 //@Require('meldbug.PutMeldDocumentOperation')
 //@Require('meldbug.MeldBuilder')
@@ -33,7 +33,7 @@ require('bugpack').context("*", function(bugpack) {
     var MarshRegistry               = bugpack.require('bugmarsh.MarshRegistry');
     var Marshaller                  = bugpack.require('bugmarsh.Marshaller');
     var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-    var TestAnnotation              = bugpack.require('bugunit.TestAnnotation');
+    var TestTag              = bugpack.require('bugunit.TestTag');
     var BugYarn                     = bugpack.require('bugyarn.BugYarn');
     var PutMeldDocumentOperation    = bugpack.require('meldbug.PutMeldDocumentOperation');
     var MeldBuilder                 = bugpack.require('meldbug.MeldBuilder');
@@ -48,7 +48,7 @@ require('bugpack').context("*", function(bugpack) {
 
     var bugmeta                     = BugMeta.context();
     var bugyarn                     = BugYarn.context();
-    var test                        = TestAnnotation.test;
+    var test                        = TestTag.test;
 
 
     //-------------------------------------------------------------------------------
@@ -201,7 +201,7 @@ require('bugpack').context("*", function(bugpack) {
                 "Assert meldDocumentKey's id is testId");
         }
     };
-    bugmeta.annotate(meldBuilderBuildMeldDocumentKeyTest).with(
+    bugmeta.tag(meldBuilderBuildMeldDocumentKeyTest).with(
         test().name("MeldBuilder #buildMeldDocumentKey Test")
     );
 
@@ -231,7 +231,7 @@ require('bugpack').context("*", function(bugpack) {
                 "Assert meldDocumentKeyData's id is testId");
         }
     };
-    bugmeta.annotate(meldBuilderUnbuildMeldDocumentKeyTest).with(
+    bugmeta.tag(meldBuilderUnbuildMeldDocumentKeyTest).with(
         test().name("MeldBuilder #unbuildMeldDocumentKey Test")
     );
 
@@ -277,7 +277,7 @@ require('bugpack').context("*", function(bugpack) {
                 "Assert meldOperation's meldDocument was set correctly");
         }
     };
-    bugmeta.annotate(meldBuilderBuildMeldOperationTest).with(
+    bugmeta.tag(meldBuilderBuildMeldOperationTest).with(
         test().name("MeldBuilder #buildMeldOperation Test")
     );
 
@@ -329,19 +329,19 @@ require('bugpack').context("*", function(bugpack) {
     // BugMeta
     //-------------------------------------------------------------------------------
 
-    bugmeta.annotate(meldBuilderInstantiationTest).with(
+    bugmeta.tag(meldBuilderInstantiationTest).with(
         test().name("MeldBuilder - instantiation test")
     );
 
-    bugmeta.annotate(meldBuilderGenerateMeldDocumentKeyTest).with(
+    bugmeta.tag(meldBuilderGenerateMeldDocumentKeyTest).with(
         test().name("MeldBuilder #generateMeldDocumentKey Test")
     );
 
-    bugmeta.annotate(meldBuilderMarshalUnmarshalMeldDocumentTest).with(
+    bugmeta.tag(meldBuilderMarshalUnmarshalMeldDocumentTest).with(
         test().name("MeldBuilder - marshal and unmarshal Test")
     );
 
-    /*bugmeta.annotate(meldBuilderUnbuildMeldOperationTest).with(
+    /*bugmeta.tag(meldBuilderUnbuildMeldOperationTest).with(
         test().name("MeldBuilder #unbuildMeldOperation Test")
     );*/
 });

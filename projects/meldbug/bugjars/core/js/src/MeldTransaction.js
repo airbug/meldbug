@@ -7,8 +7,8 @@
 //@Require('Class')
 //@Require('List')
 //@Require('Obj')
-//@Require('bugmarsh.MarshAnnotation');
-//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmarsh.MarshTag');
+//@Require('bugmarsh.MarshPropertyTag');
 //@Require('bugmeta.BugMeta')
 
 
@@ -27,8 +27,8 @@ var bugpack                     = require('bugpack').context();
 var Class                       = bugpack.require('Class');
 var List                        = bugpack.require('List');
 var Obj                         = bugpack.require('Obj');
-var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
-var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var MarshTag             = bugpack.require('bugmarsh.MarshTag');
+var MarshPropertyTag     = bugpack.require('bugmarsh.MarshPropertyTag');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 
 
@@ -37,8 +37,8 @@ var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 //-------------------------------------------------------------------------------
 
 var bugmeta                     = BugMeta.context();
-var marsh                       = MarshAnnotation.marsh;
-var property                    = MarshPropertyAnnotation.property;
+var marsh                       = MarshTag.marsh;
+var property                    = MarshPropertyTag.property;
 
 
 //-------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ var MeldTransaction = Class.extend(Obj, {
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(MeldTransaction).with(
+bugmeta.tag(MeldTransaction).with(
     marsh("MeldTransaction")
         .properties([
             property("meldOperationList")

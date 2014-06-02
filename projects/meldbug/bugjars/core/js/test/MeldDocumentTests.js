@@ -8,7 +8,7 @@
 //@Require('Set')
 //@Require('bugdelta.DeltaDocument')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('bugyarn.BugYarn')
 //@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldDocumentKey')
@@ -30,7 +30,7 @@ var Class                   = bugpack.require('Class');
 var Set                     = bugpack.require('Set');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
 var DeltaDocument           = bugpack.require('bugdelta.DeltaDocument');
-var TestAnnotation          = bugpack.require('bugunit.TestAnnotation');
+var TestTag          = bugpack.require('bugunit.TestTag');
 var BugYarn                 = bugpack.require('bugyarn.BugYarn');
 var MeldDocument            = bugpack.require('meldbug.MeldDocument');
 var MeldDocumentKey         = bugpack.require('meldbug.MeldDocumentKey');
@@ -43,7 +43,7 @@ var MeldBucket              = bugpack.require('meldbug.MeldBucket');
 
 var bugmeta                 = BugMeta.context();
 var bugyarn                 = BugYarn.context();
-var test                    = TestAnnotation.test;
+var test                    = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -190,14 +190,14 @@ var meldDocumentAddToSetNonExistentTest = {
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(meldDocumentInstantiationTest).with(
+bugmeta.tag(meldDocumentInstantiationTest).with(
     test().name("MeldDocument - instantiation Test")
 );
 
-bugmeta.annotate(meldDocumentTest).with(
+bugmeta.tag(meldDocumentTest).with(
     test().name("MeldDocument Tests")
 );
 
-bugmeta.annotate(meldDocumentAddToSetNonExistentTest).with(
+bugmeta.tag(meldDocumentAddToSetNonExistentTest).with(
     test().name("MeldDocument - addToSet non existent Set test")
 );

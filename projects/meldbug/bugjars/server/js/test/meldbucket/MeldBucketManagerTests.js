@@ -7,7 +7,7 @@
 //@Require('Class')
 //@Require('bugflow.BugFlow')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('bugyarn.BugYarn')
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldBucketManager')
@@ -28,7 +28,7 @@ var bugpack                 = require('bugpack').context();
 var Class                   = bugpack.require('Class');
 var BugFlow                 = bugpack.require('bugflow.BugFlow');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation          = bugpack.require('bugunit.TestAnnotation');
+var TestTag          = bugpack.require('bugunit.TestTag');
 var BugYarn                 = bugpack.require('bugyarn.BugYarn');
 var MeldBucket              = bugpack.require('meldbug.MeldBucket');
 var MeldBucketManager       = bugpack.require('meldbug.MeldBucketManager');
@@ -41,7 +41,7 @@ var MeldDocument            = bugpack.require('meldbug.MeldDocument');
 
 var bugmeta                 = BugMeta.context();
 var bugyarn                 = BugYarn.context();
-var test                    = TestAnnotation.test;
+var test                    = TestTag.test;
 var $series                 = BugFlow.$series;
 var $task                   = BugFlow.$task;
 
@@ -173,9 +173,9 @@ var meldBucketManagerCompressDecompressMeldBucketTest = {
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(meldBucketManagerInstantiationTest).with(
+bugmeta.tag(meldBucketManagerInstantiationTest).with(
     test().name("MeldBucketManager - instantiation test")
 );
-bugmeta.annotate(meldBucketManagerCompressDecompressMeldBucketTest).with(
+bugmeta.tag(meldBucketManagerCompressDecompressMeldBucketTest).with(
     test().name("MeldBucketManager - #compressMeldBucket #decompressMeldBucket test")
 );

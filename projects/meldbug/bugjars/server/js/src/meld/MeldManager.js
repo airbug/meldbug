@@ -9,8 +9,8 @@
 //@Require('Obj')
 //@Require('Set')
 //@Require('bugflow.BugFlow')
-//@Require('bugioc.ArgAnnotation')
-//@Require('bugioc.ModuleAnnotation')
+//@Require('bugioc.ArgTag')
+//@Require('bugioc.ModuleTag')
 //@Require('bugmeta.BugMeta')
 //@Require('meldbug.MeldDocumentKey')
 
@@ -30,8 +30,8 @@ var Class                   = bugpack.require('Class');
 var Obj                     = bugpack.require('Obj');
 var Set                     = bugpack.require('Set');
 var BugFlow                 = bugpack.require('bugflow.BugFlow');
-var ArgAnnotation           = bugpack.require('bugioc.ArgAnnotation');
-var ModuleAnnotation        = bugpack.require('bugioc.ModuleAnnotation');
+var ArgTag           = bugpack.require('bugioc.ArgTag');
+var ModuleTag        = bugpack.require('bugioc.ModuleTag');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
 var MeldDocumentKey         = bugpack.require('meldbug.MeldDocumentKey');
 
@@ -40,9 +40,9 @@ var MeldDocumentKey         = bugpack.require('meldbug.MeldDocumentKey');
 // Simplify References
 //-------------------------------------------------------------------------------
 
-var arg                     = ArgAnnotation.arg;
+var arg                     = ArgTag.arg;
 var bugmeta                 = BugMeta.context();
-var module                  = ModuleAnnotation.module;
+var module                  = ModuleTag.module;
 var $series                 = BugFlow.$series;
 var $task                   = BugFlow.$task;
 
@@ -333,7 +333,7 @@ var MeldManager = Class.extend(Obj, {
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(MeldManager).with(
+bugmeta.tag(MeldManager).with(
     module("meldManager")
         .args([
             arg().ref("redisClient"),

@@ -12,7 +12,7 @@
 //@Require('bugdelta.MapChange')
 //@Require('bugdelta.ObjectChange')
 //@Require('bugdelta.SetChange')
-//@Require('bugioc.ModuleAnnotation')
+//@Require('bugioc.ModuleTag')
 //@Require('bugmeta.BugMeta')
 //@Require('meldbug.AddToSetOperation')
 //@Require('meldbug.MeldDocument')
@@ -44,7 +44,7 @@ var DocumentChange                      = bugpack.require('bugdelta.DocumentChan
 var MapChange                           = bugpack.require('bugdelta.MapChange');
 var ObjectChange                        = bugpack.require('bugdelta.ObjectChange');
 var SetChange                           = bugpack.require('bugdelta.SetChange');
-var ModuleAnnotation                    = bugpack.require('bugioc.ModuleAnnotation');
+var ModuleTag                    = bugpack.require('bugioc.ModuleTag');
 var BugMeta                             = bugpack.require('bugmeta.BugMeta');
 var AddToSetOperation                   = bugpack.require('meldbug.AddToSetOperation');
 var MeldDocument                        = bugpack.require('meldbug.MeldDocument');
@@ -63,7 +63,7 @@ var SetObjectPropertyOperation          = bugpack.require('meldbug.SetObjectProp
 //-------------------------------------------------------------------------------
 
 var bugmeta                             = BugMeta.context();
-var module                              = ModuleAnnotation.module;
+var module                              = ModuleTag.module;
 
 
 //-------------------------------------------------------------------------------
@@ -320,7 +320,7 @@ var MeldTransactionGenerator = Class.extend(Obj, {
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(MeldTransactionGenerator).with(
+bugmeta.tag(MeldTransactionGenerator).with(
     module("meldTransactionGenerator")
 );
 

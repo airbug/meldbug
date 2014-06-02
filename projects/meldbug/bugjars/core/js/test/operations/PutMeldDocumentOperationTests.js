@@ -5,7 +5,7 @@
 //@TestFile
 
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('meldbug.PutMeldDocumentOperation')
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldDocument')
@@ -24,7 +24,7 @@ var bugpack                     = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation              = bugpack.require('bugunit.TestAnnotation');
+var TestTag              = bugpack.require('bugunit.TestTag');
 var PutMeldDocumentOperation    = bugpack.require('meldbug.PutMeldDocumentOperation');
 var MeldBucket                  = bugpack.require('meldbug.MeldBucket');
 var MeldDocument                = bugpack.require('meldbug.MeldDocument');
@@ -36,7 +36,7 @@ var MeldDocumentKey                     = bugpack.require('meldbug.MeldDocumentK
 //-------------------------------------------------------------------------------
 
 var bugmeta                     = BugMeta.context();
-var test                        = TestAnnotation.test;
+var test                        = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ var putMeldDocumentOperationInstantiationTest = {
             "Assert PutMeldDocumentOperation's type is PutMeldDocumentOperation.TYPE");
     }
 };
-bugmeta.annotate(putMeldDocumentOperationInstantiationTest).with(
+bugmeta.tag(putMeldDocumentOperationInstantiationTest).with(
     test().name("PutMeldDocumentOperation - instantiation Test")
 );
 
@@ -113,6 +113,6 @@ var putMeldDocumentOperationApplyTest = {
             "Assert the meldBucket does not contain the duplicate MeldDocument");
     }
 };
-bugmeta.annotate(putMeldDocumentOperationApplyTest).with(
+bugmeta.tag(putMeldDocumentOperationApplyTest).with(
     test().name("PutMeldDocumentOperation - #apply Test")
 );

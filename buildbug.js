@@ -68,8 +68,8 @@ buildProperties({
             "../bugflow/projects/bugflow/js/src",
             "../bugfs/projects/bugfs/js/src",
             "../bugjs/projects/bugapp/js/src",
-            "../bugjs/projects/bugcall/bugjars/core/js/src",
-            "../bugjs/projects/bugcall/bugjars/publisher/js/src",
+            "../bugjs/projects/bugcall/libraries/core/js/src",
+            "../bugjs/projects/bugcall/libraries/publisher/js/src",
             "../bugjs/projects/bugdelta/js/src",
             "../bugjs/projects/bugioc/js/src",
             "../bugjs/projects/bugmarsh/js/src",
@@ -114,8 +114,8 @@ buildProperties({
                 "../bugflow/projects/bugflow/js/test",
                 "../bugfs/projects/bugfs/js/test",
                 "../bugjs/projects/bugapp/js/test",
-                "../bugjs/projects/bugcall/bugjars/core/js/test",
-                "../bugjs/projects/bugcall/bugjars/publisher/js/test",
+                "../bugjs/projects/bugcall/libraries/core/js/test",
+                "../bugjs/projects/bugcall/libraries/publisher/js/test",
                 "../bugjs/projects/bugdelta/js/test",
                 "../bugjs/projects/bugioc/js/test",
                 "../bugjs/projects/bugmarsh/js/test",
@@ -167,7 +167,7 @@ buildTarget('local').buildFlow(
         // old source files are removed. We should figure out a better way of doing that.
 
         targetTask('clean'),
-        targetTask('lint', {
+        /*targetTask('lint', {
             properties: {
                 targetPaths: buildProject.getProperty("lint.targetPaths"),
                 ignores: buildProject.getProperty("lint.ignorePatterns"),
@@ -175,7 +175,7 @@ buildTarget('local').buildFlow(
                     "fixExportAndRemovePackageAnnotations"
                 ]
             }
-        }),
+        }),*/
         parallel([
             series([
                 targetTask('createNodePackage', {
@@ -374,5 +374,5 @@ buildScript({
         "bugcore",
         "bugflow"
     ],
-    script: "../bugjs/lintbug.js"
+    script: "./lintbug.js"
 });

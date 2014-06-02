@@ -7,7 +7,7 @@
 //@Require('Class')
 //@Require('bugdouble.BugDouble')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('bugyarn.BugYarn')
 //@Require('meldbug.CleanupTaskManager')
 
@@ -26,7 +26,7 @@ var bugpack                 = require('bugpack').context();
 var Class                   = bugpack.require('Class');
 var BugDouble               = bugpack.require('bugdouble.BugDouble');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation          = bugpack.require('bugunit.TestAnnotation');
+var TestTag          = bugpack.require('bugunit.TestTag');
 var BugYarn                 = bugpack.require('bugyarn.BugYarn');
 var CleanupTaskManager         = bugpack.require('meldbug.CleanupTaskManager');
 
@@ -38,7 +38,7 @@ var CleanupTaskManager         = bugpack.require('meldbug.CleanupTaskManager');
 var bugmeta                 = BugMeta.context();
 var bugyarn                 = BugYarn.context();
 var stubObject              = BugDouble.stubObject;
-var test                    = TestAnnotation.test;
+var test                    = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -106,6 +106,6 @@ var cleanupTaskManagerInstantiationTest = {
             "Assert .taskQueueName was set correctly");
     }
 };
-bugmeta.annotate(cleanupTaskManagerInstantiationTest).with(
+bugmeta.tag(cleanupTaskManagerInstantiationTest).with(
     test().name("CleanupTaskManager - instantiation test")
 );

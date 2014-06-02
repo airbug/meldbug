@@ -12,8 +12,8 @@
 //@Require('Pair')
 //@Require('Set')
 //@Require('TypeUtil')
-//@Require('bugioc.ArgAnnotation')
-//@Require('bugioc.ModuleAnnotation')
+//@Require('bugioc.ArgTag')
+//@Require('bugioc.ModuleTag')
 //@Require('bugmeta.BugMeta')
 //@Require('meldbug.MeldBucketKey')
 //@Require('meldbug.MeldBucket')
@@ -38,8 +38,8 @@ require('bugpack').context("*", function(bugpack) {
     var Pair                                = bugpack.require('Pair');
     var Set                                 = bugpack.require('Set');
     var TypeUtil                            = bugpack.require('TypeUtil');
-    var ArgAnnotation                       = bugpack.require('bugioc.ArgAnnotation');
-    var ModuleAnnotation                    = bugpack.require('bugioc.ModuleAnnotation');
+    var ArgTag                       = bugpack.require('bugioc.ArgTag');
+    var ModuleTag                    = bugpack.require('bugioc.ModuleTag');
     var BugMeta                             = bugpack.require('bugmeta.BugMeta');
     var MeldBucketKey                       = bugpack.require('meldbug.MeldBucketKey');
     var MeldBucket                          = bugpack.require('meldbug.MeldBucket');
@@ -51,9 +51,9 @@ require('bugpack').context("*", function(bugpack) {
     // Simplify References
     //-------------------------------------------------------------------------------
 
-    var arg                                 = ArgAnnotation.arg;
+    var arg                                 = ArgTag.arg;
     var bugmeta                             = BugMeta.context();
-    var module                              = ModuleAnnotation.module;
+    var module                              = ModuleTag.module;
 
 
     //-------------------------------------------------------------------------------
@@ -162,7 +162,7 @@ require('bugpack').context("*", function(bugpack) {
     // BugMeta
     //-------------------------------------------------------------------------------
 
-    bugmeta.annotate(MeldBuilder).with(
+    bugmeta.tag(MeldBuilder).with(
         module("meldBuilder")
             .args([
                 arg().ref("marshaller")

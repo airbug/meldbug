@@ -7,7 +7,7 @@
 //@Require('Class')
 //@Require('TypeUtil')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('bugyarn.BugYarn')
 //@Require('meldbug.MeldTaskProcessor')
 
@@ -26,7 +26,7 @@ var bugpack                     = require('bugpack').context();
 var Class                       = bugpack.require('Class');
 var TypeUtil                    = bugpack.require('TypeUtil');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation              = bugpack.require('bugunit.TestAnnotation');
+var TestTag              = bugpack.require('bugunit.TestTag');
 var BugYarn                     = bugpack.require('bugyarn.BugYarn');
 var MeldTaskProcessor           = bugpack.require('meldbug.MeldTaskProcessor');
 
@@ -37,7 +37,7 @@ var MeldTaskProcessor           = bugpack.require('meldbug.MeldTaskProcessor');
 
 var bugmeta                     = BugMeta.context();
 var bugyarn                     = BugYarn.context();
-var test                        = TestAnnotation.test;
+var test                        = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -114,6 +114,6 @@ var meldTaskProcessorInstantiationTest = {
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(meldTaskProcessorInstantiationTest).with(
+bugmeta.tag(meldTaskProcessorInstantiationTest).with(
     test().name("MeldTaskProcessor - instantiation Test")
 );

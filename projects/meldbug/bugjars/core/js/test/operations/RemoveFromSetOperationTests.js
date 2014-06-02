@@ -7,7 +7,7 @@
 //@Require('Class')
 //@Require('Set')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldDocumentKey')
@@ -28,7 +28,7 @@ var bugpack                 = require('bugpack').context();
 var Class                   = bugpack.require('Class');
 var Set                     = bugpack.require('Set');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation          = bugpack.require('bugunit.TestAnnotation');
+var TestTag          = bugpack.require('bugunit.TestTag');
 var MeldBucket              = bugpack.require('meldbug.MeldBucket');
 var MeldDocument            = bugpack.require('meldbug.MeldDocument');
 var MeldDocumentKey         = bugpack.require('meldbug.MeldDocumentKey');
@@ -40,7 +40,7 @@ var RemoveFromSetOperation  = bugpack.require('meldbug.RemoveFromSetOperation');
 //-------------------------------------------------------------------------------
 
 var bugmeta                 = BugMeta.context();
-var test                    = TestAnnotation.test;
+var test                    = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ var removeFromSetOperationGetPathTest = {
             "Assert removeFromSetOperation#getPath returns 'testPath'");
     }
 };
-bugmeta.annotate(removeFromSetOperationGetPathTest).with(
+bugmeta.tag(removeFromSetOperationGetPathTest).with(
     test().name("RemoveFromSetOperation - #getPath Test")
 );
 
@@ -106,7 +106,7 @@ var removeFromSetOperationGetSetValueTest = {
             "Assert removeFromSetOperation#getPath returns 'testSetValue'");
     }
 };
-bugmeta.annotate(removeFromSetOperationGetSetValueTest).with(
+bugmeta.tag(removeFromSetOperationGetSetValueTest).with(
     test().name("RemoveFromSetOperation - #getSetValue Test")
 );
 
@@ -151,7 +151,7 @@ var removeFromSetOperationApplyTest = {
             "Assert 'testSetValueThree' was not removed");
     }
 };
-bugmeta.annotate(removeFromSetOperationApplyTest).with(
+bugmeta.tag(removeFromSetOperationApplyTest).with(
     test().name("RemoveFromSetOperation - #apply Test")
 );
 
@@ -202,6 +202,6 @@ var removeFromSetOperationCloneTest = {
             "Assert that the clone is not the same object as the original");
     }
 };
-bugmeta.annotate(removeFromSetOperationCloneTest).with(
+bugmeta.tag(removeFromSetOperationCloneTest).with(
     test().name("RemoveFromSetOperation - #clone Test")
 );

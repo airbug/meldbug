@@ -6,7 +6,7 @@
 
 //@Require('Class')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('bugyarn.BugYarn')
 //@Require('meldbug.PutMeldDocumentOperation')
 //@Require('meldbug.MeldBucket')
@@ -29,7 +29,7 @@ var bugpack                     = require('bugpack').context();
 
 var Class                       = bugpack.require('Class');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation              = bugpack.require('bugunit.TestAnnotation');
+var TestTag              = bugpack.require('bugunit.TestTag');
 var BugYarn                     = bugpack.require('bugyarn.BugYarn');
 var PutMeldDocumentOperation    = bugpack.require('meldbug.PutMeldDocumentOperation');
 var MeldBucket                  = bugpack.require('meldbug.MeldBucket');
@@ -45,7 +45,7 @@ var RemoveMeldDocumentOperation = bugpack.require('meldbug.RemoveMeldDocumentOpe
 
 var bugmeta                     = BugMeta.context();
 var bugyarn                     = BugYarn.context();
-var test                        = TestAnnotation.test;
+var test                        = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ var meldBucketInstantiationTest = {
             "Assert instance of MeldBucket");
     }
 };
-bugmeta.annotate(meldBucketInstantiationTest).with(
+bugmeta.tag(meldBucketInstantiationTest).with(
     test().name("MeldBucket - instantiation Test")
 );
 
@@ -113,7 +113,7 @@ var meldBucketCloneDeepTest = {
             "Assert deep clone has been performed");
     }
 };
-bugmeta.annotate(meldBucketCloneDeepTest).with(
+bugmeta.tag(meldBucketCloneDeepTest).with(
     test().name("MeldBucket - #clone deep Test")
 );
 
@@ -142,7 +142,7 @@ var meldBucketContainsMeldDocumentTest = {
             "Assert the correct meldDocument is in the meldBucket");
     }
 };
-bugmeta.annotate(meldBucketContainsMeldDocumentTest).with(
+bugmeta.tag(meldBucketContainsMeldDocumentTest).with(
     test().name("MeldBucket - #containsMeldDocument Test")
 );
 
@@ -177,7 +177,7 @@ var meldBucketContainsMeldDocumentByKeyTest = {
             "Assert the correct meldDocument is retrieved using a meldDocumentKey clone");
     }
 };
-bugmeta.annotate(meldBucketContainsMeldDocumentByKeyTest).with(
+bugmeta.tag(meldBucketContainsMeldDocumentByKeyTest).with(
     test().name("MeldBucket - #containsMeldDocumentByKey Test")
 );
 
@@ -206,7 +206,7 @@ var meldBucketAddMeldDocumentTest = {
             "Assert the meldDocument has been added");
     }
 };
-bugmeta.annotate(meldBucketAddMeldDocumentTest).with(
+bugmeta.tag(meldBucketAddMeldDocumentTest).with(
     test().name("MeldBucket - #addMeldDocument Test")
 );
 
@@ -234,7 +234,7 @@ var meldBucketGetMeldDocumentByMeldDocumentKeyTest = {
             "Assert getMeldDocumentByMeldDocumentKey returns the correct meldDocument");
     }
 };
-bugmeta.annotate(meldBucketGetMeldDocumentByMeldDocumentKeyTest).with(
+bugmeta.tag(meldBucketGetMeldDocumentByMeldDocumentKeyTest).with(
     test().name("MeldBucket - #getMeldDocumentByMeldDocumentKey Test")
 );
 
@@ -267,6 +267,6 @@ var meldBucketRemoveMeldTest = {
             "Assert the meld has been removed");
     }
 };
-bugmeta.annotate(meldBucketRemoveMeldTest).with(
+bugmeta.tag(meldBucketRemoveMeldTest).with(
     test().name("MeldBucket - #removeMeld Test")
 );

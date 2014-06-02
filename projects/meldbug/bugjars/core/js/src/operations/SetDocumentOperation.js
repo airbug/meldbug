@@ -6,8 +6,8 @@
 
 //@Require('Class')
 //@Require('Obj')
-//@Require('bugmarsh.MarshAnnotation');
-//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmarsh.MarshTag');
+//@Require('bugmarsh.MarshPropertyTag');
 //@Require('bugmeta.BugMeta')
 //@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldOperation')
@@ -26,8 +26,8 @@ var bugpack                     = require('bugpack').context();
 
 var Class                       = bugpack.require('Class');
 var Obj                         = bugpack.require('Obj');
-var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
-var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var MarshTag             = bugpack.require('bugmarsh.MarshTag');
+var MarshPropertyTag     = bugpack.require('bugmarsh.MarshPropertyTag');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 var MeldDocument                = bugpack.require('meldbug.MeldDocument');
 var MeldOperation               = bugpack.require('meldbug.MeldOperation');
@@ -38,8 +38,8 @@ var MeldOperation               = bugpack.require('meldbug.MeldOperation');
 //-------------------------------------------------------------------------------
 
 var bugmeta                     = BugMeta.context();
-var marsh                       = MarshAnnotation.marsh;
-var property                    = MarshPropertyAnnotation.property;
+var marsh                       = MarshTag.marsh;
+var property                    = MarshPropertyTag.property;
 
 
 //-------------------------------------------------------------------------------
@@ -137,7 +137,7 @@ SetDocumentOperation.TYPE = "SetDocumentOperation";
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(SetDocumentOperation).with(
+bugmeta.tag(SetDocumentOperation).with(
     marsh("SetDocumentOperation")
         .properties([
             property("data"),

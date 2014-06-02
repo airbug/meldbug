@@ -9,8 +9,8 @@
 //@Require('Obj')
 //@Require('Set')
 //@Require('bugflow.BugFlow')
-//@Require('bugmarsh.MarshAnnotation');
-//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmarsh.MarshTag');
+//@Require('bugmarsh.MarshPropertyTag');
 //@Require('bugmeta.BugMeta')
 //@Require('bugtask.TaskDefines')
 //@Require('meldbug.AddToSetOperation')
@@ -39,8 +39,8 @@ var Class                               = bugpack.require('Class');
 var Obj                                 = bugpack.require('Obj');
 var Set                                 = bugpack.require('Set');
 var BugFlow                             = bugpack.require('bugflow.BugFlow');
-var MarshAnnotation                     = bugpack.require('bugmarsh.MarshAnnotation');
-var MarshPropertyAnnotation             = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var MarshTag                     = bugpack.require('bugmarsh.MarshTag');
+var MarshPropertyTag             = bugpack.require('bugmarsh.MarshPropertyTag');
 var BugMeta                             = bugpack.require('bugmeta.BugMeta');
 var TaskDefines                         = bugpack.require('bugtask.TaskDefines');
 var AddToSetOperation                   = bugpack.require('meldbug.AddToSetOperation');
@@ -58,8 +58,8 @@ var SetObjectPropertyOperation          = bugpack.require('meldbug.SetObjectProp
 //-------------------------------------------------------------------------------
 
 var bugmeta                             = BugMeta.context();
-var marsh                               = MarshAnnotation.marsh;
-var property                            = MarshPropertyAnnotation.property;
+var marsh                               = MarshTag.marsh;
+var property                            = MarshPropertyTag.property;
 var $series                             = BugFlow.$series;
 var $task                               = BugFlow.$task;
 
@@ -334,7 +334,7 @@ var Push = Class.extend(Obj, {
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(Push).with(
+bugmeta.tag(Push).with(
     marsh("Push")
         .properties([
             property("all"),

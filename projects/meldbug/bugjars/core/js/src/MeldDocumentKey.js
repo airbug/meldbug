@@ -8,8 +8,8 @@
 //@Require('Class')
 //@Require('IObjectable')
 //@Require('Obj')
-//@Require('bugmarsh.MarshAnnotation');
-//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmarsh.MarshTag');
+//@Require('bugmarsh.MarshPropertyTag');
 //@Require('bugmeta.BugMeta')
 
 
@@ -28,8 +28,8 @@ var ArgumentBug                 = bugpack.require('ArgumentBug');
 var Class                       = bugpack.require('Class');
 var IObjectable                 = bugpack.require('IObjectable');
 var Obj                         = bugpack.require('Obj');
-var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
-var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var MarshTag             = bugpack.require('bugmarsh.MarshTag');
+var MarshPropertyTag     = bugpack.require('bugmarsh.MarshPropertyTag');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 
 
@@ -38,8 +38,8 @@ var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 //-------------------------------------------------------------------------------
 
 var bugmeta                     = BugMeta.context();
-var marsh                       = MarshAnnotation.marsh;
-var property                    = MarshPropertyAnnotation.property;
+var marsh                       = MarshTag.marsh;
+var property                    = MarshPropertyTag.property;
 
 
 //-------------------------------------------------------------------------------
@@ -192,7 +192,7 @@ Class.implement(MeldDocumentKey, IObjectable);
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(MeldDocumentKey).with(
+bugmeta.tag(MeldDocumentKey).with(
     marsh("MeldDocumentKey")
         .properties([
             property("dataType"),

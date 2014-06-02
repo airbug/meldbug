@@ -7,7 +7,7 @@
 //@Require('Class')
 //@Require('bugflow.BugFlow')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('bugyarn.BugYarn')
 //@Require('meldbugserver.MeldBucketService')
 
@@ -26,7 +26,7 @@ var bugpack                     = require('bugpack').context();
 var Class                       = bugpack.require('Class');
 var BugFlow                     = bugpack.require('bugflow.BugFlow');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation              = bugpack.require('bugunit.TestAnnotation');
+var TestTag              = bugpack.require('bugunit.TestTag');
 var BugYarn                     = bugpack.require('bugyarn.BugYarn');
 var MeldBucketService           = bugpack.require('meldbugserver.MeldBucketService');
 
@@ -37,7 +37,7 @@ var MeldBucketService           = bugpack.require('meldbugserver.MeldBucketServi
 
 var bugmeta                     = BugMeta.context();
 var bugyarn                     = BugYarn.context();
-var test                        = TestAnnotation.test;
+var test                        = TestTag.test;
 var $series                     = BugFlow.$series;
 var $task                       = BugFlow.$task;
 
@@ -110,7 +110,7 @@ var meldBucketServiceInstantiationTest = {
             "Assert that .meldBuilder was set correctly");
     }
 };
-bugmeta.annotate(meldBucketServiceInstantiationTest).with(
+bugmeta.tag(meldBucketServiceInstantiationTest).with(
     test().name("MeldBucketService - instantiation Test")
 );
 
@@ -158,6 +158,6 @@ var meldBucketServicePreProcessCallNotCreatedNotReconnectTest = {
         });
     }
 };
-bugmeta.annotate(meldBucketServicePreProcessCallNotCreatedNotReconnectTest).with(
+bugmeta.tag(meldBucketServicePreProcessCallNotCreatedNotReconnectTest).with(
     test().name("MeldBucketService - #preProcessCall not created not reconnect Test")
 );

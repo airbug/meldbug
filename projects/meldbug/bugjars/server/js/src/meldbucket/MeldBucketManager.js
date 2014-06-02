@@ -7,8 +7,8 @@
 
 //@Require('Class')
 //@Require('Obj')
-//@Require('bugioc.ArgAnnotation')
-//@Require('bugioc.ModuleAnnotation')
+//@Require('bugioc.ArgTag')
+//@Require('bugioc.ModuleTag')
 //@Require('bugmeta.BugMeta')
 //@Require('bugtrace.BugTrace')
 //@Require('meldbug.MeldBucket')
@@ -29,8 +29,8 @@ var zlib                        = require('zlib');
 
 var Class                       = bugpack.require('Class');
 var Obj                         = bugpack.require('Obj');
-var ArgAnnotation               = bugpack.require('bugioc.ArgAnnotation');
-var ModuleAnnotation            = bugpack.require('bugioc.ModuleAnnotation');
+var ArgTag               = bugpack.require('bugioc.ArgTag');
+var ModuleTag            = bugpack.require('bugioc.ModuleTag');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 var BugTrace                    = bugpack.require('bugtrace.BugTrace');
 var MeldBucket                  = bugpack.require('meldbug.MeldBucket');
@@ -41,9 +41,9 @@ var MeldBucketKey               = bugpack.require('meldbug.MeldBucketKey');
 // Simplify References
 //-------------------------------------------------------------------------------
 
-var arg                         = ArgAnnotation.arg;
+var arg                         = ArgTag.arg;
 var bugmeta                     = BugMeta.context();
-var module                      = ModuleAnnotation.module;
+var module                      = ModuleTag.module;
 var $traceWithError             = BugTrace.$traceWithError;
 
 
@@ -299,7 +299,7 @@ var MeldBucketManager = Class.extend(Obj, {
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(MeldBucketManager).with(
+bugmeta.tag(MeldBucketManager).with(
     module("meldBucketManager")
         .args([
             arg().ref("redisClient"),

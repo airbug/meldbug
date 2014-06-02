@@ -5,7 +5,7 @@
 //@TestFile
 
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('meldbug.MeldDocumentKey')
 //@Require('meldbug.RemoveMeldDocumentOperation')
 
@@ -22,7 +22,7 @@ var bugpack                         = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var BugMeta                         = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation                  = bugpack.require('bugunit.TestAnnotation');
+var TestTag                  = bugpack.require('bugunit.TestTag');
 var MeldDocumentKey                         = bugpack.require('meldbug.MeldDocumentKey');
 var RemoveMeldDocumentOperation     = bugpack.require('meldbug.RemoveMeldDocumentOperation');
 
@@ -32,7 +32,7 @@ var RemoveMeldDocumentOperation     = bugpack.require('meldbug.RemoveMeldDocumen
 //-------------------------------------------------------------------------------
 
 var bugmeta                         = BugMeta.context();
-var test                            = TestAnnotation.test;
+var test                            = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -64,6 +64,6 @@ var removeMeldDocumentOperationInstantiationTest = {
             "Assert removeMeldDocumentOperation's type is RemoveMeldDocumentOperation.TYPE");
     }
 };
-bugmeta.annotate(removeMeldDocumentOperationInstantiationTest).with(
+bugmeta.tag(removeMeldDocumentOperationInstantiationTest).with(
     test().name("RemoveMeldDocumentOperation - instantiation Test")
 );

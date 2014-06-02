@@ -8,8 +8,8 @@
 //@Require('Class')
 //@Require('Obj')
 //@Require('bugfs.BugFs')
-//@Require('bugioc.ConfigurationAnnotation')
-//@Require('bugioc.ModuleAnnotation')
+//@Require('bugioc.ConfigurationTag')
+//@Require('bugioc.ModuleTag')
 //@Require('bugmeta.BugMeta')
 //@Require('configbug.Configbug')
 
@@ -29,8 +29,8 @@ var redis                           = require('redis');
 var Class                           = bugpack.require('Class');
 var Obj                             = bugpack.require('Obj');
 var BugFs                           = bugpack.require('bugfs.BugFs');
-var ConfigurationAnnotation         = bugpack.require('bugioc.ConfigurationAnnotation');
-var ModuleAnnotation                = bugpack.require('bugioc.ModuleAnnotation');
+var ConfigurationTag         = bugpack.require('bugioc.ConfigurationTag');
+var ModuleTag                = bugpack.require('bugioc.ModuleTag');
 var BugMeta                         = bugpack.require('bugmeta.BugMeta');
 var Configbug                       = bugpack.require('configbug.Configbug');
 
@@ -40,8 +40,8 @@ var Configbug                       = bugpack.require('configbug.Configbug');
 //-------------------------------------------------------------------------------
 
 var bugmeta                         = BugMeta.context();
-var configuration                   = ConfigurationAnnotation.configuration;
-var module                          = ModuleAnnotation.module;
+var configuration                   = ConfigurationTag.configuration;
+var module                          = ModuleTag.module;
 
 
 //-------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ var MeldbugWorkerConfiguration = Class.extend(Obj, {
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(MeldbugWorkerConfiguration).with(
+bugmeta.tag(MeldbugWorkerConfiguration).with(
     configuration("meldbugWorkerConfiguration")
         .modules([
             module("configbug"),

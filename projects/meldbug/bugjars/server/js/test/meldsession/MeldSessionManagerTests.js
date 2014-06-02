@@ -6,7 +6,7 @@
 
 //@Require('Class')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 //@Require('bugyarn.BugYarn')
 //@Require('meldbug.MeldSessionManager')
 
@@ -24,7 +24,7 @@ var bugpack                 = require('bugpack').context();
 
 var Class                   = bugpack.require('Class');
 var BugMeta                 = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation          = bugpack.require('bugunit.TestAnnotation');
+var TestTag          = bugpack.require('bugunit.TestTag');
 var BugYarn                 = bugpack.require('bugyarn.BugYarn');
 var MeldSessionManager      = bugpack.require('meldbug.MeldSessionManager');
 
@@ -35,7 +35,7 @@ var MeldSessionManager      = bugpack.require('meldbug.MeldSessionManager');
 
 var bugmeta                 = BugMeta.context();
 var bugyarn                 = BugYarn.context();
-var test                    = TestAnnotation.test;
+var test                    = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -81,6 +81,6 @@ var meldSessionManagerInstantiationTest = {
             "Assert .redisClient was set correctly");
     }
 };
-bugmeta.annotate(meldSessionManagerInstantiationTest).with(
+bugmeta.tag(meldSessionManagerInstantiationTest).with(
     test().name("MeldSessionManager - instantiation test")
 );

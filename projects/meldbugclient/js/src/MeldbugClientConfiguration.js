@@ -7,10 +7,10 @@
 
 //@Require('Class')
 //@Require('Obj')
-//@Require('bugioc.ArgAnnotation')
-//@Require('bugioc.ConfigurationAnnotation')
+//@Require('bugioc.ArgTag')
+//@Require('bugioc.ConfigurationTag')
 //@Require('bugioc.IConfiguration')
-//@Require('bugioc.ModuleAnnotation')
+//@Require('bugioc.ModuleTag')
 //@Require('bugmeta.BugMeta')
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldStore')
@@ -31,10 +31,10 @@ var bugpack                     = require('bugpack').context();
 
 var Class                       = bugpack.require('Class');
 var Obj                         = bugpack.require('Obj');
-var ArgAnnotation               = bugpack.require('bugioc.ArgAnnotation');
-var ConfigurationAnnotation     = bugpack.require('bugioc.ConfigurationAnnotation');
+var ArgTag               = bugpack.require('bugioc.ArgTag');
+var ConfigurationTag     = bugpack.require('bugioc.ConfigurationTag');
 var IConfiguration              = bugpack.require('bugioc.IConfiguration');
-var ModuleAnnotation            = bugpack.require('bugioc.ModuleAnnotation');
+var ModuleTag            = bugpack.require('bugioc.ModuleTag');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 var MeldBucket                  = bugpack.require('meldbug.MeldBucket');
 var MeldStore                   = bugpack.require('meldbug.MeldStore');
@@ -46,10 +46,10 @@ var MeldbugClientService        = bugpack.require('meldbugclient.MeldbugClientSe
 // Simplify References
 //-------------------------------------------------------------------------------
 
-var arg                         = ArgAnnotation.arg;
+var arg                         = ArgTag.arg;
 var bugmeta                     = BugMeta.context();
-var configuration               = ConfigurationAnnotation.configuration;
-var module                      = ModuleAnnotation.module;
+var configuration               = ConfigurationTag.configuration;
+var module                      = ModuleTag.module;
 
 
 //-------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ Class.implement(MeldbugClientConfiguration, IConfiguration);
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(MeldbugClientConfiguration).with(
+bugmeta.tag(MeldbugClientConfiguration).with(
     configuration("meldbugClientConfiguration").modules([
         module("meldbugClientController")
             .args([

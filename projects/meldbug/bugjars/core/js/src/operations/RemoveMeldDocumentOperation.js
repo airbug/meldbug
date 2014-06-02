@@ -5,8 +5,8 @@
 //@Export('meldbug.RemoveMeldDocumentOperation')
 
 //@Require('Class')
-//@Require('bugmarsh.MarshAnnotation');
-//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmarsh.MarshTag');
+//@Require('bugmarsh.MarshPropertyTag');
 //@Require('bugmeta.BugMeta')
 //@Require('meldbug.MeldBucketOperation')
 
@@ -23,8 +23,8 @@ var bugpack                     = require('bugpack').context();
 //-------------------------------------------------------------------------------
 
 var Class                       = bugpack.require('Class');
-var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
-var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+var MarshTag             = bugpack.require('bugmarsh.MarshTag');
+var MarshPropertyTag     = bugpack.require('bugmarsh.MarshPropertyTag');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 var MeldBucketOperation         = bugpack.require('meldbug.MeldBucketOperation');
 
@@ -34,8 +34,8 @@ var MeldBucketOperation         = bugpack.require('meldbug.MeldBucketOperation')
 //-------------------------------------------------------------------------------
 
 var bugmeta                     = BugMeta.context();
-var marsh                       = MarshAnnotation.marsh;
-var property                    = MarshPropertyAnnotation.property;
+var marsh                       = MarshTag.marsh;
+var property                    = MarshPropertyTag.property;
 
 
 //-------------------------------------------------------------------------------
@@ -108,7 +108,7 @@ RemoveMeldDocumentOperation.TYPE = "RemoveMeldDocumentOperation";
 // BugMeta
 //-------------------------------------------------------------------------------
 
-bugmeta.annotate(RemoveMeldDocumentOperation).with(
+bugmeta.tag(RemoveMeldDocumentOperation).with(
     marsh("RemoveMeldDocumentOperation")
         .properties([
             property("meldDocumentKey"),

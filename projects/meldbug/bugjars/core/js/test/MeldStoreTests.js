@@ -12,7 +12,7 @@
 //@Require('meldbug.MeldStore')
 //@Require('meldbug.MeldTransaction')
 //@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestAnnotation')
+//@Require('bugunit.TestTag')
 
 
 //-------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ var MeldDocumentKey             = bugpack.require('meldbug.MeldDocumentKey');
 var MeldStore                   = bugpack.require('meldbug.MeldStore');
 var MeldTransaction             = bugpack.require('meldbug.MeldTransaction');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var TestAnnotation              = bugpack.require('bugunit.TestAnnotation');
+var TestTag              = bugpack.require('bugunit.TestTag');
 
 
 //-------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ var TestAnnotation              = bugpack.require('bugunit.TestAnnotation');
 //-------------------------------------------------------------------------------
 
 var bugmeta                     = BugMeta.context();
-var test                        = TestAnnotation.test;
+var test                        = TestTag.test;
 
 
 //-------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ var meldStoreInstantiationTest = {
             "Assert getMeldBucket() returns the bucket passed in during instantiation");
     }
 };
-bugmeta.annotate(meldStoreInstantiationTest).with(
+bugmeta.tag(meldStoreInstantiationTest).with(
     test().name("MeldStore - Instantiation Test")
 );
 
@@ -113,7 +113,7 @@ var meldStoreCommitMeldTransactionTest = {
         });
     }
 };
-bugmeta.annotate(meldStoreCommitMeldTransactionTest).with(
+bugmeta.tag(meldStoreCommitMeldTransactionTest).with(
     test().name("MeldStore #commitMeldTransaction Test")
 );
 
@@ -153,6 +153,6 @@ var meldStoreCommitMeldTransactionWitRemoveOperationEmptyBucketTest = {
         });
     }
 };
-bugmeta.annotate(meldStoreCommitMeldTransactionWitRemoveOperationEmptyBucketTest).with(
+bugmeta.tag(meldStoreCommitMeldTransactionWitRemoveOperationEmptyBucketTest).with(
     test().name("MeldStore - #commitMeldTransaction with RemoveMeldDocumentOperation empty MeldBucket Test")
 );

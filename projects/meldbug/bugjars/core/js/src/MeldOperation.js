@@ -7,8 +7,8 @@
 //@Require('Class')
 //@Require('Obj')
 //@Require('UuidGenerator')
-//@Require('bugmarsh.MarshAnnotation');
-//@Require('bugmarsh.MarshPropertyAnnotation');
+//@Require('bugmarsh.MarshTag');
+//@Require('bugmarsh.MarshPropertyTag');
 //@Require('bugmeta.BugMeta')
 
 
@@ -25,8 +25,8 @@ require('bugpack').context("*", function(bugpack) {
     var Class                       = bugpack.require('Class');
     var Obj                         = bugpack.require('Obj');
     var UuidGenerator               = bugpack.require('UuidGenerator');
-    var MarshAnnotation             = bugpack.require('bugmarsh.MarshAnnotation');
-    var MarshPropertyAnnotation     = bugpack.require('bugmarsh.MarshPropertyAnnotation');
+    var MarshTag             = bugpack.require('bugmarsh.MarshTag');
+    var MarshPropertyTag     = bugpack.require('bugmarsh.MarshPropertyTag');
     var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 
 
@@ -35,8 +35,8 @@ require('bugpack').context("*", function(bugpack) {
     //-------------------------------------------------------------------------------
 
     var bugmeta                     = BugMeta.context();
-    var marsh                       = MarshAnnotation.marsh;
-    var property                    = MarshPropertyAnnotation.property;
+    var marsh                       = MarshTag.marsh;
+    var property                    = MarshPropertyTag.property;
 
 
     //-------------------------------------------------------------------------------
@@ -155,7 +155,7 @@ require('bugpack').context("*", function(bugpack) {
     // BugMeta
     //-------------------------------------------------------------------------------
 
-    bugmeta.annotate(MeldOperation).with(
+    bugmeta.tag(MeldOperation).with(
         marsh("MeldOperation")
             .properties([
                 property("meldDocumentKey"),
