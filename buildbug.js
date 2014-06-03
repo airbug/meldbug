@@ -79,7 +79,7 @@ buildProperties({
             "../bugjs/projects/configbug/js/src",
             "../bugjs/projects/loggerbug/js/src",
             "../bugjs/projects/redis/js/src",
-            "../bugjs/projects/socketio/bugjars/socket/js/src",
+            "../bugjs/projects/socketio/libraries/socket/js/src",
             "../bugmeta/projects/bugmeta/js/src",
             "../bugtrace/projects/bugtrace/js/src"
         ],
@@ -125,7 +125,7 @@ buildProperties({
                 "../bugjs/projects/configbug/js/test",
                 "../bugjs/projects/loggerbug/js/test",
                 "../bugjs/projects/redis/js/test",
-                "../bugjs/projects/socketio/bugjars/socket/js/test",
+                "../bugjs/projects/socketio/libraries/socket/js/test",
                 "../bugmeta/projects/bugmeta/js/test",
                 "../bugtrace/projects/bugtrace/js/test"
             ]
