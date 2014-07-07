@@ -9,7 +9,7 @@
 //@Require('Obj')
 //@Require('bugflow.BugFlow')
 //@Require('bugfs.BugFs')
-//@Require('bugioc.IInitializeModule')
+//@Require('bugioc.IInitializingModule')
 //@Require('bugioc.ModuleTag')
 //@Require('bugioc.PropertyTag')
 //@Require('bugmeta.BugMeta')
@@ -31,7 +31,7 @@ var Class                           = bugpack.require('Class');
 var Obj                             = bugpack.require('Obj');
 var BugFlow                         = bugpack.require('bugflow.BugFlow');
 var BugFs                           = bugpack.require('bugfs.BugFs');
-var IInitializeModule               = bugpack.require('bugioc.IInitializeModule');
+var IInitializingModule               = bugpack.require('bugioc.IInitializingModule');
 var ModuleTag                = bugpack.require('bugioc.ModuleTag');
 var PropertyTag              = bugpack.require('bugioc.PropertyTag');
 var BugMeta                         = bugpack.require('bugmeta.BugMeta');
@@ -84,7 +84,7 @@ var MeldbugWorkerInitializer = Class.extend(Obj, {
 
 
     //-------------------------------------------------------------------------------
-    // IInitializeModule Implementation
+    // IInitializingModule Implementation
     //-------------------------------------------------------------------------------
 
     /**
@@ -169,7 +169,7 @@ var MeldbugWorkerInitializer = Class.extend(Obj, {
 // Interfaces
 //-------------------------------------------------------------------------------
 
-Class.implement(MeldbugWorkerInitializer, IInitializeModule);
+Class.implement(MeldbugWorkerInitializer, IInitializingModule);
 
 
 //-------------------------------------------------------------------------------

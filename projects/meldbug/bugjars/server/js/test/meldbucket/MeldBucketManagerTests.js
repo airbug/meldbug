@@ -117,7 +117,7 @@ var meldBucketManagerCompressDecompressMeldBucketTest = {
         this.testMeldDocumentKey    = yarn.weave("testMeldDocumentKey", [this.testDataType, this.testId]);
         this.testMeldDocument       = yarn.weave("testMeldDocument", [this.testMeldDocumentKey, this.testData]);
         this.testMeldBucket.addMeldDocument(this.testMeldDocument);
-        this.marshRegistry.processModule();
+        this.marshRegistry.configureModule();
         test.completeSetup();
     },
 

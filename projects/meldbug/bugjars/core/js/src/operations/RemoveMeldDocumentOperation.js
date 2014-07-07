@@ -94,7 +94,7 @@ var RemoveMeldDocumentOperation = Class.extend(MeldBucketOperation, {
 
 
 //-------------------------------------------------------------------------------
-// Static Variables
+// Static Properties
 //-------------------------------------------------------------------------------
 
 /**

@@ -70,7 +70,7 @@ require('bugpack').context("*", function(bugpack) {
     //-------------------------------------------------------------------------------
 
     var setupMeldBuilder = function(setupObject) {
-        setupObject.marshRegistry.processModule();
+        setupObject.marshRegistry.configureModule();
     };
 
 

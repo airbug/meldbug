@@ -151,7 +151,7 @@ var SetObjectPropertyOperation = Class.extend(MeldOperation, {
 
 
 //-------------------------------------------------------------------------------
-// Static Variables
+// Static Properties
 //-------------------------------------------------------------------------------
 
 /**

@@ -10,56 +10,59 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack                             = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var Class                               = bugpack.require('Class');
-var Application                         = bugpack.require('bugapp.Application');
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-/**
- * @class
- * @extends {Application}
- */
-var MeldbugWorkerApplication = Class.extend(Application, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Application Methods
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var Class                               = bugpack.require('Class');
+    var Application                         = bugpack.require('bugapp.Application');
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     * @protected
+     * @class
+     * @extends {Application}
      */
-    preProcessApplication: function() {
-        this.getConfigurationTagScan().scanBugpack('meldbugworker.MeldbugWorkerConfiguration');
-        this.getModuleTagScan().scanBugpacks([
-            "bugmarsh.MarshRegistry",
-            "bugmarsh.Marshaller",
-            "bugwork.WorkerCommandFactory",
-            "bugwork.WorkerContextFactory",
-            "bugwork.WorkerManager",
-            "bugwork.WorkerProcessFactory",
-            "bugwork.WorkerRegistry",
-            "loggerbug.Logger",
-            "meldbugworker.MeldbugWorkerInitializer"
-        ]);
-    }
+    var MeldbugWorkerApplication = Class.extend(Application, {
+
+        _name: "meldbugworker.MeldbugWorkerApplication",
+
+
+        //-------------------------------------------------------------------------------
+        // Application Methods
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @protected
+         */
+        preConfigureApplication: function() {
+            this.getModuleTagScan().scanBugpacks([
+                "bugmarsh.MarshRegistry",
+                "bugmarsh.Marshaller",
+                "bugwork.WorkerCommandFactory",
+                "bugwork.WorkerContextFactory",
+                "bugwork.WorkerManager",
+                "bugwork.WorkerProcessFactory",
+                "bugwork.WorkerRegistry",
+                "loggerbug.Logger",
+                "meldbugworker.MeldbugWorkerConfiguration",
+                "meldbugworker.MeldbugWorkerInitializer"
+            ]);
+        }
+    });
+
+
+    //-------------------------------------------------------------------------------
+    // Exports
+    //-------------------------------------------------------------------------------
+
+    bugpack.export('meldbugworker.MeldbugWorkerApplication', MeldbugWorkerApplication);
 });
-
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbugworker.MeldbugWorkerApplication', MeldbugWorkerApplication);

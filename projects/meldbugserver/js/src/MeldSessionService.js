@@ -12,7 +12,7 @@
 //@Require('bugcall.IProcessCall')
 //@Require('bugflow.BugFlow')
 //@Require('bugioc.ArgTag')
-//@Require('bugioc.IInitializeModule')
+//@Require('bugioc.IInitializingModule')
 //@Require('bugioc.ModuleTag')
 //@Require('bugmeta.BugMeta')
 
@@ -35,7 +35,7 @@ var CallEvent                   = bugpack.require('bugcall.CallEvent');
 var IProcessCall                = bugpack.require('bugcall.IProcessCall');
 var BugFlow                     = bugpack.require('bugflow.BugFlow');
 var ArgTag               = bugpack.require('bugioc.ArgTag');
-var IInitializeModule           = bugpack.require('bugioc.IInitializeModule');
+var IInitializingModule           = bugpack.require('bugioc.IInitializingModule');
 var ModuleTag            = bugpack.require('bugioc.ModuleTag');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 
@@ -61,7 +61,7 @@ var $task                       = BugFlow.$task;
 /**
  * @class
  * @extends {Obj}
- * @implements {IInitializeModule}
+ * @implements {IInitializingModule}
  * @implements {IProcessCall}
  */
 var MeldSessionService = Class.extend(Obj, {
@@ -154,7 +154,7 @@ var MeldSessionService = Class.extend(Obj, {
 
 
     //-------------------------------------------------------------------------------
-    // IInitializeModule Implementation
+    // IInitializingModule Implementation
     //-------------------------------------------------------------------------------
 
     /**
@@ -225,7 +225,7 @@ var MeldSessionService = Class.extend(Obj, {
 // Implement Interfaces
 //-------------------------------------------------------------------------------
 
-Class.implement(MeldSessionService, IInitializeModule);
+Class.implement(MeldSessionService, IInitializingModule);
 Class.implement(MeldSessionService, IProcessCall);
 
 

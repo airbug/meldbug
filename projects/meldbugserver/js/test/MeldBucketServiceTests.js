@@ -63,7 +63,7 @@ bugyarn.registerWinder("setupTestMeldBucketService", function(yarn) {
 //-------------------------------------------------------------------------------
 
 var setupMeldBucketService = function(setupObject, callback) {
-    setupObject.marshRegistry.processModule();
+    setupObject.marshRegistry.configureModule();
     $series([
         $task(function(flow) {
             setupObject.redisClient.connect(function(throwable) {
