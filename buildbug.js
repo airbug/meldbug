@@ -65,7 +65,6 @@ buildProperties({
             "./projects/meldbug/bugjars/server/js/src",
             "./projects/meldbugworker/js/src",
             "../bugcore/projects/bugcore/js/src",
-            "../bugflow/projects/bugflow/js/src",
             "../bugfs/projects/bugfs/js/src",
             "../bugjs/projects/bugapp/js/src",
             "../bugjs/projects/bugcall/libraries/core/js/src",
@@ -80,8 +79,7 @@ buildProperties({
             "../bugjs/projects/loggerbug/js/src",
             "../bugjs/projects/redis/js/src",
             "../bugjs/projects/socketio/libraries/socket/js/src",
-            "../bugmeta/projects/bugmeta/js/src",
-            "../bugtrace/projects/bugtrace/js/src"
+            "../bugmeta/projects/bugmeta/js/src"
         ],
         scriptPaths: [
             "../bugjs/projects/bugwork/js/scripts",
@@ -111,7 +109,6 @@ buildProperties({
                 "./projects/meldbug/bugjars/server/js/test",
                 "./projects/meldbugworker/js/test",
                 "../bugcore/projects/bugcore/js/test",
-                "../bugflow/projects/bugflow/js/test",
                 "../bugfs/projects/bugfs/js/test",
                 "../bugjs/projects/bugapp/js/test",
                 "../bugjs/projects/bugcall/libraries/core/js/test",
@@ -126,8 +123,7 @@ buildProperties({
                 "../bugjs/projects/loggerbug/js/test",
                 "../bugjs/projects/redis/js/test",
                 "../bugjs/projects/socketio/libraries/socket/js/test",
-                "../bugmeta/projects/bugmeta/js/test",
-                "../bugtrace/projects/bugtrace/js/test"
+                "../bugmeta/projects/bugmeta/js/test"
             ]
         }
     },
@@ -167,15 +163,19 @@ buildTarget('local').buildFlow(
         // old source files are removed. We should figure out a better way of doing that.
 
         targetTask('clean'),
-        /*targetTask('lint', {
+        targetTask('lint', {
             properties: {
                 targetPaths: buildProject.getProperty("lint.targetPaths"),
                 ignores: buildProject.getProperty("lint.ignorePatterns"),
                 lintTasks: [
-                    "fixExportAndRemovePackageAnnotations"
+                    "ensureNewLineEnding",
+                    "indentEqualSignsForPreClassVars",
+                    "orderBugpackRequires",
+                    "orderRequireAnnotations",
+                    "updateCopyright"
                 ]
             }
-        }),*/
+        }),
         parallel([
             series([
                 targetTask('createNodePackage', {
@@ -259,7 +259,11 @@ buildTarget('prod').buildFlow(
                 targetPaths: buildProject.getProperty("lint.targetPaths"),
                 ignores: buildProject.getProperty("lint.ignorePatterns"),
                 lintTasks: [
-                    "fixExportAndRemovePackageAnnotations"
+                    "ensureNewLineEnding",
+                    "indentEqualSignsForPreClassVars",
+                    "orderBugpackRequires",
+                    "orderRequireAnnotations",
+                    "updateCopyright"
                 ]
             }
         }),
@@ -372,7 +376,8 @@ buildTarget('prod').buildFlow(
 buildScript({
     dependencies: [
         "bugcore",
-        "bugflow"
+        "bugflow",
+        "bugfs"
     ],
     script: "./lintbug.js"
 });

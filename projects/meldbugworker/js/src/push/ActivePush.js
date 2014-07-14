@@ -12,285 +12,287 @@
 //@Require('Map')
 //@Require('Obj')
 //@Require('Set')
-//@Require('bugflow.BugFlow')
+//@Require('Flows')
 //@Require('bugtask.TaskDefines')
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack             = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var Bug                 = bugpack.require('Bug');
-var Class               = bugpack.require('Class');
-var Event               = bugpack.require('Event');
-var EventDispatcher     = bugpack.require('EventDispatcher');
-var Exception           = bugpack.require('Exception');
-var Map                 = bugpack.require('Map');
-var Obj                 = bugpack.require('Obj');
-var Set                 = bugpack.require('Set');
-var BugFlow             = bugpack.require('bugflow.BugFlow');
-var TaskDefines         = bugpack.require('bugtask.TaskDefines');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var $iterableParallel   = BugFlow.$iterableParallel;
-var $parallel           = BugFlow.$parallel;
-var $series             = BugFlow.$series;
-var $task               = BugFlow.$task;
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-/**
- * @class
- * @extends {EventDispatcher}
- */
-var ActivePush = Class.extend(EventDispatcher, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Constructor
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var Bug                 = bugpack.require('Bug');
+    var Class               = bugpack.require('Class');
+    var Event               = bugpack.require('Event');
+    var EventDispatcher     = bugpack.require('EventDispatcher');
+    var Exception           = bugpack.require('Exception');
+    var Map                 = bugpack.require('Map');
+    var Obj                 = bugpack.require('Obj');
+    var Set                 = bugpack.require('Set');
+    var Flows             = bugpack.require('Flows');
+    var TaskDefines         = bugpack.require('bugtask.TaskDefines');
+
+
+    //-------------------------------------------------------------------------------
+    // Simplify References
+    //-------------------------------------------------------------------------------
+
+    var $iterableParallel   = Flows.$iterableParallel;
+    var $series             = Flows.$series;
+    var $task               = Flows.$task;
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     * @constructs
-     * @param {Logger} logger
-     * @param {MeldTaskManager} meldTaskManager
-     * @param {string} pushTaskUuid
-     * @param {Set.<string>} meldTaskUuidSet
+     * @class
+     * @extends {EventDispatcher}
      */
-    _constructor: function(logger, meldTaskManager, pushTaskUuid, meldTaskUuidSet) {
+    var ActivePush = Class.extend(EventDispatcher, {
 
-        this._super();
+        _name: "meldbug.ActivePush",
 
 
         //-------------------------------------------------------------------------------
-        // Properties
+        // Constructor
         //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {boolean}
+         * @constructs
+         * @param {Logger} logger
+         * @param {MeldTaskManager} meldTaskManager
+         * @param {string} pushTaskUuid
+         * @param {Set.<string>} meldTaskUuidSet
          */
-        this.completed                  = false;
+        _constructor: function(logger, meldTaskManager, pushTaskUuid, meldTaskUuidSet) {
+
+            this._super();
+
+
+            //-------------------------------------------------------------------------------
+            // Properties
+            //-------------------------------------------------------------------------------
+
+            /**
+             * @private
+             * @type {boolean}
+             */
+            this.completed                  = false;
+
+            /**
+             * @private
+             * @type {Logger}
+             */
+            this.logger                     = logger;
+
+            /**
+             * @private
+             * @type {MeldTaskManager}
+             */
+            this.meldTaskManager            = meldTaskManager;
+
+            /**
+             * @private
+             * @type {Set.<string>}
+             */
+            this.meldTaskUuidSet            = meldTaskUuidSet;
+
+            /**
+             * @private
+             * @type {string}
+             */
+            this.pushTaskUuid               = pushTaskUuid;
+
+            /**
+             * @private
+             * @type {boolean}
+             */
+            this.started                    = false;
+
+            /**
+             * @private
+             * @type {Set.<string>}
+             */
+            this.waitingOnTaskUuidSet       = new Set(meldTaskUuidSet);
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Getters and Setters
+        //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {Logger}
+         * @return {boolean}
          */
-        this.logger                     = logger;
+        getCompleted: function() {
+            return this.completed;
+        },
 
         /**
-         * @private
-         * @type {MeldTaskManager}
+         * @return {Logger}
          */
-        this.meldTaskManager            = meldTaskManager;
+        getLogger: function() {
+            return this.logger;
+        },
 
         /**
-         * @private
-         * @type {Set.<string>}
+         * @return {MeldTaskManager}
          */
-        this.meldTaskUuidSet            = meldTaskUuidSet;
+        getMeldTaskManager: function() {
+            return this.meldTaskManager;
+        },
 
         /**
-         * @private
-         * @type {string}
+         * @return {Set.<string>}
          */
-        this.pushTaskUuid               = pushTaskUuid;
+        getMeldTaskUuidSet: function() {
+            return this.meldTaskUuidSet;
+        },
 
         /**
-         * @private
-         * @type {boolean}
+         * @return {string}
          */
-        this.started                    = false;
+        getPushTaskUuid: function() {
+            return this.pushTaskUuid;
+        },
 
         /**
-         * @private
-         * @type {Set.<string>}
+         * @return {boolean}
          */
-        this.waitingOnTaskUuidSet       = new Set(meldTaskUuidSet);
-    },
+        getStarted: function() {
+            return this.started;
+        },
 
 
-    //-------------------------------------------------------------------------------
-    // Getters and Setters
-    //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
+        // Public Methods
+        //-------------------------------------------------------------------------------
 
-    /**
-     * @return {boolean}
-     */
-    getCompleted: function() {
-        return this.completed;
-    },
+        /**
+         * @param {function(Throwable=)} callback
+         */
+        start: function(callback) {
+            var _this = this;
+            if (!this.started) {
+                if (this.meldTaskUuidSet.getCount() > 0) {
+                    $iterableParallel(this.meldTaskUuidSet, function(flow, meldTaskUuid) {
+                        $series([
+                            $task(function(flow) {
+                                _this.meldTaskManager.subscribeToTaskResult(meldTaskUuid, _this.handleTaskResult, _this, function(throwable) {
+                                    flow.complete(throwable);
+                                });
+                            })
+                        ]).execute(function(throwable) {
+                            if (throwable) {
+                                if (Class.doesExtend(throwable, Exception)) {
 
-    /**
-     * @return {Logger}
-     */
-    getLogger: function() {
-        return this.logger;
-    },
+                                    //TODO BRN: Retry processing the MeldTask that we had problems with...
 
-    /**
-     * @return {MeldTaskManager}
-     */
-    getMeldTaskManager: function() {
-        return this.meldTaskManager;
-    },
-
-    /**
-     * @return {Set.<string>}
-     */
-    getMeldTaskUuidSet: function() {
-        return this.meldTaskUuidSet;
-    },
-
-    /**
-     * @return {string}
-     */
-    getPushTaskUuid: function() {
-        return this.pushTaskUuid;
-    },
-
-    /**
-     * @return {boolean}
-     */
-    getStarted: function() {
-        return this.started;
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // Public Methods
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @param {function(Throwable=)} callback
-     */
-    start: function(callback) {
-        var _this = this;
-        if (!this.started) {
-            if (this.meldTaskUuidSet.getCount() > 0) {
-                $iterableParallel(this.meldTaskUuidSet, function(flow, meldTaskUuid) {
-                    $series([
-                        $task(function(flow) {
-                            _this.meldTaskManager.subscribeToTaskResult(meldTaskUuid, _this.handleTaskResult, _this, function(throwable) {
-                                flow.complete(throwable);
-                            });
-                        })
-                    ]).execute(function(throwable) {
-                        if (throwable) {
-                            if (Class.doesExtend(throwable, Exception)) {
-
-                                //TODO BRN: Retry processing the MeldTask that we had problems with...
-
-                                flow.complete();
+                                    flow.complete();
+                                } else {
+                                    flow.error(throwable);
+                                }
                             } else {
-                                flow.error(throwable);
+                                flow.complete();
                             }
-                        } else {
-                            flow.complete();
-                        }
-                    });
-                }).execute(callback);
+                        });
+                    }).execute(callback);
+                } else {
+                    this.complete();
+                    callback();
+                }
             } else {
-                this.complete();
-                callback();
+                callback(new Bug("IllegalState", {}, "ActivePush already started"));
             }
-        } else {
-            callback(new Bug("IllegalState", {}, "ActivePush already started"));
-        }
-    },
+        },
 
 
-    //-------------------------------------------------------------------------------
-    // Private Methods
-    //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
+        // Private Methods
+        //-------------------------------------------------------------------------------
 
-    /**
-     * @private
-     */
-    complete: function() {
-        if (!this.completed) {
-            this.completed = true;
-            this.dispatchEvent(new Event(ActivePush.EventTypes.PUSH_COMPLETE));
-        } else {
-            throw new Bug("IllegalState", {}, "ActivePush already complete");
-        }
-    },
-
-    /**
-     * @private
-     * @param {string} taskUuid
-     */
-    markMeldTaskComplete: function(taskUuid) {
-        var result = this.waitingOnTaskUuidSet.remove(taskUuid);
-        if (result) {
-            if (this.waitingOnTaskUuidSet.isEmpty()) {
-                this.complete();
+        /**
+         * @private
+         */
+        complete: function() {
+            if (!this.completed) {
+                this.completed = true;
+                this.dispatchEvent(new Event(ActivePush.EventTypes.PUSH_COMPLETE));
+            } else {
+                throw new Bug("IllegalState", {}, "ActivePush already complete");
             }
-        } else {
-            throw new Bug("TaskAlreadyComplete", {}, "ActivePush has already completed MeldTask with taskUuid '" + taskUuid + "'");
-        }
-    },
+        },
 
-    /**
-     * @private
-     * @param {string} channel
-     */
-    parseTaskUuidFromChannel: function(channel) {
-        return channel.replace("taskResult:", "");
-    },
+        /**
+         * @private
+         * @param {string} taskUuid
+         */
+        markMeldTaskComplete: function(taskUuid) {
+            var result = this.waitingOnTaskUuidSet.remove(taskUuid);
+            if (result) {
+                if (this.waitingOnTaskUuidSet.isEmpty()) {
+                    this.complete();
+                }
+            } else {
+                throw new Bug("TaskAlreadyComplete", {}, "ActivePush has already completed MeldTask with taskUuid '" + taskUuid + "'");
+            }
+        },
+
+        /**
+         * @private
+         * @param {string} channel
+         */
+        parseTaskUuidFromChannel: function(channel) {
+            return channel.replace("taskResult:", "");
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Message Handlers
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @private
+         * @param {Message} message
+         * @param {string} channel
+         */
+        handleTaskResult: function(message, channel) {
+            var taskUuid    = this.parseTaskUuidFromChannel(channel);
+            if (message.getMessageType() === TaskDefines.MessageTypes.TASK_COMPLETE) {
+                this.markMeldTaskComplete(taskUuid);
+            } else if (message.getMessageType() === TaskDefines.MessageTypes.TASK_THROWABLE) {
+                this.logger.error(message.getMessageData().throwable);
+                this.markMeldTaskComplete(taskUuid);
+            } else {
+                throw new Bug("UnhandledMessage", {}, "Unhandled message type - message.getMessageType():", message.getMessageType());
+            }
+        }
+    });
 
 
     //-------------------------------------------------------------------------------
-    // Message Handlers
+    // Static Properties
     //-------------------------------------------------------------------------------
 
     /**
-     * @private
-     * @param {Message} message
-     * @param {string} channel
+     * @static
+     * @enum {string}
      */
-    handleTaskResult: function(message, channel) {
-        var taskUuid    = this.parseTaskUuidFromChannel(channel);
-        if (message.getMessageType() === TaskDefines.MessageTypes.TASK_COMPLETE) {
-            this.markMeldTaskComplete(taskUuid);
-        } else if (message.getMessageType() === TaskDefines.MessageTypes.TASK_THROWABLE) {
-            this.logger.error(message.getMessageData().throwable);
-            this.markMeldTaskComplete(taskUuid);
-        } else {
-            throw new Bug("UnhandledMessage", {}, "Unhandled message type - message.getMessageType():", message.getMessageType());
-        }
-    }
+    ActivePush.EventTypes = {
+        PUSH_COMPLETE: "ActivePush:PushComplete"
+    };
+
+
+    //-------------------------------------------------------------------------------
+    // Exports
+    //-------------------------------------------------------------------------------
+
+    bugpack.export('meldbug.ActivePush', ActivePush);
 });
-
-
-//-------------------------------------------------------------------------------
-// Static Properties
-//-------------------------------------------------------------------------------
-
-/**
- * @static
- * @enum {string}
- */
-ActivePush.EventTypes = {
-    PUSH_COMPLETE: "ActivePush:PushComplete"
-};
-
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbug.ActivePush', ActivePush);

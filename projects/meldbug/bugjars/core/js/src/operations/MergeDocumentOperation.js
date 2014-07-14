@@ -14,142 +14,149 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack                     = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var Class                       = bugpack.require('Class');
-var Obj                         = bugpack.require('Obj');
-var MarshTag             = bugpack.require('bugmarsh.MarshTag');
-var MarshPropertyTag     = bugpack.require('bugmarsh.MarshPropertyTag');
-var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var MeldDocument                = bugpack.require('meldbug.MeldDocument');
-var MeldOperation               = bugpack.require('meldbug.MeldOperation');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var bugmeta                     = BugMeta.context();
-var marsh                       = MarshTag.marsh;
-var property                    = MarshPropertyTag.property;
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-var MergeDocumentOperation = Class.extend(MeldOperation, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Constructor
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var Class                       = bugpack.require('Class');
+    var Obj                         = bugpack.require('Obj');
+    var MarshTag             = bugpack.require('bugmarsh.MarshTag');
+    var MarshPropertyTag     = bugpack.require('bugmarsh.MarshPropertyTag');
+    var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+    var MeldDocument                = bugpack.require('meldbug.MeldDocument');
+    var MeldOperation               = bugpack.require('meldbug.MeldOperation');
+
+
+    //-------------------------------------------------------------------------------
+    // Simplify References
+    //-------------------------------------------------------------------------------
+
+    var bugmeta                     = BugMeta.context();
+    var marsh                       = MarshTag.marsh;
+    var property                    = MarshPropertyTag.property;
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     * @constructs
-     * @param {MeldDocumentKey} meldDocumentKey
-     * @param {*} data
+     * @class
+     * @extends {MeldOperation}
      */
-    _constructor: function(meldDocumentKey, data) {
+    var MergeDocumentOperation = Class.extend(MeldOperation, {
 
-        this._super(meldDocumentKey, MergeDocumentOperation.TYPE);
+        _name: "meldbug.MergeDocumentOperation",
 
 
         //-------------------------------------------------------------------------------
-        // Private Properties
+        // Constructor
         //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {*}
+         * @constructs
+         * @param {MeldDocumentKey} meldDocumentKey
+         * @param {*} data
          */
-        this.data = data;
-    },
+        _constructor: function(meldDocumentKey, data) {
+
+            this._super(meldDocumentKey, MergeDocumentOperation.TYPE);
 
 
-    //-------------------------------------------------------------------------------
-    // Getters and Setters
-    //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
+            // Private Properties
+            //-------------------------------------------------------------------------------
 
-    /**
-     * @return {*}
-     */
-    getData: function() {
-        return this.data;
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // IClone Implementation
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @param {boolean} deep
-     * @return {MergeDocumentOperation}
-     */
-    clone: function(deep) {
-        var clone = new MergeDocumentOperation(this.getMeldDocumentKey, Obj.clone(this.data, deep));
-        clone.setUuid(this.getUuid());
-        return clone;
-    },
+            /**
+             * @private
+             * @type {*}
+             */
+            this.data = data;
+        },
 
 
-    //-------------------------------------------------------------------------------
-    // MeldOperation Methods
-    //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
+        // Getters and Setters
+        //-------------------------------------------------------------------------------
 
-    /**
-     * @override
-     * @param {MeldBucket} meldBucket
-     * @return {MeldDocument}
-     */
-    apply: function(meldBucket) {
-        var meldDocument = meldBucket.getMeldDocumentByMeldDocumentKey(this.getMeldDocumentKey());
-        if (!meldDocument) {
-            meldDocument = new MeldDocument(this.getMeldDocumentKey());
-            meldBucket.addMeldDocument(meldDocument);
+        /**
+         * @return {*}
+         */
+        getData: function() {
+            return this.data;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // IClone Implementation
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @param {boolean} deep
+         * @return {MergeDocumentOperation}
+         */
+        clone: function(deep) {
+            var clone = new MergeDocumentOperation(this.getMeldDocumentKey, Obj.clone(this.data, deep));
+            clone.setUuid(this.getUuid());
+            return clone;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // MeldOperation Methods
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @override
+         * @param {MeldBucket} meldBucket
+         * @return {MeldDocument}
+         */
+        apply: function(meldBucket) {
+            var meldDocument = meldBucket.getMeldDocumentByMeldDocumentKey(this.getMeldDocumentKey());
+            if (!meldDocument) {
+                meldDocument = new MeldDocument(this.getMeldDocumentKey());
+                meldBucket.addMeldDocument(meldDocument);
+            }
+            meldDocument.mergeData(this.data);
+            return meldDocument;
         }
-        meldDocument.mergeData(this.data);
-        return meldDocument;
-    }
+    });
+
+
+    //-------------------------------------------------------------------------------
+    // Static Properties
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @static
+     * @const {string}
+     */
+    MergeDocumentOperation.TYPE = "MergeDocumentOperation";
+
+
+    //-------------------------------------------------------------------------------
+    // BugMeta
+    //-------------------------------------------------------------------------------
+
+    bugmeta.tag(MergeDocumentOperation).with(
+        marsh("MergeDocumentOperation")
+            .properties([
+                property("data"),
+                property("meldDocumentKey"),
+                property("type"),
+                property("uuid")
+            ])
+    );
+
+
+    //-------------------------------------------------------------------------------
+    // Exports
+    //-------------------------------------------------------------------------------
+
+    bugpack.export('meldbug.MergeDocumentOperation', MergeDocumentOperation);
 });
-
-
-//-------------------------------------------------------------------------------
-// Static Properties
-//-------------------------------------------------------------------------------
-
-/**
- * @static
- * @const {string}
- */
-MergeDocumentOperation.TYPE = "MergeDocumentOperation";
-
-
-//-------------------------------------------------------------------------------
-// BugMeta
-//-------------------------------------------------------------------------------
-
-bugmeta.tag(MergeDocumentOperation).with(
-    marsh("MergeDocumentOperation")
-        .properties([
-            property("data"),
-            property("meldDocumentKey"),
-            property("type"),
-            property("uuid")
-        ])
-);
-
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbug.MergeDocumentOperation', MergeDocumentOperation);

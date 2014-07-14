@@ -7,202 +7,204 @@
 //@Require('Bug')
 //@Require('Class')
 //@Require('Exception')
-//@Require('bugflow.BugFlow')
+//@Require('Flows')
 //@Require('bugtask.TaskProcessor')
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack             = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var Bug                 = bugpack.require('Bug');
-var Class               = bugpack.require('Class');
-var Exception           = bugpack.require('Exception');
-var BugFlow             = bugpack.require('bugflow.BugFlow');
-var TaskProcessor       = bugpack.require('bugtask.TaskProcessor');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var $iterableParallel   = BugFlow.$iterableParallel;
-var $parallel           = BugFlow.$parallel;
-var $series             = BugFlow.$series;
-var $task               = BugFlow.$task;
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-/**
- * @class
- * @extends {TaskProcessor}
- */
-var CleanupTaskProcessor = Class.extend(TaskProcessor, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Constructor
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var Bug                 = bugpack.require('Bug');
+    var Class               = bugpack.require('Class');
+    var Exception           = bugpack.require('Exception');
+    var Flows             = bugpack.require('Flows');
+    var TaskProcessor       = bugpack.require('bugtask.TaskProcessor');
+
+
+    //-------------------------------------------------------------------------------
+    // Simplify References
+    //-------------------------------------------------------------------------------
+
+    var $parallel           = Flows.$parallel;
+    var $series             = Flows.$series;
+    var $task               = Flows.$task;
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     * @constructs
-     * @param {Logger} logger
-     * @param {CleanupTaskManager} cleanupTaskManager
-     * @param {MeldBucketManager} meldBucketManager
-     * @param {MeldManager} meldManager
-     * @param {MeldClientManager} meldClientManager
+     * @class
+     * @extends {TaskProcessor}
      */
-    _constructor: function(logger, cleanupTaskManager, meldBucketManager, meldManager, meldClientManager) {
+    var CleanupTaskProcessor = Class.extend(TaskProcessor, {
 
-        this._super(cleanupTaskManager);
+        _name: "meldbug.CleanupTaskProcessor",
 
 
         //-------------------------------------------------------------------------------
-        // Properties
+        // Constructor
         //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {CleanupTaskManager}
+         * @constructs
+         * @param {Logger} logger
+         * @param {CleanupTaskManager} cleanupTaskManager
+         * @param {MeldBucketManager} meldBucketManager
+         * @param {MeldManager} meldManager
+         * @param {MeldClientManager} meldClientManager
          */
-        this.cleanupTaskManager     = cleanupTaskManager;
+        _constructor: function(logger, cleanupTaskManager, meldBucketManager, meldManager, meldClientManager) {
+
+            this._super(cleanupTaskManager);
+
+
+            //-------------------------------------------------------------------------------
+            // Properties
+            //-------------------------------------------------------------------------------
+
+            /**
+             * @private
+             * @type {CleanupTaskManager}
+             */
+            this.cleanupTaskManager     = cleanupTaskManager;
+
+            /**
+             * @private
+             * @type {Logger}
+             */
+            this.logger                 = logger;
+
+            /**
+             * @private
+             * @type {MeldBucketManager}
+             */
+            this.meldBucketManager      = meldBucketManager;
+
+            /**
+             * @private
+             * @type {MeldClientManager}
+             */
+            this.meldClientManager      = meldClientManager;
+
+            /**
+             * @private
+             * @type {MeldManager}
+             */
+            this.meldManager            = meldManager;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Getters and Setters
+        //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {Logger}
+         * @return {CleanupTaskManager}
          */
-        this.logger                 = logger;
+        getCleanupTaskManager: function() {
+            return this.cleanupTaskManager;
+        },
 
         /**
-         * @private
-         * @type {MeldBucketManager}
+         * @return {Logger}
          */
-        this.meldBucketManager      = meldBucketManager;
+        getLogger: function() {
+            return this.logger;
+        },
 
         /**
-         * @private
-         * @type {MeldClientManager}
+         * @return {MeldBucketManager}
          */
-        this.meldClientManager      = meldClientManager;
+        getMeldBucketManager: function() {
+            return this.meldBucketManager;
+        },
 
         /**
-         * @private
-         * @type {MeldManager}
+         * @return {MeldClientManager}
          */
-        this.meldManager            = meldManager;
-    },
+        getMeldClientManager: function() {
+            return this.meldClientManager;
+        },
+
+        /**
+         * @return {MeldManager}
+         */
+        getMeldManager: function() {
+            return this.meldManager;
+        },
 
 
-    //-------------------------------------------------------------------------------
-    // Getters and Setters
-    //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
+        // TaskProcessor Methods
+        //-------------------------------------------------------------------------------
 
-    /**
-     * @return {CleanupTaskManager}
-     */
-    getCleanupTaskManager: function() {
-        return this.cleanupTaskManager;
-    },
-
-    /**
-     * @return {Logger}
-     */
-    getLogger: function() {
-        return this.logger;
-    },
-
-    /**
-     * @return {MeldBucketManager}
-     */
-    getMeldBucketManager: function() {
-        return this.meldBucketManager;
-    },
-
-    /**
-     * @return {MeldClientManager}
-     */
-    getMeldClientManager: function() {
-        return this.meldClientManager;
-    },
-
-    /**
-     * @return {MeldManager}
-     */
-    getMeldManager: function() {
-        return this.meldManager;
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // TaskProcessor Methods
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @protected
-     * @param {CleanupTask} cleanupTask
-     * @param {function(Throwable=)} callback
-     */
-    doTask: function(cleanupTask, callback) {
-        this.logger.info("Processing CleanupTask - taskUuid:", cleanupTask.getTaskUuid(), " callUuid", cleanupTask.getCallUuid());
-        var _this       = this;
-        var callUuid    = cleanupTask.getCallUuid();
-        $series([
-            $parallel([
+        /**
+         * @protected
+         * @param {CleanupTask} cleanupTask
+         * @param {function(Throwable=)} callback
+         */
+        doTask: function(cleanupTask, callback) {
+            this.logger.info("Processing CleanupTask - taskUuid:", cleanupTask.getTaskUuid(), " callUuid", cleanupTask.getCallUuid());
+            var _this       = this;
+            var callUuid    = cleanupTask.getCallUuid();
+            $series([
+                $parallel([
+                    $task(function(flow) {
+                        var mirrorMeldBucketKey = _this.meldBucketManager.generateMeldBucketKey("mirrorMeldBucket", callUuid);
+                        _this.meldBucketManager.deleteMeldBucketByKey(mirrorMeldBucketKey, function(throwable) {
+                            flow.complete(throwable);
+                        });
+                    }),
+                    $task(function(flow) {
+                        var serverMeldBucketKey = _this.meldBucketManager.generateMeldBucketKey("serverMeldBucket", callUuid);
+                        _this.meldBucketManager.deleteMeldBucketByKey(serverMeldBucketKey, function(throwable) {
+                            flow.complete(throwable);
+                        });
+                    }),
+                    $task(function(flow) {
+                        _this.meldManager.removeCallUuid(callUuid, function(throwable) {
+                            flow.complete(throwable);
+                        });
+                    }),
+                    $task(function(flow) {
+                        var meldClientKey = _this.meldClientManager.generateMeldClientKey(callUuid);
+                        _this.meldClientManager.removeMeldClientForKey(meldClientKey, function(throwable) {
+                            flow.complete(throwable);
+                        });
+                    })
+                ]),
                 $task(function(flow) {
-                    var mirrorMeldBucketKey = _this.meldBucketManager.generateMeldBucketKey("mirrorMeldBucket", callUuid);
-                    _this.meldBucketManager.deleteMeldBucketByKey(mirrorMeldBucketKey, function(throwable) {
-                        flow.complete(throwable);
-                    });
-                }),
-                $task(function(flow) {
-                    var serverMeldBucketKey = _this.meldBucketManager.generateMeldBucketKey("serverMeldBucket", callUuid);
-                    _this.meldBucketManager.deleteMeldBucketByKey(serverMeldBucketKey, function(throwable) {
-                        flow.complete(throwable);
-                    });
-                }),
-                $task(function(flow) {
-                    _this.meldManager.removeCallUuid(callUuid, function(throwable) {
-                        flow.complete(throwable);
-                    });
-                }),
-                $task(function(flow) {
-                    var meldClientKey = _this.meldClientManager.generateMeldClientKey(callUuid);
-                    _this.meldClientManager.removeMeldClientForKey(meldClientKey, function(throwable) {
+                    _this.cleanupTaskManager.finishTask(cleanupTask, function(throwable) {
                         flow.complete(throwable);
                     });
                 })
-            ]),
-            $task(function(flow) {
-                _this.cleanupTaskManager.finishTask(cleanupTask, function(throwable) {
-                    flow.complete(throwable);
-                });
-            })
-        ]).execute(function(throwable) {
-            if (throwable) {
-                _this.logger.info("CleanupTask throwable - taskUuid:", cleanupTask.getTaskUuid());
-                _this.logger.error(throwable);
-            }
-            if (Class.doesExtend(throwable, Exception)) {
-                _this.requeueTask(cleanupTask, callback);
-            } else {
-                callback(throwable);
-            }
-        });
-    }
+            ]).execute(function(throwable) {
+                if (throwable) {
+                    _this.logger.info("CleanupTask throwable - taskUuid:", cleanupTask.getTaskUuid());
+                    _this.logger.error(throwable);
+                }
+                if (Class.doesExtend(throwable, Exception)) {
+                    _this.requeueTask(cleanupTask, callback);
+                } else {
+                    callback(throwable);
+                }
+            });
+        }
+    });
+
+
+    //-------------------------------------------------------------------------------
+    // Exports
+    //-------------------------------------------------------------------------------
+
+    bugpack.export('meldbug.CleanupTaskProcessor', CleanupTaskProcessor);
 });
-
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbug.CleanupTaskProcessor', CleanupTaskProcessor);

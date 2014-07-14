@@ -14,172 +14,179 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack                     = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var Class                       = bugpack.require('Class');
-var Obj                         = bugpack.require('Obj');
-var MarshTag             = bugpack.require('bugmarsh.MarshTag');
-var MarshPropertyTag     = bugpack.require('bugmarsh.MarshPropertyTag');
-var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var MeldDocument                = bugpack.require('meldbug.MeldDocument');
-var MeldOperation               = bugpack.require('meldbug.MeldOperation');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var bugmeta                     = BugMeta.context();
-var marsh                       = MarshTag.marsh;
-var property                    = MarshPropertyTag.property;
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-var SetObjectPropertyOperation = Class.extend(MeldOperation, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Constructor
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var Class                       = bugpack.require('Class');
+    var Obj                         = bugpack.require('Obj');
+    var MarshTag             = bugpack.require('bugmarsh.MarshTag');
+    var MarshPropertyTag     = bugpack.require('bugmarsh.MarshPropertyTag');
+    var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+    var MeldDocument                = bugpack.require('meldbug.MeldDocument');
+    var MeldOperation               = bugpack.require('meldbug.MeldOperation');
+
+
+    //-------------------------------------------------------------------------------
+    // Simplify References
+    //-------------------------------------------------------------------------------
+
+    var bugmeta                     = BugMeta.context();
+    var marsh                       = MarshTag.marsh;
+    var property                    = MarshPropertyTag.property;
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     * @constructs
-     * @param {MeldDocumentKey} meldDocumentKey
-     * @param {string} path
-     * @param {string} propertyName
-     * @param {*} propertyValue
+     * @class
+     * @extends {MeldOperation}
      */
-    _constructor: function(meldDocumentKey, path, propertyName, propertyValue) {
+    var SetObjectPropertyOperation = Class.extend(MeldOperation, {
 
-        this._super(meldDocumentKey, SetObjectPropertyOperation.TYPE);
+        _name: "meldbug.SetObjectPropertyOperation",
 
 
         //-------------------------------------------------------------------------------
-        // Properties
+        // Constructor
         //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {string}
+         * @constructs
+         * @param {MeldDocumentKey} meldDocumentKey
+         * @param {string} path
+         * @param {string} propertyName
+         * @param {*} propertyValue
          */
-        this.path           = path;
+        _constructor: function(meldDocumentKey, path, propertyName, propertyValue) {
+
+            this._super(meldDocumentKey, SetObjectPropertyOperation.TYPE);
+
+
+            //-------------------------------------------------------------------------------
+            // Properties
+            //-------------------------------------------------------------------------------
+
+            /**
+             * @private
+             * @type {string}
+             */
+            this.path           = path;
+
+            /**
+             * @private
+             * @type {string}
+             */
+            this.propertyName   = propertyName;
+
+            /**
+             * @private
+             * @type {*}
+             */
+            this.propertyValue  = propertyValue;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Getters and Setters
+        //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {string}
+         * @return {string}
          */
-        this.propertyName   = propertyName;
+        getPath: function() {
+            return this.path;
+        },
 
         /**
-         * @private
-         * @type {*}
+         * @return {string}
          */
-        this.propertyValue  = propertyValue;
-    },
+        getPropertyName: function() {
+            return this.propertyName;
+        },
+
+        /**
+         * @return {*}
+         */
+        getPropertyValue: function() {
+            return this.propertyValue;
+        },
 
 
-    //-------------------------------------------------------------------------------
-    // Getters and Setters
-    //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
+        // IClone Implementation
+        //-------------------------------------------------------------------------------
 
-    /**
-     * @return {string}
-     */
-    getPath: function() {
-        return this.path;
-    },
-
-    /**
-     * @return {string}
-     */
-    getPropertyName: function() {
-        return this.propertyName;
-    },
-
-    /**
-     * @return {*}
-     */
-    getPropertyValue: function() {
-        return this.propertyValue;
-    },
+        /**
+         * @param {boolean=} deep
+         * @return {SetObjectPropertyOperation}
+         */
+        clone: function(deep) {
+            var clone = new SetObjectPropertyOperation(this.getMeldDocumentKey(), this.path, this.propertyName, Obj.clone(this.propertyValue, deep));
+            clone.setUuid(this.getUuid());
+            return clone;
+        },
 
 
-    //-------------------------------------------------------------------------------
-    // IClone Implementation
-    //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
+        // MeldOperation Methods
+        //-------------------------------------------------------------------------------
 
-    /**
-     * @param {boolean=} deep
-     * @return {SetObjectPropertyOperation}
-     */
-    clone: function(deep) {
-        var clone = new SetObjectPropertyOperation(this.getMeldDocumentKey(), this.path, this.propertyName, Obj.clone(this.propertyValue, deep));
-        clone.setUuid(this.getUuid());
-        return clone;
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // MeldOperation Methods
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @override
-     * @param {MeldBucket} meldBucket
-     * @return {MeldDocument}
-     */
-    apply: function(meldBucket) {
-        var meldDocument = meldBucket.getMeldDocumentByMeldDocumentKey(this.getMeldDocumentKey());
-        if (!meldDocument) {
-            meldDocument = new MeldDocument(this.getMeldDocumentKey());
-            meldBucket.addMeldDocument(meldDocument);
+        /**
+         * @override
+         * @param {MeldBucket} meldBucket
+         * @return {MeldDocument}
+         */
+        apply: function(meldBucket) {
+            var meldDocument = meldBucket.getMeldDocumentByMeldDocumentKey(this.getMeldDocumentKey());
+            if (!meldDocument) {
+                meldDocument = new MeldDocument(this.getMeldDocumentKey());
+                meldBucket.addMeldDocument(meldDocument);
+            }
+            meldDocument.setObjectProperty(this.getPath(), this.getPropertyName(), this.getPropertyValue());
+            return meldDocument;
         }
-        meldDocument.setObjectProperty(this.getPath(), this.getPropertyName(), this.getPropertyValue());
-        return meldDocument;
-    }
+    });
+
+
+    //-------------------------------------------------------------------------------
+    // Static Properties
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @static
+     * @const {string}
+     */
+    SetObjectPropertyOperation.TYPE = "SetObjectPropertyOperation";
+
+
+    //-------------------------------------------------------------------------------
+    // BugMeta
+    //-------------------------------------------------------------------------------
+
+    bugmeta.tag(SetObjectPropertyOperation).with(
+        marsh("SetObjectPropertyOperation")
+            .properties([
+                property("meldDocumentKey"),
+                property("path"),
+                property("propertyName"),
+                property("propertyValue"),
+                property("type"),
+                property("uuid")
+            ])
+    );
+
+
+    //-------------------------------------------------------------------------------
+    // Exports
+    //-------------------------------------------------------------------------------
+
+    bugpack.export('meldbug.SetObjectPropertyOperation', SetObjectPropertyOperation);
 });
-
-
-//-------------------------------------------------------------------------------
-// Static Properties
-//-------------------------------------------------------------------------------
-
-/**
- * @static
- * @const {string}
- */
-SetObjectPropertyOperation.TYPE = "SetObjectPropertyOperation";
-
-
-//-------------------------------------------------------------------------------
-// BugMeta
-//-------------------------------------------------------------------------------
-
-bugmeta.tag(SetObjectPropertyOperation).with(
-    marsh("SetObjectPropertyOperation")
-        .properties([
-            property("meldDocumentKey"),
-            property("path"),
-            property("propertyName"),
-            property("propertyValue"),
-            property("type"),
-            property("uuid")
-        ])
-);
-
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbug.SetObjectPropertyOperation', SetObjectPropertyOperation);

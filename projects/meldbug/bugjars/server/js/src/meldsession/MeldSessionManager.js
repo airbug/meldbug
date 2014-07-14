@@ -8,7 +8,7 @@
 //@Require('Class')
 //@Require('Obj')
 //@Require('Set')
-//@Require('bugflow.BugFlow')
+//@Require('Flows')
 //@Require('bugioc.ArgTag')
 //@Require('bugioc.ModuleTag')
 //@Require('bugmeta.BugMeta')
@@ -16,182 +16,189 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack                 = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var Class                   = bugpack.require('Class');
-var Obj                     = bugpack.require('Obj');
-var Set                     = bugpack.require('Set');
-var BugFlow                 = bugpack.require('bugflow.BugFlow');
-var ArgTag           = bugpack.require('bugioc.ArgTag');
-var ModuleTag        = bugpack.require('bugioc.ModuleTag');
-var BugMeta                 = bugpack.require('bugmeta.BugMeta');
-var MeldSessionKey          = bugpack.require('meldbug.MeldSessionKey');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var arg                     = ArgTag.arg;
-var bugmeta                 = BugMeta.context();
-var module                  = ModuleTag.module;
-var $series                 = BugFlow.$series;
-var $task                   = BugFlow.$task;
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-var MeldSessionManager = Class.extend(Obj, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Constructor
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var Class                   = bugpack.require('Class');
+    var Obj                     = bugpack.require('Obj');
+    var Set                     = bugpack.require('Set');
+    var Flows                 = bugpack.require('Flows');
+    var ArgTag           = bugpack.require('bugioc.ArgTag');
+    var ModuleTag        = bugpack.require('bugioc.ModuleTag');
+    var BugMeta                 = bugpack.require('bugmeta.BugMeta');
+    var MeldSessionKey          = bugpack.require('meldbug.MeldSessionKey');
+
+
+    //-------------------------------------------------------------------------------
+    // Simplify References
+    //-------------------------------------------------------------------------------
+
+    var arg                     = ArgTag.arg;
+    var bugmeta                 = BugMeta.context();
+    var module                  = ModuleTag.module;
+    var $series                 = Flows.$series;
+    var $task                   = Flows.$task;
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     * @constructs
-     * @param {RedisClient} redisClient
+     * @class
+     * @extends {Obj}
      */
-    _constructor: function(redisClient) {
+    var MeldSessionManager = Class.extend(Obj, {
 
-        this._super();
+        _name: "meldbug.MeldSessionManager",
 
 
         //-------------------------------------------------------------------------------
-        // Properties
+        // Constructor
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @constructs
+         * @param {RedisClient} redisClient
+         */
+        _constructor: function(redisClient) {
+
+            this._super();
+
+
+            //-------------------------------------------------------------------------------
+            // Properties
+            //-------------------------------------------------------------------------------
+
+            /**
+             * @private
+             * @type {RedisClient}
+             */
+            this.redisClient        = redisClient;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Getters and Setters
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @return {RedisClient}
+         */
+        getRedisClient: function() {
+            return this.redisClient;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Public Methods
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @param {string} callUuid
+         * @param {MeldSessionKey} meldSessionKey
+         * @param {function(Throwable=)} callback
+         */
+        addCallUuidToMeldSession: function(callUuid, meldSessionKey, callback) {
+            var multi = this.redisClient.multi();
+            multi
+                .sadd(this.generateMeldSessionCallUuidSetKey(meldSessionKey), callUuid)
+                .exec(function(errors, replies) {
+                    if (!errors) {
+                        callback();
+                    } else {
+                        callback(errors);
+                    }
+                });
+        },
+
+        /**
+         * @param {string} sessionId
+         * @return {MeldSessionKey}
+         */
+        generateMeldSessionKey: function(sessionId) {
+            return new MeldSessionKey(sessionId);
+        },
+
+        /**
+         * @param {MeldSessionKey} meldSessionKey
+         * @param {function(Throwable, Set.<string>=)} callback
+         */
+        getCallUuidSetForMeldSessionKey: function(meldSessionKey, callback) {
+            var callUuidSetKey = this.generateMeldSessionCallUuidSetKey(meldSessionKey);
+            this.redisClient.sMembers(callUuidSetKey, function(error, replies) {
+                if (!error) {
+                    /** @type {Set.<string>} */
+                    var callUuidSet = new Set(replies);
+                    callback(null, callUuidSet);
+                } else {
+                    callback(error)
+                }
+            });
+        },
+
+        /**
+         * @param {string} callUuid
+         * @param {MeldSessionKey} meldSessionKey
+         * @param {function(Throwable=)} callback
+         */
+        removeCallUuidFromMeldSession: function(callUuid, meldSessionKey, callback) {
+            this.redisClient.sRem(this.generateMeldSessionCallUuidSetKey(meldSessionKey), callUuid, function(error, reply) {
+                if (!error) {
+                    callback();
+                } else {
+                    callback(error);
+                }
+            });
+        },
+
+        /**
+         * @param {MeldSessionKey} meldSessionKey
+         * @param {function(Throwable)} callback
+         */
+        removeMeldSession: function(meldSessionKey, callback) {
+            this.redisClient.del(this.generateMeldSessionCallUuidSetKey(meldSessionKey), function(error, reply) {
+                callback(error);
+            });
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Private Methods
         //-------------------------------------------------------------------------------
 
         /**
          * @private
-         * @type {RedisClient}
+         * @param {MeldSessionKey} meldSessionKey
+         * @return {string}
          */
-        this.redisClient        = redisClient;
-    },
+        generateMeldSessionCallUuidSetKey: function(meldSessionKey) {
+            return "meldSessionCallUuidSet:" + meldSessionKey.toStringKey();
+        }
+    });
 
 
     //-------------------------------------------------------------------------------
-    // Getters and Setters
+    // BugMeta
     //-------------------------------------------------------------------------------
 
-    /**
-     * @return {RedisClient}
-     */
-    getRedisClient: function() {
-        return this.redisClient;
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // Public Methods
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @param {string} callUuid
-     * @param {MeldSessionKey} meldSessionKey
-     * @param {function(Throwable=)} callback
-     */
-    addCallUuidToMeldSession: function(callUuid, meldSessionKey, callback) {
-        var multi = this.redisClient.multi();
-        multi
-            .sadd(this.generateMeldSessionCallUuidSetKey(meldSessionKey), callUuid)
-            .exec(function(errors, replies) {
-                if (!errors) {
-                    callback();
-                } else {
-                    callback(errors);
-                }
-            });
-    },
-
-    /**
-     * @param {string} sessionId
-     * @return {MeldSessionKey}
-     */
-    generateMeldSessionKey: function(sessionId) {
-        return new MeldSessionKey(sessionId);
-    },
-
-    /**
-     * @param {MeldSessionKey} meldSessionKey
-     * @param {function(Throwable, Set.<string>=)} callback
-     */
-    getCallUuidSetForMeldSessionKey: function(meldSessionKey, callback) {
-        var callUuidSetKey = this.generateMeldSessionCallUuidSetKey(meldSessionKey);
-        this.redisClient.sMembers(callUuidSetKey, function(error, replies) {
-            if (!error) {
-                /** @type {Set.<string>} */
-                var callUuidSet = new Set(replies);
-                callback(null, callUuidSet);
-            } else {
-                callback(error)
-            }
-        });
-    },
-
-    /**
-     * @param {string} callUuid
-     * @param {MeldSessionKey} meldSessionKey
-     * @param {function(Throwable=)} callback
-     */
-    removeCallUuidFromMeldSession: function(callUuid, meldSessionKey, callback) {
-        this.redisClient.sRem(this.generateMeldSessionCallUuidSetKey(meldSessionKey), callUuid, function(error, reply) {
-            if (!error) {
-                callback();
-            } else {
-                callback(error);
-            }
-        });
-    },
-
-    /**
-     * @param {MeldSessionKey} meldSessionKey
-     * @param {function(Throwable)} callback
-     */
-    removeMeldSession: function(meldSessionKey, callback) {
-        this.redisClient.del(this.generateMeldSessionCallUuidSetKey(meldSessionKey), function(error, reply) {
-            callback(error);
-        });
-    },
+    bugmeta.tag(MeldSessionManager).with(
+        module("meldSessionManager")
+            .args([
+                arg().ref("redisClient")
+            ])
+    );
 
 
     //-------------------------------------------------------------------------------
-    // Private Methods
+    // Exports
     //-------------------------------------------------------------------------------
 
-    /**
-     * @private
-     * @param {MeldSessionKey} meldSessionKey
-     * @return {string}
-     */
-    generateMeldSessionCallUuidSetKey: function(meldSessionKey) {
-        return "meldSessionCallUuidSet:" + meldSessionKey.toStringKey();
-    }
+    bugpack.export('meldbug.MeldSessionManager', MeldSessionManager);
 });
-
-
-//-------------------------------------------------------------------------------
-// BugMeta
-//-------------------------------------------------------------------------------
-
-bugmeta.tag(MeldSessionManager).with(
-    module("meldSessionManager")
-        .args([
-            arg().ref("redisClient")
-        ])
-);
-
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbug.MeldSessionManager', MeldSessionManager);

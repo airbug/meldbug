@@ -9,63 +9,51 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack         = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var Class           = bugpack.require('Class');
-var MeldOperation   = bugpack.require('meldbug.MeldOperation');
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-var MeldBucketOperation = Class.extend(MeldOperation, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Constructor
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var Class           = bugpack.require('Class');
+    var MeldOperation   = bugpack.require('meldbug.MeldOperation');
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     *
+     * @class
+     * @extends {MeldOperation}
      */
-    _constructor: function(meldDocumentKey, type) {
+    var MeldBucketOperation = Class.extend(MeldOperation, {
 
-        this._super(meldDocumentKey, type);
+        _name: "meldbug.MeldBucketOperation",
 
 
         //-------------------------------------------------------------------------------
-        // Properties
+        // IClone Implementation
         //-------------------------------------------------------------------------------
 
-    },
-
+        /**
+         * @override
+         * @param {boolean} deep
+         * @returns {MeldBucketOperation}
+         */
+        clone: function(deep) {
+            var clone = new MeldBucketOperation(this.getMeldDocumentKey());
+            clone.setUuid(this.getUuid());
+            return clone;
+        }
+    });
 
     //-------------------------------------------------------------------------------
-    // IClone Implementation
+    // Exports
     //-------------------------------------------------------------------------------
 
-    /**
-     * @override
-     * @param {boolean} deep
-     * @returns {MeldBucketOperation}
-     */
-    clone: function(deep) {
-        var clone = new MeldBucketOperation(this.getMeldDocumentKey());
-        clone.setUuid(this.getUuid());
-        return clone;
-    }
+    bugpack.export('meldbug.MeldBucketOperation', MeldBucketOperation);
 });
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbug.MeldBucketOperation', MeldBucketOperation);

@@ -10,143 +10,150 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack             = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var Class               = bugpack.require('Class');
-var IObjectable         = bugpack.require('IObjectable');
-var Obj                 = bugpack.require('Obj');
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-var MeldBucketKey = Class.extend(Obj, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Constructor
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var Class               = bugpack.require('Class');
+    var IObjectable         = bugpack.require('IObjectable');
+    var Obj                 = bugpack.require('Obj');
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     * @constructs
-     * @param {string} type
-     * @param {string} callUuid
+     * @class
+     * @extends {Obj}
      */
-    _constructor: function(type, callUuid) {
+    var MeldBucketKey = Class.extend(Obj, {
 
-        this._super();
+        _name: "meldbug.MeldBucketKey",
 
 
         //-------------------------------------------------------------------------------
-        // Properties
+        // Constructor
         //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {string}
+         * @constructs
+         * @param {string} type
+         * @param {string} callUuid
          */
-        this.callUuid           = callUuid;
+        _constructor: function(type, callUuid) {
+
+            this._super();
+
+
+            //-------------------------------------------------------------------------------
+            // Properties
+            //-------------------------------------------------------------------------------
+
+            /**
+             * @private
+             * @type {string}
+             */
+            this.callUuid           = callUuid;
+
+            /**
+             * @private
+             * @type {string}
+             */
+            this.type               = type;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Getters and Setters
+        //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {string}
+         * @return {string}
          */
-        this.type               = type;
-    },
+        getCallUuid: function() {
+            return this.callUuid;
+        },
+
+        /**
+         * @return {string}
+         */
+        getType: function() {
+            return this.type;
+        },
 
 
-    //-------------------------------------------------------------------------------
-    // Getters and Setters
-    //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
+        // Object Implementation
+        //-------------------------------------------------------------------------------
 
-    /**
-     * @return {string}
-     */
-    getCallUuid: function() {
-        return this.callUuid;
-    },
+        /**
+         * @param {*} value
+         * @return {boolean}
+         */
+        equals: function(value) {
+            if (Class.doesExtend(value, MeldBucketKey)) {
+                return (value.getCallUuid() === this.getCallUuid() && value.getType() === this.getType());
+            }
+            return false;
+        },
 
-    /**
-     * @return {string}
-     */
-    getType: function() {
-        return this.type;
-    },
+        /**
+         * @return {number}
+         */
+        hashCode: function() {
+            if (!this._hashCode) {
+                this._hashCode = Obj.hashCode("[MeldBucketKey]" +
+                    Obj.hashCode(this.getCallUuid()) + "_" +
+                    Obj.hashCode(this.getType()));
+            }
+            return this._hashCode;
+        },
 
 
-    //-------------------------------------------------------------------------------
-    // Object Implementation
-    //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
+        // IObjectable Implementation
+        //-------------------------------------------------------------------------------
 
-    /**
-     * @param {*} value
-     * @return {boolean}
-     */
-    equals: function(value) {
-        if (Class.doesExtend(value, MeldBucketKey)) {
-            return (value.getCallUuid() === this.getCallUuid() && value.getType() === this.getType());
+        /**
+         * @return {Object}
+         */
+        toObject: function() {
+            return {
+                callUuid: this.callUuid,
+                type: this.type
+            };
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Public Methods
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @return {string}
+         */
+        toStringKey: function() {
+            return this.type + ":" + this.callUuid;
         }
-        return false;
-    },
-
-    /**
-     * @return {number}
-     */
-    hashCode: function() {
-        if (!this._hashCode) {
-            this._hashCode = Obj.hashCode("[MeldBucketKey]" +
-                Obj.hashCode(this.getCallUuid()) + "_" +
-                Obj.hashCode(this.getType()));
-        }
-        return this._hashCode;
-    },
+    });
 
 
     //-------------------------------------------------------------------------------
-    // IObjectable Implementation
+    // Interfaces
     //-------------------------------------------------------------------------------
 
-    /**
-     * @return {Object}
-     */
-    toObject: function() {
-        return {
-            callUuid: this.callUuid,
-            type: this.type
-        };
-    },
+    Class.implement(MeldBucketKey, IObjectable);
 
 
     //-------------------------------------------------------------------------------
-    // Public Methods
+    // Exports
     //-------------------------------------------------------------------------------
 
-    /**
-     * @return {string}
-     */
-    toStringKey: function() {
-        return this.type + ":" + this.callUuid;
-    }
+    bugpack.export('meldbug.MeldBucketKey', MeldBucketKey);
 });
-
-
-//-------------------------------------------------------------------------------
-// Interfaces
-//-------------------------------------------------------------------------------
-
-Class.implement(MeldBucketKey, IObjectable);
-
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbug.MeldBucketKey', MeldBucketKey);

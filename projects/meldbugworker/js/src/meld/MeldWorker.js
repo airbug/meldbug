@@ -141,7 +141,7 @@ require('bugpack').context("*", function(bugpack) {
          * @param {function(Throwable=)} callback
          */
         deinitialize: function(callback) {
-            this.iocContext.deinitialize(callback);
+            this.iocContext.stop(callback);
         },
 
         /**
@@ -150,7 +150,7 @@ require('bugpack').context("*", function(bugpack) {
          */
         initialize: function(callback) {
             console.log("Initializing MeldWorker...");
-            this.iocContext.initialize(callback);
+            this.iocContext.start(callback);
         }
     });
 

@@ -7,13 +7,12 @@
 
 //@Require('Class')
 //@Require('Obj')
-//@Require('bugflow.BugFlow')
+//@Require('Flows')
 //@Require('bugfs.BugFs')
 //@Require('bugioc.ArgTag')
 //@Require('bugioc.ConfigurationTag')
 //@Require('bugioc.IInitializingModule')
 //@Require('bugioc.ModuleTag')
-//@Require('bugioc.PropertyTag')
 //@Require('bugmeta.BugMeta')
 //@Require('bugtask.TaskProcessor')
 //@Require('configbug.Configbug')
@@ -43,13 +42,12 @@ require('bugpack').context("*", function(bugpack) {
 
     var Class                   = bugpack.require('Class');
     var Obj                     = bugpack.require('Obj');
-    var BugFlow                 = bugpack.require('bugflow.BugFlow');
+    var Flows                 = bugpack.require('Flows');
     var BugFs                   = bugpack.require('bugfs.BugFs');
     var ArgTag           = bugpack.require('bugioc.ArgTag');
     var ConfigurationTag = bugpack.require('bugioc.ConfigurationTag');
     var IInitializingModule          = bugpack.require('bugioc.IInitializingModule');
     var ModuleTag        = bugpack.require('bugioc.ModuleTag');
-    var PropertyTag      = bugpack.require('bugioc.PropertyTag');
     var BugMeta                 = bugpack.require('bugmeta.BugMeta');
     var TaskProcessor           = bugpack.require('bugtask.TaskProcessor');
     var Configbug               = bugpack.require('configbug.Configbug');
@@ -68,10 +66,8 @@ require('bugpack').context("*", function(bugpack) {
     var bugmeta                 = BugMeta.context();
     var configuration           = ConfigurationTag.configuration;
     var module                  = ModuleTag.module;
-    var property                = PropertyTag.property;
-    var $parallel               = BugFlow.$parallel;
-    var $series                 = BugFlow.$series;
-    var $task                   = BugFlow.$task;
+    var $series                 = Flows.$series;
+    var $task                   = Flows.$task;
 
 
     //-------------------------------------------------------------------------------

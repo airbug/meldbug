@@ -10,7 +10,7 @@
 //@Require('Obj')
 //@Require('bugcall.CallEvent')
 //@Require('bugcall.IProcessCall')
-//@Require('bugflow.BugFlow')
+//@Require('Flows')
 //@Require('bugioc.ArgTag')
 //@Require('bugioc.IInitializingModule')
 //@Require('bugioc.ModuleTag')
@@ -18,267 +18,269 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack                     = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// Bugpack Modules
-//-------------------------------------------------------------------------------
-
-var Class                       = bugpack.require('Class');
-var Exception                   = bugpack.require('Exception');
-var Obj                         = bugpack.require('Obj');
-var CallEvent                   = bugpack.require('bugcall.CallEvent');
-var IProcessCall                = bugpack.require('bugcall.IProcessCall');
-var BugFlow                     = bugpack.require('bugflow.BugFlow');
-var ArgTag               = bugpack.require('bugioc.ArgTag');
-var IInitializingModule           = bugpack.require('bugioc.IInitializingModule');
-var ModuleTag            = bugpack.require('bugioc.ModuleTag');
-var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var arg                         = ArgTag.arg;
-var bugmeta                     = BugMeta.context();
-var module                      = ModuleTag.module;
-var $if                         = BugFlow.$if;
-var $parallel                   = BugFlow.$parallel;
-var $series                     = BugFlow.$series;
-var $task                       = BugFlow.$task;
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-/**
- * @class
- * @extends {Obj}
- * @implements {IInitializingModule}
- * @implements {IProcessCall}
- */
-var MeldClientService = Class.extend(Obj, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Constructor
+    // Bugpack Modules
+    //-------------------------------------------------------------------------------
+
+    var Class                       = bugpack.require('Class');
+    var Exception                   = bugpack.require('Exception');
+    var Obj                         = bugpack.require('Obj');
+    var CallEvent                   = bugpack.require('bugcall.CallEvent');
+    var IProcessCall                = bugpack.require('bugcall.IProcessCall');
+    var Flows                     = bugpack.require('Flows');
+    var ArgTag               = bugpack.require('bugioc.ArgTag');
+    var IInitializingModule           = bugpack.require('bugioc.IInitializingModule');
+    var ModuleTag            = bugpack.require('bugioc.ModuleTag');
+    var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+
+
+    //-------------------------------------------------------------------------------
+    // Simplify References
+    //-------------------------------------------------------------------------------
+
+    var arg                         = ArgTag.arg;
+    var bugmeta                     = BugMeta.context();
+    var module                      = ModuleTag.module;
+    var $if                         = Flows.$if;
+    var $series                     = Flows.$series;
+    var $task                       = Flows.$task;
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     * @constructs
-     * @param {BugCallServer} bugCallServer
-     * @param {MeldClientManager} meldClientManager
+     * @class
+     * @extends {Obj}
+     * @implements {IInitializingModule}
+     * @implements {IProcessCall}
      */
-    _constructor: function(bugCallServer, meldClientManager) {
+    var MeldClientService = Class.extend(Obj, {
 
-        this._super();
+        _name: "meldbugserver.MeldClientService",
 
 
         //-------------------------------------------------------------------------------
-        // Private Properties
+        // Constructor
         //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {BugCallServer}
+         * @constructs
+         * @param {BugCallServer} bugCallServer
+         * @param {MeldClientManager} meldClientManager
          */
-        this.bugCallServer                  = bugCallServer;
+        _constructor: function(bugCallServer, meldClientManager) {
+
+            this._super();
+
+
+            //-------------------------------------------------------------------------------
+            // Private Properties
+            //-------------------------------------------------------------------------------
+
+            /**
+             * @private
+             * @type {BugCallServer}
+             */
+            this.bugCallServer                  = bugCallServer;
+
+            /**
+             * @private
+             * @type {boolean}
+             */
+            this.initialized                    = false;
+
+            /**
+             * @private
+             * @type {MeldClientManager}
+             */
+            this.meldClientManager              = meldClientManager;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Getters and Setters
+        //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {boolean}
+         * @return {BugCallServer}
          */
-        this.initialized                    = false;
+        getBugCallServer: function() {
+            return this.bugCallServer;
+        },
 
         /**
-         * @private
-         * @type {MeldClientManager}
+         * @return {MeldClientManager}
          */
-        this.meldClientManager              = meldClientManager;
-    },
+        getMeldClientManager: function() {
+            return this.meldClientManager;
+        },
+
+        /**
+         * @return {boolean}
+         */
+        isInitialized: function() {
+            return this.initialized;
+        },
 
 
-    //-------------------------------------------------------------------------------
-    // Getters and Setters
-    //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
+        // IInitializingModule Implementation
+        //-------------------------------------------------------------------------------
 
-    /**
-     * @return {BugCallServer}
-     */
-    getBugCallServer: function() {
-        return this.bugCallServer;
-    },
+        /**
+         * @param {function(Throwable=)} callback
+         */
+        deinitializeModule: function(callback) {
+            if (this.isInitialized()) {
+                this.initialized = false;
+                this.bugCallServer.off(CallEvent.CLOSED, this.hearBugCallServerCallClosed, this);
+                this.bugCallServer.deregisterCallProcessor(this);
+            }
+            callback();
+        },
 
-    /**
-     * @return {MeldClientManager}
-     */
-    getMeldClientManager: function() {
-        return this.meldClientManager;
-    },
-
-    /**
-     * @return {boolean}
-     */
-    isInitialized: function() {
-        return this.initialized;
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // IInitializingModule Implementation
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @param {function(Throwable=)} callback
-     */
-    deinitializeModule: function(callback) {
-        if (this.isInitialized()) {
-            this.initialized = false;
-            this.bugCallServer.off(CallEvent.CLOSED, this.hearBugCallServerCallClosed, this);
-            this.bugCallServer.deregisterCallProcessor(this);
-        }
-        callback();
-    },
-
-    /**
-     * @param {function(Throwable=)} callback
-     */
-    initializeModule: function(callback) {
-        if (!this.isInitialized()) {
-            this.initialized = true;
-            this.bugCallServer.on(CallEvent.CLOSED, this.hearBugCallServerCallClosed, this);
-            this.bugCallServer.registerCallProcessor(this);
-        }
-        callback();
-    },
+        /**
+         * @param {function(Throwable=)} callback
+         */
+        initializeModule: function(callback) {
+            if (!this.isInitialized()) {
+                this.initialized = true;
+                this.bugCallServer.on(CallEvent.CLOSED, this.hearBugCallServerCallClosed, this);
+                this.bugCallServer.registerCallProcessor(this);
+            }
+            callback();
+        },
 
 
-    //-------------------------------------------------------------------------------
-    // IProcessCall Implementation
-    //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
+        // IProcessCall Implementation
+        //-------------------------------------------------------------------------------
 
-    /**
-     * @param {Call} call
-     * @param {function(Throwable=)} callback
-     */
-    processCall: function(call, callback) {
-        var _this           = this;
-        var meldClient      = null;
-        var meldClientKey   = this.meldClientManager.generateMeldClientKey(call.getCallUuid());
-        
-        $if(function(flow) {
-                _this.meldClientManager.getMeldClientForKey(meldClientKey, function(throwable, retrieveMeldClient) {
-                    if (!throwable) {
-                        meldClient = retrieveMeldClient;
-                        flow.assert(!meldClient);
+        /**
+         * @param {Call} call
+         * @param {function(Throwable=)} callback
+         */
+        processCall: function(call, callback) {
+            var _this           = this;
+            var meldClient      = null;
+            var meldClientKey   = this.meldClientManager.generateMeldClientKey(call.getCallUuid());
+
+            $if(function(flow) {
+                    _this.meldClientManager.getMeldClientForKey(meldClientKey, function(throwable, retrieveMeldClient) {
+                        if (!throwable) {
+                            meldClient = retrieveMeldClient;
+                            flow.assert(!meldClient);
+                        } else {
+                            flow.error(throwable);
+                        }
+                    });
+                },
+                $task(function(flow) {
+                    _this.createMeldClient(meldClientKey, function(throwable) {
+                        flow.complete(throwable);
+                    });
+                })
+            ).$else(
+                $task(function(flow) {
+                    if (!meldClient.isActive()) {
+                        meldClient.setActive(true);
+                        meldClient.setLastActive(new Date());
+                        _this.meldClientManager.setMeldClient(meldClient, function(throwable) {
+                            flow.complete(throwable);
+                        });
                     } else {
-                        flow.error(throwable);
+                        flow.error(new Exception("AlreadyActive", {}, "A connection by this callUuid is already active"));
                     }
-                });
-            },
-            $task(function(flow) {
-                _this.createMeldClient(meldClientKey, function(throwable) {
-                    flow.complete(throwable);
-                });
-            })
-        ).$else(
-            $task(function(flow) {
-                if (!meldClient.isActive()) {
-                    meldClient.setActive(true);
+                })
+            ).execute(callback);
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Private Methods
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @private
+         * @param {MeldClientKey} meldClientKey
+         * @param {function(Throwable, MeldClient=)} callback
+         */
+        createMeldClient: function(meldClientKey, callback) {
+            var meldClient = this.meldClientManager.generateMeldClient(meldClientKey);
+            this.meldClientManager.setMeldClient(meldClient, callback);
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Event Listeners
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @private
+         * @param {CallEvent} event
+         */
+        hearBugCallServerCallClosed: function(event) {
+            var _this           = this;
+            var data            = event.getData();
+            var call     = data.call;
+            var meldClient      = null;
+            var meldClientKey   = this.meldClientManager.generateMeldClientKey(call.getCallUuid());
+            $series([
+                $task(function(flow) {
+                    _this.meldClientManager.getMeldClientForKey(meldClientKey, function(throwable, retrievedMeldClient) {
+                        if (!throwable) {
+                            meldClient = retrievedMeldClient;
+                            flow.complete();
+                        } else {
+                            flow.error(throwable);
+                        }
+                    });
+                }),
+                $task(function(flow) {
+                    meldClient.setActive(false);
                     meldClient.setLastActive(new Date());
                     _this.meldClientManager.setMeldClient(meldClient, function(throwable) {
                         flow.complete(throwable);
                     });
-                } else {
-                    flow.error(new Exception("AlreadyActive", {}, "A connection by this callUuid is already active"));
-                }
-            })
-        ).execute(callback);
-    },
+                })
+            ]).execute(function(throwable) {
+                //TODO BRN: What do we do if this fails?
+            });
+        }
+    });
 
 
     //-------------------------------------------------------------------------------
-    // Private Methods
+    // Implement Interfaces
     //-------------------------------------------------------------------------------
 
-    /**
-     * @private
-     * @param {MeldClientKey} meldClientKey
-     * @param {function(Throwable, MeldClient=)} callback
-     */
-    createMeldClient: function(meldClientKey, callback) {
-        var meldClient = this.meldClientManager.generateMeldClient(meldClientKey);
-        this.meldClientManager.setMeldClient(meldClient, callback);
-    },
+    Class.implement(MeldClientService, IInitializingModule);
+    Class.implement(MeldClientService, IProcessCall);
 
 
     //-------------------------------------------------------------------------------
-    // Event Listeners
+    // BugMeta
     //-------------------------------------------------------------------------------
 
-    /**
-     * @private
-     * @param {CallEvent} event
-     */
-    hearBugCallServerCallClosed: function(event) {
-        var _this           = this;
-        var data            = event.getData();
-        var call     = data.call;
-        var meldClient      = null;
-        var meldClientKey   = this.meldClientManager.generateMeldClientKey(call.getCallUuid());
-        $series([
-            $task(function(flow) {
-                _this.meldClientManager.getMeldClientForKey(meldClientKey, function(throwable, retrievedMeldClient) {
-                    if (!throwable) {
-                        meldClient = retrievedMeldClient;
-                        flow.complete();
-                    } else {
-                        flow.error(throwable);
-                    }
-                });
-            }),
-            $task(function(flow) {
-                meldClient.setActive(false);
-                meldClient.setLastActive(new Date());
-                _this.meldClientManager.setMeldClient(meldClient, function(throwable) {
-                    flow.complete(throwable);
-                });
-            })
-        ]).execute(function(throwable) {
-            //TODO BRN: What do we do if this fails?
-        });
-    }
+    bugmeta.tag(MeldClientService).with(
+        module("meldClientService")
+            .args([
+                arg().ref("bugCallServer"),
+                arg().ref("meldClientManager")
+            ])
+    );
+
+
+    //-------------------------------------------------------------------------------
+    // Exports
+    //-------------------------------------------------------------------------------
+
+    bugpack.export('meldbugserver.MeldClientService', MeldClientService);
 });
-
-
-//-------------------------------------------------------------------------------
-// Implement Interfaces
-//-------------------------------------------------------------------------------
-
-Class.implement(MeldClientService, IInitializingModule);
-Class.implement(MeldClientService, IProcessCall);
-
-
-//-------------------------------------------------------------------------------
-// BugMeta
-//-------------------------------------------------------------------------------
-
-bugmeta.tag(MeldClientService).with(
-    module("meldClientService")
-        .args([
-            arg().ref("bugCallServer"),
-            arg().ref("meldClientManager")
-        ])
-);
-
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbugserver.MeldClientService', MeldClientService);
