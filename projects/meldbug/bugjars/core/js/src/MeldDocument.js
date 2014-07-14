@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2014 airbug Inc. All rights reserved.
+ *
+ * All software, both binary and source contained in this work is the exclusive property
+ * of airbug Inc. Modification, decompilation, disassembly, or any other means of discovering
+ * the source code of this software is prohibited. This work is protected under the United
+ * States copyright law and other international copyright treaties and conventions.
+ */
+
+
 //-------------------------------------------------------------------------------
 // Annotations
 //-------------------------------------------------------------------------------
@@ -32,31 +42,31 @@ require('bugpack').context("*", function(bugpack) {
     // BugPack
     //-------------------------------------------------------------------------------
 
-    var Class                       = bugpack.require('Class');
-    var Event                       = bugpack.require('Event');
-    var EventDispatcher             = bugpack.require('EventDispatcher');
-    var IDocument                   = bugpack.require('IDocument');
-    var ISet                        = bugpack.require('ISet');
-    var Set                         = bugpack.require('Set');
-    var TypeUtil                    = bugpack.require('TypeUtil');
-    var DeltaBuilder                = bugpack.require('bugdelta.DeltaBuilder');
-    var DeltaDocument               = bugpack.require('bugdelta.DeltaDocument');
-    var DocumentChange              = bugpack.require('bugdelta.DocumentChange');
-    var ObjectChange                = bugpack.require('bugdelta.ObjectChange');
-    var SetChange                   = bugpack.require('bugdelta.SetChange');
-    var MarshTag             = bugpack.require('bugmarsh.MarshTag');
-    var MarshPropertyTag     = bugpack.require('bugmarsh.MarshPropertyTag');
-    var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-    var MeldDocumentEvent           = bugpack.require('meldbug.MeldDocumentEvent');
+    var Class               = bugpack.require('Class');
+    var Event               = bugpack.require('Event');
+    var EventDispatcher     = bugpack.require('EventDispatcher');
+    var IDocument           = bugpack.require('IDocument');
+    var ISet                = bugpack.require('ISet');
+    var Set                 = bugpack.require('Set');
+    var TypeUtil            = bugpack.require('TypeUtil');
+    var DeltaBuilder        = bugpack.require('bugdelta.DeltaBuilder');
+    var DeltaDocument       = bugpack.require('bugdelta.DeltaDocument');
+    var DocumentChange      = bugpack.require('bugdelta.DocumentChange');
+    var ObjectChange        = bugpack.require('bugdelta.ObjectChange');
+    var SetChange           = bugpack.require('bugdelta.SetChange');
+    var MarshPropertyTag    = bugpack.require('bugmarsh.MarshPropertyTag');
+    var MarshTag            = bugpack.require('bugmarsh.MarshTag');
+    var BugMeta             = bugpack.require('bugmeta.BugMeta');
+    var MeldDocumentEvent   = bugpack.require('meldbug.MeldDocumentEvent');
 
 
     //-------------------------------------------------------------------------------
     // Simplify References
     //-------------------------------------------------------------------------------
 
-    var bugmeta                     = BugMeta.context();
-    var marsh                       = MarshTag.marsh;
-    var property                    = MarshPropertyTag.property;
+    var bugmeta             = BugMeta.context();
+    var marsh               = MarshTag.marsh;
+    var property            = MarshPropertyTag.property;
 
 
     //-------------------------------------------------------------------------------

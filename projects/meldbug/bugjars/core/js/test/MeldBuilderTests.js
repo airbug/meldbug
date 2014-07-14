@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2014 airbug Inc. All rights reserved.
+ *
+ * All software, both binary and source contained in this work is the exclusive property
+ * of airbug Inc. Modification, decompilation, disassembly, or any other means of discovering
+ * the source code of this software is prohibited. This work is protected under the United
+ * States copyright law and other international copyright treaties and conventions.
+ */
+
+
 //-------------------------------------------------------------------------------
 // Annotations
 //-------------------------------------------------------------------------------
@@ -11,11 +21,11 @@
 //@Require('bugmeta.BugMeta')
 //@Require('bugunit.TestTag')
 //@Require('bugyarn.BugYarn')
-//@Require('meldbug.PutMeldDocumentOperation')
 //@Require('meldbug.MeldBuilder')
 //@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldDocumentKey')
 //@Require('meldbug.MeldTransaction')
+//@Require('meldbug.PutMeldDocumentOperation')
 
 
 //-------------------------------------------------------------------------------
@@ -33,13 +43,13 @@ require('bugpack').context("*", function(bugpack) {
     var MarshRegistry               = bugpack.require('bugmarsh.MarshRegistry');
     var Marshaller                  = bugpack.require('bugmarsh.Marshaller');
     var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-    var TestTag              = bugpack.require('bugunit.TestTag');
+    var TestTag                     = bugpack.require('bugunit.TestTag');
     var BugYarn                     = bugpack.require('bugyarn.BugYarn');
-    var PutMeldDocumentOperation    = bugpack.require('meldbug.PutMeldDocumentOperation');
     var MeldBuilder                 = bugpack.require('meldbug.MeldBuilder');
     var MeldDocument                = bugpack.require('meldbug.MeldDocument');
     var MeldDocumentKey             = bugpack.require('meldbug.MeldDocumentKey');
     var MeldTransaction             = bugpack.require('meldbug.MeldTransaction');
+    var PutMeldDocumentOperation    = bugpack.require('meldbug.PutMeldDocumentOperation');
 
 
     //-------------------------------------------------------------------------------

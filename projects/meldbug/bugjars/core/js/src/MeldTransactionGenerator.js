@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2014 airbug Inc. All rights reserved.
+ *
+ * All software, both binary and source contained in this work is the exclusive property
+ * of airbug Inc. Modification, decompilation, disassembly, or any other means of discovering
+ * the source code of this software is prohibited. This work is protected under the United
+ * States copyright law and other international copyright treaties and conventions.
+ */
+
+
 //-------------------------------------------------------------------------------
 // Annotations
 //-------------------------------------------------------------------------------
@@ -36,33 +46,33 @@ require('bugpack').context("*", function(bugpack) {
     // BugPack
     //-------------------------------------------------------------------------------
 
-    var Class                               = bugpack.require('Class');
-    var Obj                                 = bugpack.require('Obj');
-    var DeltaBuilder                        = bugpack.require('bugdelta.DeltaBuilder');
-    var DocumentChange                      = bugpack.require('bugdelta.DocumentChange');
-    var MapChange                           = bugpack.require('bugdelta.MapChange');
-    var ObjectChange                        = bugpack.require('bugdelta.ObjectChange');
-    var SetChange                           = bugpack.require('bugdelta.SetChange');
-    var ModuleTag                    = bugpack.require('bugioc.ModuleTag');
-    var BugMeta                             = bugpack.require('bugmeta.BugMeta');
-    var AddToSetOperation                   = bugpack.require('meldbug.AddToSetOperation');
-    var MeldDocument                        = bugpack.require('meldbug.MeldDocument');
-    var MeldTransaction                     = bugpack.require('meldbug.MeldTransaction');
-    var MergeDocumentOperation              = bugpack.require('meldbug.MergeDocumentOperation');
-    var PutMeldDocumentOperation            = bugpack.require('meldbug.PutMeldDocumentOperation');
-    var RemoveFromSetOperation              = bugpack.require('meldbug.RemoveFromSetOperation');
-    var RemoveMeldDocumentOperation         = bugpack.require('meldbug.RemoveMeldDocumentOperation');
-    var RemoveObjectPropertyOperation       = bugpack.require('meldbug.RemoveObjectPropertyOperation');
-    var SetDocumentOperation                = bugpack.require('meldbug.SetDocumentOperation');
-    var SetObjectPropertyOperation          = bugpack.require('meldbug.SetObjectPropertyOperation');
+    var Class                           = bugpack.require('Class');
+    var Obj                             = bugpack.require('Obj');
+    var DeltaBuilder                    = bugpack.require('bugdelta.DeltaBuilder');
+    var DocumentChange                  = bugpack.require('bugdelta.DocumentChange');
+    var MapChange                       = bugpack.require('bugdelta.MapChange');
+    var ObjectChange                    = bugpack.require('bugdelta.ObjectChange');
+    var SetChange                       = bugpack.require('bugdelta.SetChange');
+    var ModuleTag                       = bugpack.require('bugioc.ModuleTag');
+    var BugMeta                         = bugpack.require('bugmeta.BugMeta');
+    var AddToSetOperation               = bugpack.require('meldbug.AddToSetOperation');
+    var MeldDocument                    = bugpack.require('meldbug.MeldDocument');
+    var MeldTransaction                 = bugpack.require('meldbug.MeldTransaction');
+    var MergeDocumentOperation          = bugpack.require('meldbug.MergeDocumentOperation');
+    var PutMeldDocumentOperation        = bugpack.require('meldbug.PutMeldDocumentOperation');
+    var RemoveFromSetOperation          = bugpack.require('meldbug.RemoveFromSetOperation');
+    var RemoveMeldDocumentOperation     = bugpack.require('meldbug.RemoveMeldDocumentOperation');
+    var RemoveObjectPropertyOperation   = bugpack.require('meldbug.RemoveObjectPropertyOperation');
+    var SetDocumentOperation            = bugpack.require('meldbug.SetDocumentOperation');
+    var SetObjectPropertyOperation      = bugpack.require('meldbug.SetObjectPropertyOperation');
 
 
     //-------------------------------------------------------------------------------
     // Simplify References
     //-------------------------------------------------------------------------------
 
-    var bugmeta                             = BugMeta.context();
-    var module                              = ModuleTag.module;
+    var bugmeta                         = BugMeta.context();
+    var module                          = ModuleTag.module;
 
 
     //-------------------------------------------------------------------------------

@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2014 airbug Inc. All rights reserved.
+ *
+ * All software, both binary and source contained in this work is the exclusive property
+ * of airbug Inc. Modification, decompilation, disassembly, or any other means of discovering
+ * the source code of this software is prohibited. This work is protected under the United
+ * States copyright law and other international copyright treaties and conventions.
+ */
+
+
 //-------------------------------------------------------------------------------
 // Annotations
 //-------------------------------------------------------------------------------
@@ -7,10 +17,10 @@
 
 //@Require('Class')
 //@Require('Exception')
+//@Require('Flows')
 //@Require('Obj')
 //@Require('bugcall.CallEvent')
 //@Require('bugcall.IPreProcessCall')
-//@Require('Flows')
 //@Require('bugioc.ArgTag')
 //@Require('bugioc.IInitializingModule')
 //@Require('bugioc.ModuleTag')
@@ -27,27 +37,27 @@ require('bugpack').context("*", function(bugpack) {
     // Bugpack Modules
     //-------------------------------------------------------------------------------
 
-    var Class                       = bugpack.require('Class');
-    var Exception                   = bugpack.require('Exception');
-    var Obj                         = bugpack.require('Obj');
-    var CallEvent                   = bugpack.require('bugcall.CallEvent');
-    var IPreProcessCall             = bugpack.require('bugcall.IPreProcessCall');
-    var Flows                     = bugpack.require('Flows');
-    var ArgTag               = bugpack.require('bugioc.ArgTag');
-    var IInitializingModule           = bugpack.require('bugioc.IInitializingModule');
-    var ModuleTag            = bugpack.require('bugioc.ModuleTag');
-    var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+    var Class                   = bugpack.require('Class');
+    var Exception               = bugpack.require('Exception');
+    var Flows                   = bugpack.require('Flows');
+    var Obj                     = bugpack.require('Obj');
+    var CallEvent               = bugpack.require('bugcall.CallEvent');
+    var IPreProcessCall         = bugpack.require('bugcall.IPreProcessCall');
+    var ArgTag                  = bugpack.require('bugioc.ArgTag');
+    var IInitializingModule     = bugpack.require('bugioc.IInitializingModule');
+    var ModuleTag               = bugpack.require('bugioc.ModuleTag');
+    var BugMeta                 = bugpack.require('bugmeta.BugMeta');
 
 
     //-------------------------------------------------------------------------------
     // Simplify References
     //-------------------------------------------------------------------------------
 
-    var arg                         = ArgTag.arg;
-    var bugmeta                     = BugMeta.context();
-    var module                      = ModuleTag.module;
-    var $if                         = Flows.$if;
-    var $task                       = Flows.$task;
+    var arg                     = ArgTag.arg;
+    var bugmeta                 = BugMeta.context();
+    var module                  = ModuleTag.module;
+    var $if                     = Flows.$if;
+    var $task                   = Flows.$task;
 
 
     //-------------------------------------------------------------------------------

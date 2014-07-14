@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2014 airbug Inc. All rights reserved.
+ *
+ * All software, both binary and source contained in this work is the exclusive property
+ * of airbug Inc. Modification, decompilation, disassembly, or any other means of discovering
+ * the source code of this software is prohibited. This work is protected under the United
+ * States copyright law and other international copyright treaties and conventions.
+ */
+
+
 //-------------------------------------------------------------------------------
 // Annotations
 //-------------------------------------------------------------------------------
@@ -23,21 +33,21 @@ require('bugpack').context("*", function(bugpack) {
     // BugPack
     //-------------------------------------------------------------------------------
 
-    var Class                       = bugpack.require('Class');
-    var List                        = bugpack.require('List');
-    var Obj                         = bugpack.require('Obj');
-    var MarshTag             = bugpack.require('bugmarsh.MarshTag');
-    var MarshPropertyTag     = bugpack.require('bugmarsh.MarshPropertyTag');
-    var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+    var Class               = bugpack.require('Class');
+    var List                = bugpack.require('List');
+    var Obj                 = bugpack.require('Obj');
+    var MarshPropertyTag    = bugpack.require('bugmarsh.MarshPropertyTag');
+    var MarshTag            = bugpack.require('bugmarsh.MarshTag');
+    var BugMeta             = bugpack.require('bugmeta.BugMeta');
 
 
     //-------------------------------------------------------------------------------
     // Simplify References
     //-------------------------------------------------------------------------------
 
-    var bugmeta                     = BugMeta.context();
-    var marsh                       = MarshTag.marsh;
-    var property                    = MarshPropertyTag.property;
+    var bugmeta             = BugMeta.context();
+    var marsh               = MarshTag.marsh;
+    var property            = MarshPropertyTag.property;
 
 
     //-------------------------------------------------------------------------------

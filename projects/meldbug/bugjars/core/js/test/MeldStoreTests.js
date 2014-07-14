@@ -1,18 +1,28 @@
+/*
+ * Copyright (c) 2014 airbug Inc. All rights reserved.
+ *
+ * All software, both binary and source contained in this work is the exclusive property
+ * of airbug Inc. Modification, decompilation, disassembly, or any other means of discovering
+ * the source code of this software is prohibited. This work is protected under the United
+ * States copyright law and other international copyright treaties and conventions.
+ */
+
+
 //-------------------------------------------------------------------------------
 // Annotations
 //-------------------------------------------------------------------------------
 
 //@TestFile
 
-//@Require('meldbug.PutMeldDocumentOperation')
-//@Require('meldbug.RemoveMeldDocumentOperation')
+//@Require('bugmeta.BugMeta')
+//@Require('bugunit.TestTag')
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldDocumentKey')
 //@Require('meldbug.MeldStore')
 //@Require('meldbug.MeldTransaction')
-//@Require('bugmeta.BugMeta')
-//@Require('bugunit.TestTag')
+//@Require('meldbug.PutMeldDocumentOperation')
+//@Require('meldbug.RemoveMeldDocumentOperation')
 
 
 //-------------------------------------------------------------------------------
@@ -26,15 +36,15 @@ var bugpack                     = require('bugpack').context();
 // BugPack
 //-------------------------------------------------------------------------------
 
-var PutMeldDocumentOperation    = bugpack.require('meldbug.PutMeldDocumentOperation');
-var RemoveMeldDocumentOperation = bugpack.require('meldbug.RemoveMeldDocumentOperation');
+var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+var TestTag              = bugpack.require('bugunit.TestTag');
 var MeldBucket                  = bugpack.require('meldbug.MeldBucket');
 var MeldDocument                = bugpack.require('meldbug.MeldDocument');
 var MeldDocumentKey             = bugpack.require('meldbug.MeldDocumentKey');
 var MeldStore                   = bugpack.require('meldbug.MeldStore');
 var MeldTransaction             = bugpack.require('meldbug.MeldTransaction');
-var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var TestTag              = bugpack.require('bugunit.TestTag');
+var PutMeldDocumentOperation    = bugpack.require('meldbug.PutMeldDocumentOperation');
+var RemoveMeldDocumentOperation = bugpack.require('meldbug.RemoveMeldDocumentOperation');
 
 
 //-------------------------------------------------------------------------------

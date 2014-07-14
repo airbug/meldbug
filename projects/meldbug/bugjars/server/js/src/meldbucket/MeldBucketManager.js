@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2014 airbug Inc. All rights reserved.
+ *
+ * All software, both binary and source contained in this work is the exclusive property
+ * of airbug Inc. Modification, decompilation, disassembly, or any other means of discovering
+ * the source code of this software is prohibited. This work is protected under the United
+ * States copyright law and other international copyright treaties and conventions.
+ */
+
+
 //-------------------------------------------------------------------------------
 // Annotations
 //-------------------------------------------------------------------------------
@@ -7,10 +17,10 @@
 
 //@Require('Class')
 //@Require('Obj')
+//@Require('Tracer')
 //@Require('bugioc.ArgTag')
 //@Require('bugioc.ModuleTag')
 //@Require('bugmeta.BugMeta')
-//@Require('Tracer')
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldBucketKey')
 
@@ -25,31 +35,31 @@ require('bugpack').context("*", function(bugpack) {
     // Common Modules
     //-------------------------------------------------------------------------------
 
-    var zlib                        = require('zlib');
+    var zlib                = require('zlib');
 
 
     //-------------------------------------------------------------------------------
     // BugPack
     //-------------------------------------------------------------------------------
 
-    var Class                       = bugpack.require('Class');
-    var Obj                         = bugpack.require('Obj');
-    var ArgTag               = bugpack.require('bugioc.ArgTag');
-    var ModuleTag            = bugpack.require('bugioc.ModuleTag');
-    var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-    var Tracer                    = bugpack.require('Tracer');
-    var MeldBucket                  = bugpack.require('meldbug.MeldBucket');
-    var MeldBucketKey               = bugpack.require('meldbug.MeldBucketKey');
+    var Class               = bugpack.require('Class');
+    var Obj                 = bugpack.require('Obj');
+    var Tracer              = bugpack.require('Tracer');
+    var ArgTag              = bugpack.require('bugioc.ArgTag');
+    var ModuleTag           = bugpack.require('bugioc.ModuleTag');
+    var BugMeta             = bugpack.require('bugmeta.BugMeta');
+    var MeldBucket          = bugpack.require('meldbug.MeldBucket');
+    var MeldBucketKey       = bugpack.require('meldbug.MeldBucketKey');
 
 
     //-------------------------------------------------------------------------------
     // Simplify References
     //-------------------------------------------------------------------------------
 
-    var arg                         = ArgTag.arg;
-    var bugmeta                     = BugMeta.context();
-    var module                      = ModuleTag.module;
-    var $traceWithError             = Tracer.$traceWithError;
+    var arg                 = ArgTag.arg;
+    var bugmeta             = BugMeta.context();
+    var module              = ModuleTag.module;
+    var $traceWithError     = Tracer.$traceWithError;
 
 
     //-------------------------------------------------------------------------------

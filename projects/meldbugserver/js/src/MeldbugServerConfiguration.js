@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2014 airbug Inc. All rights reserved.
+ *
+ * All software, both binary and source contained in this work is the exclusive property
+ * of airbug Inc. Modification, decompilation, disassembly, or any other means of discovering
+ * the source code of this software is prohibited. This work is protected under the United
+ * States copyright law and other international copyright treaties and conventions.
+ */
+
+
 //-------------------------------------------------------------------------------
 // Annotations
 //-------------------------------------------------------------------------------
@@ -6,8 +16,8 @@
 //@Autoload
 
 //@Require('Class')
-//@Require('Obj')
 //@Require('Flows')
+//@Require('Obj')
 //@Require('bugioc.ArgTag')
 //@Require('bugioc.ConfigurationTag')
 //@Require('bugioc.IInitializingModule')
@@ -30,40 +40,40 @@ require('bugpack').context("*", function(bugpack) {
     // Common Modules
     //-------------------------------------------------------------------------------
 
-    var redis                           = require('redis');
+    var redis                   = require('redis');
 
 
     //-------------------------------------------------------------------------------
     // BugPack
     //-------------------------------------------------------------------------------
 
-    var Class                           = bugpack.require('Class');
-    var Obj                             = bugpack.require('Obj');
-    var Flows                         = bugpack.require('Flows');
-    var ArgTag                   = bugpack.require('bugioc.ArgTag');
-    var ConfigurationTag         = bugpack.require('bugioc.ConfigurationTag');
-    var IInitializingModule                  = bugpack.require('bugioc.IInitializingModule');
-    var ModuleTag                = bugpack.require('bugioc.ModuleTag');
-    var PropertyTag              = bugpack.require('bugioc.PropertyTag');
-    var BugMeta                         = bugpack.require('bugmeta.BugMeta');
-    var RedisClient                     = bugpack.require('redis.RedisClient');
-    var RedisConfig                     = bugpack.require('redis.RedisConfig');
-    var RedisEvent                      = bugpack.require('redis.RedisEvent');
-    var RedisPubSub                     = bugpack.require('redis.RedisPubSub');
+    var Class                   = bugpack.require('Class');
+    var Flows                   = bugpack.require('Flows');
+    var Obj                     = bugpack.require('Obj');
+    var ArgTag                  = bugpack.require('bugioc.ArgTag');
+    var ConfigurationTag        = bugpack.require('bugioc.ConfigurationTag');
+    var IInitializingModule     = bugpack.require('bugioc.IInitializingModule');
+    var ModuleTag               = bugpack.require('bugioc.ModuleTag');
+    var PropertyTag             = bugpack.require('bugioc.PropertyTag');
+    var BugMeta                 = bugpack.require('bugmeta.BugMeta');
+    var RedisClient             = bugpack.require('redis.RedisClient');
+    var RedisConfig             = bugpack.require('redis.RedisConfig');
+    var RedisEvent              = bugpack.require('redis.RedisEvent');
+    var RedisPubSub             = bugpack.require('redis.RedisPubSub');
 
 
     //-------------------------------------------------------------------------------
     // Simplify References
     //-------------------------------------------------------------------------------
 
-    var arg                             = ArgTag.arg;
-    var bugmeta                         = BugMeta.context();
-    var configuration                   = ConfigurationTag.configuration;
-    var module                          = ModuleTag.module;
-    var property                        = PropertyTag.property;
-    var $parallel                       = Flows.$parallel;
-    var $series                         = Flows.$series;
-    var $task                           = Flows.$task;
+    var arg                     = ArgTag.arg;
+    var bugmeta                 = BugMeta.context();
+    var configuration           = ConfigurationTag.configuration;
+    var module                  = ModuleTag.module;
+    var property                = PropertyTag.property;
+    var $parallel               = Flows.$parallel;
+    var $series                 = Flows.$series;
+    var $task                   = Flows.$task;
 
 
     //-------------------------------------------------------------------------------

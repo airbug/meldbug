@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2014 airbug Inc. All rights reserved.
+ *
+ * All software, both binary and source contained in this work is the exclusive property
+ * of airbug Inc. Modification, decompilation, disassembly, or any other means of discovering
+ * the source code of this software is prohibited. This work is protected under the United
+ * States copyright law and other international copyright treaties and conventions.
+ */
+
+
 //-------------------------------------------------------------------------------
 // Annotations
 //-------------------------------------------------------------------------------
@@ -8,12 +18,12 @@
 //@Require('bugmeta.BugMeta')
 //@Require('bugunit.TestTag')
 //@Require('bugyarn.BugYarn')
-//@Require('meldbug.PutMeldDocumentOperation')
 //@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldDocument')
-//@Require('meldbug.MeldEvent')
 //@Require('meldbug.MeldDocumentKey')
+//@Require('meldbug.MeldEvent')
 //@Require('meldbug.MeldOperation')
+//@Require('meldbug.PutMeldDocumentOperation')
 
 
 //-------------------------------------------------------------------------------
@@ -31,11 +41,11 @@ var Class                       = bugpack.require('Class');
 var BugMeta                     = bugpack.require('bugmeta.BugMeta');
 var TestTag              = bugpack.require('bugunit.TestTag');
 var BugYarn                     = bugpack.require('bugyarn.BugYarn');
-var PutMeldDocumentOperation    = bugpack.require('meldbug.PutMeldDocumentOperation');
 var MeldBucket                  = bugpack.require('meldbug.MeldBucket');
 var MeldDocument                = bugpack.require('meldbug.MeldDocument');
-var MeldEvent                   = bugpack.require('meldbug.MeldEvent');
 var MeldDocumentKey             = bugpack.require('meldbug.MeldDocumentKey');
+var MeldEvent                   = bugpack.require('meldbug.MeldEvent');
+var PutMeldDocumentOperation    = bugpack.require('meldbug.PutMeldDocumentOperation');
 var RemoveMeldDocumentOperation = bugpack.require('meldbug.RemoveMeldDocumentOperation');
 
 

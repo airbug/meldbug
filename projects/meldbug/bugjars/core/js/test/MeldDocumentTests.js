@@ -1,3 +1,13 @@
+/*
+ * Copyright (c) 2014 airbug Inc. All rights reserved.
+ *
+ * All software, both binary and source contained in this work is the exclusive property
+ * of airbug Inc. Modification, decompilation, disassembly, or any other means of discovering
+ * the source code of this software is prohibited. This work is protected under the United
+ * States copyright law and other international copyright treaties and conventions.
+ */
+
+
 //-------------------------------------------------------------------------------
 // Annotations
 //-------------------------------------------------------------------------------
@@ -10,9 +20,9 @@
 //@Require('bugmeta.BugMeta')
 //@Require('bugunit.TestTag')
 //@Require('bugyarn.BugYarn')
+//@Require('meldbug.MeldBucket')
 //@Require('meldbug.MeldDocument')
 //@Require('meldbug.MeldDocumentKey')
-//@Require('meldbug.MeldBucket')
 
 
 //-------------------------------------------------------------------------------
@@ -28,13 +38,13 @@ var bugpack                 = require('bugpack').context();
 
 var Class                   = bugpack.require('Class');
 var Set                     = bugpack.require('Set');
-var BugMeta                 = bugpack.require('bugmeta.BugMeta');
 var DeltaDocument           = bugpack.require('bugdelta.DeltaDocument');
+var BugMeta                 = bugpack.require('bugmeta.BugMeta');
 var TestTag          = bugpack.require('bugunit.TestTag');
 var BugYarn                 = bugpack.require('bugyarn.BugYarn');
+var MeldBucket              = bugpack.require('meldbug.MeldBucket');
 var MeldDocument            = bugpack.require('meldbug.MeldDocument');
 var MeldDocumentKey         = bugpack.require('meldbug.MeldDocumentKey');
-var MeldBucket              = bugpack.require('meldbug.MeldBucket');
 
 
 //-------------------------------------------------------------------------------
