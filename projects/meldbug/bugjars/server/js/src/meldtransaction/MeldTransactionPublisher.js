@@ -23,99 +23,106 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack                     = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var Class                       = bugpack.require('Class');
-var CallRequestPublisher        = bugpack.require('bugcall.CallRequestPublisher');
-var ArgTag               = bugpack.require('bugioc.ArgTag');
-var ModuleTag            = bugpack.require('bugioc.ModuleTag');
-var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var arg                         = ArgTag.arg;
-var bugmeta                     = BugMeta.context();
-var module                      = ModuleTag.module;
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-var MeldTransactionPublisher = Class.extend(CallRequestPublisher, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Public Methods
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var Class                       = bugpack.require('Class');
+    var CallRequestPublisher        = bugpack.require('bugcall.CallRequestPublisher');
+    var ArgTag               = bugpack.require('bugioc.ArgTag');
+    var ModuleTag            = bugpack.require('bugioc.ModuleTag');
+    var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+
+
+    //-------------------------------------------------------------------------------
+    // Simplify References
+    //-------------------------------------------------------------------------------
+
+    var arg                         = ArgTag.arg;
+    var bugmeta                     = BugMeta.context();
+    var module                      = ModuleTag.module;
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     * @param {string} callUuid
-     * @param {MeldTransaction} meldTransaction
-     * @param {CallResponseHandler} callResponseHandler
-     * @param {function(Throwable=)} callback
+     * @class
+     * @extends {CallRequestPublisher}
      */
-    publishTransactionRequest: function(callUuid, meldTransaction, callResponseHandler, callback) {
-        var callRequest = this.factoryCallRequest(MeldTransactionPublisher.RequestTypes.COMMIT_MELD_TRANSACTION, {
-            meldTransaction: meldTransaction
-        });
-        this.publishCallRequest(callUuid, callRequest, callResponseHandler, callback);
-    }
+    var MeldTransactionPublisher = Class.extend(CallRequestPublisher, {
+
+        _name: "meldbug.MeldTransactionPublisher",
+
+
+        //-------------------------------------------------------------------------------
+        // Public Methods
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @param {string} callUuid
+         * @param {MeldTransaction} meldTransaction
+         * @param {CallResponseHandler} callResponseHandler
+         * @param {function(Throwable=)} callback
+         */
+        publishTransactionRequest: function(callUuid, meldTransaction, callResponseHandler, callback) {
+            var callRequest = this.factoryCallRequest(MeldTransactionPublisher.RequestTypes.COMMIT_MELD_TRANSACTION, {
+                meldTransaction: meldTransaction
+            });
+            this.publishCallRequest(callUuid, callRequest, callResponseHandler, callback);
+        }
+    });
+
+
+    //-------------------------------------------------------------------------------
+    // Static Properties
+    //-------------------------------------------------------------------------------
+
+    /**
+     * @static
+     * @enum {string}
+     */
+    MeldTransactionPublisher.RequestTypes = {
+        COMMIT_MELD_TRANSACTION: "commitMeldTransaction"
+    };
+
+    /**
+     * @static
+     * @enum {string}
+     */
+    MeldTransactionPublisher.ResponseTypes = {
+        ERROR: "Error",
+        EXCEPTION: "Exception",
+        SUCCESS: "Success"
+    };
+
+
+    //-------------------------------------------------------------------------------
+    // BugMeta
+    //-------------------------------------------------------------------------------
+
+    bugmeta.tag(MeldTransactionPublisher).with(
+        module("meldTransactionPublisher")
+            .args([
+                arg().ref("logger"),
+                arg().ref("callManager"),
+                arg().ref("callRequestManager"),
+                arg().ref("callRequestFactory"),
+                arg().ref("callResponseHandlerFactory"),
+                arg().ref("pubSub")
+            ])
+    );
+
+
+    //-------------------------------------------------------------------------------
+    // Exports
+    //-------------------------------------------------------------------------------
+
+    bugpack.export('meldbug.MeldTransactionPublisher', MeldTransactionPublisher);
 });
-
-
-//-------------------------------------------------------------------------------
-// Static Properties
-//-------------------------------------------------------------------------------
-
-/**
- * @static
- * @enum {string}
- */
-MeldTransactionPublisher.RequestTypes = {
-    COMMIT_MELD_TRANSACTION: "commitMeldTransaction"
-};
-
-/**
- * @static
- * @enum {string}
- */
-MeldTransactionPublisher.ResponseTypes = {
-    ERROR: "Error",
-    EXCEPTION: "Exception",
-    SUCCESS: "Success"
-};
-
-
-//-------------------------------------------------------------------------------
-// BugMeta
-//-------------------------------------------------------------------------------
-
-bugmeta.tag(MeldTransactionPublisher).with(
-    module("meldTransactionPublisher")
-        .args([
-            arg().ref("logger"),
-            arg().ref("callManager"),
-            arg().ref("callRequestManager"),
-            arg().ref("callRequestFactory"),
-            arg().ref("callResponseHandlerFactory"),
-            arg().ref("pubSub")
-        ])
-);
-
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbug.MeldTransactionPublisher', MeldTransactionPublisher);

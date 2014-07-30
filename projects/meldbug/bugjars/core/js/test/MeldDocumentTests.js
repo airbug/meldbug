@@ -146,14 +146,14 @@ var meldDocumentTest = {
             "Make sure count reflects the value that was removed.");
         test.assertFalse(testSet.contains("value3"),
             "Make sure our removed value is not in the set.");
-        
+
         var testData = this.meldDocument.getData();
         var testObject = testData.testObject;
         test.assertEqual(testObject.property1, "val1",
             "Ensure property on object has correct value");
         test.assertEqual(testObject.property1, "val1",
             "Ensure property on object has correct value");
-        
+
         test.assertTrue(Class.doesExtend(this.meldDocument.getDeltaDocument(), DeltaDocument),
             "Ensure that we get a delta document back");
 

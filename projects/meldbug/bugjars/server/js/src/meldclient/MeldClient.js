@@ -20,116 +20,123 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack                 = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var Class                   = bugpack.require('Class');
-var Obj                     = bugpack.require('Obj');
-var TypeUtil                = bugpack.require('TypeUtil');
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-var MeldClient = Class.extend(Obj, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Constructor
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var Class       = bugpack.require('Class');
+    var Obj         = bugpack.require('Obj');
+    var TypeUtil    = bugpack.require('TypeUtil');
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     * @constructs
-     * @param {MeldClientKey} meldClientKey
-     * @param {boolean=} active
-     * @param {Date=} lastActive
+     * @class
+     * @extends {Obj}
      */
-    _constructor: function(meldClientKey, active, lastActive) {
+    var MeldClient = Class.extend(Obj, {
 
-        this._super();
+        _name: "meldbug.MeldClient",
 
 
         //-------------------------------------------------------------------------------
-        // Private Properties
+        // Constructor
         //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {boolean}
+         * @constructs
+         * @param {MeldClientKey} meldClientKey
+         * @param {boolean=} active
+         * @param {Date=} lastActive
          */
-        this.active                     = TypeUtil.isBoolean(active) ? active : true;
+        _constructor: function(meldClientKey, active, lastActive) {
+
+            this._super();
+
+
+            //-------------------------------------------------------------------------------
+            // Private Properties
+            //-------------------------------------------------------------------------------
+
+            /**
+             * @private
+             * @type {boolean}
+             */
+            this.active                     = TypeUtil.isBoolean(active) ? active : true;
+
+            /**
+             * @private
+             * @type {Date}
+             */
+            this.lastActive                 = TypeUtil.isDate(lastActive) ? lastActive : new Date();
+
+            /**
+             * @private
+             * @type {MeldClientKey}
+             */
+            this.meldClientKey              = meldClientKey;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Getters and Setters
+        //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {Date}
+         * @return {boolean}
          */
-        this.lastActive                 = TypeUtil.isDate(lastActive) ? lastActive : new Date();
+        getActive: function() {
+            return this.active;
+        },
 
         /**
-         * @private
-         * @type {MeldClientKey}
+         * @returns {boolean}
          */
-        this.meldClientKey              = meldClientKey;
-    },
+        isActive: function() {
+            return this.getActive();
+        },
+
+        /**
+         * @param {boolean} active
+         */
+        setActive: function(active) {
+            this.active = active;
+        },
+
+        /**
+         * @return {Date}
+         */
+        getLastActive: function() {
+            return this.lastActive;
+        },
+
+        /**
+         * @param {Date} lastActive
+         */
+        setLastActive: function(lastActive) {
+            this.lastActive = lastActive;
+        },
+
+        /**
+         * @return {MeldClientKey}
+         */
+        getMeldClientKey: function() {
+            return this.meldClientKey;
+        }
+    });
 
 
     //-------------------------------------------------------------------------------
-    // Getters and Setters
+    // Exports
     //-------------------------------------------------------------------------------
 
-    /**
-     * @return {boolean}
-     */
-    getActive: function() {
-        return this.active;
-    },
-
-    /**
-     * @returns {boolean}
-     */
-    isActive: function() {
-        return this.getActive();
-    },
-
-    /**
-     * @param {boolean} active
-     */
-    setActive: function(active) {
-        this.active = active;
-    },
-
-    /**
-     * @return {Date}
-     */
-    getLastActive: function() {
-        return this.lastActive;
-    },
-
-    /**
-     * @param {Date} lastActive
-     */
-    setLastActive: function(lastActive) {
-        this.lastActive = lastActive;
-    },
-
-    /**
-     * @return {MeldClientKey}
-     */
-    getMeldClientKey: function() {
-        return this.meldClientKey;
-    }
+    bugpack.export('meldbug.MeldClient', MeldClient);
 });
-
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbug.MeldClient', MeldClient);

@@ -21,148 +21,156 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack             = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var ArgumentBug         = bugpack.require('ArgumentBug');
-var Class               = bugpack.require('Class');
-var IObjectable         = bugpack.require('IObjectable');
-var Obj                 = bugpack.require('Obj');
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-var MeldSessionKey = Class.extend(Obj, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Constructor
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var ArgumentBug         = bugpack.require('ArgumentBug');
+    var Class               = bugpack.require('Class');
+    var IObjectable         = bugpack.require('IObjectable');
+    var Obj                 = bugpack.require('Obj');
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     *
+     * @class
+     * @extends {Obj}
      */
-    _constructor: function(sessionId) {
+    var MeldSessionKey = Class.extend(Obj, {
 
-        this._super();
+        _name: "meldbug.MeldSessionKey",
 
 
         //-------------------------------------------------------------------------------
-        // Properties
+        // Constructor
         //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {string}
+         * @constructs
+         * @param {string} sessionId
          */
-        this.sessionId          = sessionId;
-    },
+        _constructor: function(sessionId) {
+
+            this._super();
 
 
-    //-------------------------------------------------------------------------------
-    // Getters and Setters
-    //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
+            // Properties
+            //-------------------------------------------------------------------------------
 
-    /**
-     * @return {string}
-     */
-    getSessionId: function() {
-        return this.sessionId;
-    },
+            /**
+             * @private
+             * @type {string}
+             */
+            this.sessionId          = sessionId;
+        },
 
 
-    //-------------------------------------------------------------------------------
-    // Object Implementation
-    //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
+        // Getters and Setters
+        //-------------------------------------------------------------------------------
 
-    /**
-     * @param {*} value
-     * @return {boolean}
-     */
-    equals: function(value) {
-        if (Class.doesExtend(value, MeldSessionKey)) {
-            return (value.getSessionId() === this.getSessionId());
+        /**
+         * @return {string}
+         */
+        getSessionId: function() {
+            return this.sessionId;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Obj Methods
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @param {*} value
+         * @return {boolean}
+         */
+        equals: function(value) {
+            if (Class.doesExtend(value, MeldSessionKey)) {
+                return (value.getSessionId() === this.getSessionId());
+            }
+            return false;
+        },
+
+        /**
+         * @return {number}
+         */
+        hashCode: function() {
+            if (!this._hashCode) {
+                this._hashCode = Obj.hashCode("[MeldSessionKey]" +
+                    Obj.hashCode(this.getSessionId));
+            }
+            return this._hashCode;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // IObjectable Implementation
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @return {Object}
+         */
+        toObject: function() {
+            return {
+                sessionId: this.id
+            };
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Public Methods
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @return {string}
+         */
+        toStringKey: function() {
+            return "session:" + this.sessionId;
         }
-        return false;
-    },
+    });
+
+
+
+    //-------------------------------------------------------------------------------
+    // Static Methods
+    //-------------------------------------------------------------------------------
 
     /**
-     * @return {number}
+     * @static
+     * @param {string} stringKey
+     * @returns {MeldSessionKey}
      */
-    hashCode: function() {
-        if (!this._hashCode) {
-            this._hashCode = Obj.hashCode("[MeldSessionKey]" +
-                Obj.hashCode(this.getSessionId));
+    MeldSessionKey.fromStringKey = function(stringKey) {
+        var keyParts = stringKey.split(":");
+        if (keyParts.length === 2) {
+            var id = keyParts[1];
+            return new MeldSessionKey(id);
+        } else {
+            throw new ArgumentBug(ArgumentBug.ILLEGAL, "stringKey", stringKey, "parameter must in MeldSessionKey string format");
         }
-        return this._hashCode;
-    },
+    };
 
 
     //-------------------------------------------------------------------------------
-    // IObjectable Implementation
+    // Interfaces
     //-------------------------------------------------------------------------------
 
-    /**
-     * @return {Object}
-     */
-    toObject: function() {
-        return {
-            sessionId: this.id
-        };
-    },
+    Class.implement(MeldSessionKey, IObjectable);
 
 
     //-------------------------------------------------------------------------------
-    // Public Methods
+    // Exports
     //-------------------------------------------------------------------------------
 
-    /**
-     * @return {string}
-     */
-    toStringKey: function() {
-        return "session:" + this.sessionId;
-    }
+    bugpack.export('meldbug.MeldSessionKey', MeldSessionKey);
 });
-
-
-
-//-------------------------------------------------------------------------------
-// Static Methods
-//-------------------------------------------------------------------------------
-
-/**
- * @static
- * @param {string} stringKey
- * @returns {MeldSessionKey}
- */
-MeldSessionKey.fromStringKey = function(stringKey) {
-    var keyParts = stringKey.split(":");
-    if (keyParts.length === 2) {
-        var id = keyParts[1];
-        return new MeldSessionKey(id);
-    } else {
-        throw new ArgumentBug(ArgumentBug.ILLEGAL, "stringKey", stringKey, "parameter must in MeldSessionKey string format");
-    }
-};
-
-
-//-------------------------------------------------------------------------------
-// Interfaces
-//-------------------------------------------------------------------------------
-
-Class.implement(MeldSessionKey, IObjectable);
-
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbug.MeldSessionKey', MeldSessionKey);

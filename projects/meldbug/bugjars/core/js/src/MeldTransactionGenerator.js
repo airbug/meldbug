@@ -159,7 +159,7 @@ require('bugpack').context("*", function(bugpack) {
          * @private
          * @param {MeldDocumentKey} meldDocumentKey
          * @param {*} data
-         * @returns {SetDocumentOperation}
+         * @returns {MergeDocumentOperation}
          */
         factoryMergeDocumentOperation: function(meldDocumentKey, data) {
             return new MergeDocumentOperation(meldDocumentKey, data);

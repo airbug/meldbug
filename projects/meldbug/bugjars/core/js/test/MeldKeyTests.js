@@ -56,7 +56,7 @@ var meldDocumentKeyTest = {
     test: function(test) {
         var _this = this;
         var meldDocumentKey = new MeldDocumentKey("array", "id");
-        
+
         test.assertEqual(meldDocumentKey.getDataType(), "array",
             "Assert that the data type is what we expect");
 

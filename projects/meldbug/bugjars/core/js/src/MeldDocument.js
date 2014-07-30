@@ -17,6 +17,7 @@
 //@Require('Class')
 //@Require('Event')
 //@Require('EventDispatcher')
+//@Require('Exception')
 //@Require('IDocument')
 //@Require('ISet')
 //@Require('Set')
@@ -45,6 +46,7 @@ require('bugpack').context("*", function(bugpack) {
     var Class               = bugpack.require('Class');
     var Event               = bugpack.require('Event');
     var EventDispatcher     = bugpack.require('EventDispatcher');
+    var Exception           = bugpack.require('Exception');
     var IDocument           = bugpack.require('IDocument');
     var ISet                = bugpack.require('ISet');
     var Set                 = bugpack.require('Set');
@@ -277,7 +279,7 @@ require('bugpack').context("*", function(bugpack) {
                 pathValue.remove(setValue)
             } else {
                 if (!TypeUtil.isNull(pathValue) && !TypeUtil.isUndefined(pathValue)) {
-                    throw new Error("Value at path '" + path + "' is not a Set");
+                    throw new Exception("IllegalOperation", {}, "Value at path '" + path + "' is not a Set");
                 }
             }
         },
@@ -292,7 +294,7 @@ require('bugpack').context("*", function(bugpack) {
                 delete pathValue[propertyName];
             } else {
                 if (!TypeUtil.isNull(pathValue) && !TypeUtil.isUndefined(pathValue)) {
-                    throw new Error("Value at path '" + path + "' is not an Object");
+                    throw new Exception("IllegalOperation", {}, "Value at path '" + path + "' is not an Object");
                 }
             }
         },

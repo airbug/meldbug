@@ -82,10 +82,11 @@ require('bugpack').context("*", function(bugpack) {
 
         /**
          * @constructs
+         * @param {Logger} logger
          * @param {BugCallServer} bugCallServer
          * @param {MeldClientManager} meldClientManager
          */
-        _constructor: function(bugCallServer, meldClientManager) {
+        _constructor: function(logger, bugCallServer, meldClientManager) {
 
             this._super();
 
@@ -108,6 +109,12 @@ require('bugpack').context("*", function(bugpack) {
 
             /**
              * @private
+             * @type {Logger}
+             */
+            this.logger                         = logger;
+
+            /**
+             * @private
              * @type {MeldClientManager}
              */
             this.meldClientManager              = meldClientManager;
@@ -123,6 +130,13 @@ require('bugpack').context("*", function(bugpack) {
          */
         getBugCallServer: function() {
             return this.bugCallServer;
+        },
+
+        /**
+         * @return {Logger}
+         */
+        getLogger: function() {
+            return this.logger;
         },
 
         /**
@@ -262,6 +276,9 @@ require('bugpack').context("*", function(bugpack) {
                 })
             ]).execute(function(throwable) {
                 //TODO BRN: What do we do if this fails?
+                if (throwable) {
+                    _this.logger.error(throwable.message, throwable.stack);
+                }
             });
         }
     });
@@ -282,6 +299,7 @@ require('bugpack').context("*", function(bugpack) {
     bugmeta.tag(MeldClientService).with(
         module("meldClientService")
             .args([
+                arg().ref("logger"),
                 arg().ref("bugCallServer"),
                 arg().ref("meldClientManager")
             ])

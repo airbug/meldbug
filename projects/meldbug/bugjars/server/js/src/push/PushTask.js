@@ -22,96 +22,99 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack                     = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var Class                       = bugpack.require('Class');
-var MarshPropertyTag     = bugpack.require('bugmarsh.MarshPropertyTag');
-var MarshTag             = bugpack.require('bugmarsh.MarshTag');
-var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var Task                        = bugpack.require('bugtask.Task');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var bugmeta                     = BugMeta.context();
-var marsh                       = MarshTag.marsh;
-var property                    = MarshPropertyTag.property;
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-/**
- * @class
- * @extends {Task}
- */
-var PushTask = Class.extend(Task, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Constructor
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var Class               = bugpack.require('Class');
+    var MarshPropertyTag    = bugpack.require('bugmarsh.MarshPropertyTag');
+    var MarshTag            = bugpack.require('bugmarsh.MarshTag');
+    var BugMeta             = bugpack.require('bugmeta.BugMeta');
+    var Task                = bugpack.require('bugtask.Task');
+
+
+    //-------------------------------------------------------------------------------
+    // Simplify References
+    //-------------------------------------------------------------------------------
+
+    var bugmeta             = BugMeta.context();
+    var marsh               = MarshTag.marsh;
+    var property            = MarshPropertyTag.property;
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     * @constructs
-     * @param {string} taskUuid
-     * @param {Push} push
+     * @class
+     * @extends {Task}
      */
-    _constructor: function(taskUuid, push) {
+    var PushTask = Class.extend(Task, {
 
-        this._super(taskUuid);
+        _name: "meldbug.PushTask",
 
 
         //-------------------------------------------------------------------------------
-        // Properties
+        // Constructor
         //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {Push}
+         * @constructs
+         * @param {string} taskUuid
+         * @param {Push} push
          */
-        this.push       = push;
-    },
+        _constructor: function(taskUuid, push) {
+
+            this._super(taskUuid);
+
+
+            //-------------------------------------------------------------------------------
+            // Properties
+            //-------------------------------------------------------------------------------
+
+            /**
+             * @private
+             * @type {Push}
+             */
+            this.push       = push;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Getters and Setters
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @return {Push}
+         */
+        getPush: function() {
+            return this.push;
+        }
+    });
 
 
     //-------------------------------------------------------------------------------
-    // Getters and Setters
+    // BugMeta
     //-------------------------------------------------------------------------------
 
-    /**
-     * @return {Push}
-     */
-    getPush: function() {
-        return this.push;
-    }
+    bugmeta.tag(PushTask).with(
+        marsh("PushTask")
+            .properties([
+                property("push"),
+                property("taskUuid")
+            ])
+    );
+
+
+    //-------------------------------------------------------------------------------
+    // Exports
+    //-------------------------------------------------------------------------------
+
+    bugpack.export('meldbug.PushTask', PushTask);
 });
-
-
-//-------------------------------------------------------------------------------
-// BugMeta
-//-------------------------------------------------------------------------------
-
-bugmeta.tag(PushTask).with(
-    marsh("PushTask")
-        .properties([
-            property("push"),
-            property("taskUuid")
-        ])
-);
-
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbug.PushTask', PushTask);

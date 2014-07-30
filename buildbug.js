@@ -47,7 +47,7 @@ var nodejs              = enableModule('nodejs');
 
 var version         = "0.0.10";
 var dependencies    = {
-    bugpack: "0.1.11",
+    bugpack: "0.1.14",
     redis: "0.10.0",
     "socket.io": "0.9.16"
 };
@@ -74,13 +74,13 @@ buildProperties({
             "./projects/meldbug/bugjars/core/js/src",
             "./projects/meldbug/bugjars/server/js/src",
             "./projects/meldbugworker/js/src",
-            "../bugcore/projects/bugcore/js/src",
+            "../bugcore/libraries/bugcore/js/src",
             "../bugfs/projects/bugfs/js/src",
+            "../bugioc/libraries/bugioc/js/src",
             "../bugjs/projects/bugapp/js/src",
             "../bugjs/projects/bugcall/libraries/core/js/src",
             "../bugjs/projects/bugcall/libraries/publisher/js/src",
             "../bugjs/projects/bugdelta/js/src",
-            "../bugjs/projects/bugioc/js/src",
             "../bugjs/projects/bugmarsh/js/src",
             "../bugjs/projects/bugsub/js/src",
             "../bugjs/projects/bugtask/js/src",
@@ -106,9 +106,9 @@ buildProperties({
             },
             sourcePaths: [
                 "../buganno/projects/buganno/js/src",
-                "../bugjs/projects/bugyarn/js/src",
                 "../bugunit/projects/bugdouble/js/src",
-                "../bugunit/projects/bugunit/js/src"
+                "../bugunit/projects/bugunit/js/src",
+                "../bugyarn/libraries/bugyarn/js/src"
             ],
             scriptPaths: [
                 "../buganno/projects/buganno/js/scripts",
@@ -118,13 +118,13 @@ buildProperties({
                 "./projects/meldbug/bugjars/core/js/test",
                 "./projects/meldbug/bugjars/server/js/test",
                 "./projects/meldbugworker/js/test",
-                "../bugcore/projects/bugcore/js/test",
+                "../bugcore/libraries/bugcore/js/test",
                 "../bugfs/projects/bugfs/js/test",
+                "../bugioc/libraries/bugioc/js/test",
                 "../bugjs/projects/bugapp/js/test",
                 "../bugjs/projects/bugcall/libraries/core/js/test",
                 "../bugjs/projects/bugcall/libraries/publisher/js/test",
                 "../bugjs/projects/bugdelta/js/test",
-                "../bugjs/projects/bugioc/js/test",
                 "../bugjs/projects/bugmarsh/js/test",
                 "../bugjs/projects/bugsub/js/test",
                 "../bugjs/projects/bugtask/js/test",
@@ -178,6 +178,7 @@ buildTarget('local').buildFlow(
                 targetPaths: buildProject.getProperty("lint.targetPaths"),
                 ignores: buildProject.getProperty("lint.ignorePatterns"),
                 lintTasks: [
+                    "cleanupExtraSpacingAtEndOfLines",
                     "ensureNewLineEnding",
                     "indentEqualSignsForPreClassVars",
                     "orderBugpackRequires",
@@ -191,14 +192,16 @@ buildTarget('local').buildFlow(
                 targetTask('createNodePackage', {
                     properties: {
                         packageJson: buildProject.getProperty("worker.packageJson"),
-                        resourcePaths: buildProject.getProperty("worker.resourcePaths"),
-                        sourcePaths: buildProject.getProperty("worker.sourcePaths").concat(
-                            buildProject.getProperty("worker.unitTest.sourcePaths")
-                        ),
-                        scriptPaths: buildProject.getProperty("worker.scriptPaths").concat(
-                            buildProject.getProperty("worker.unitTest.scriptPaths")
-                        ),
-                        testPaths: buildProject.getProperty("worker.unitTest.testPaths")
+                        packagePaths: {
+                            "./resources": buildProject.getProperty("worker.resourcePaths"),
+                            "./lib": buildProject.getProperty("worker.sourcePaths").concat(
+                                buildProject.getProperty("worker.unitTest.sourcePaths")
+                            ),
+                            "./scripts": buildProject.getProperty("worker.scriptPaths").concat(
+                                buildProject.getProperty("worker.unitTest.scriptPaths")
+                            ),
+                            "./test": buildProject.getProperty("worker.unitTest.testPaths")
+                        }
                     }
                 }),
                 targetTask('generateBugPackRegistry', {
@@ -269,6 +272,7 @@ buildTarget('prod').buildFlow(
                 targetPaths: buildProject.getProperty("lint.targetPaths"),
                 ignores: buildProject.getProperty("lint.ignorePatterns"),
                 lintTasks: [
+                    "cleanupExtraSpacingAtEndOfLines",
                     "ensureNewLineEnding",
                     "indentEqualSignsForPreClassVars",
                     "orderBugpackRequires",
@@ -285,14 +289,16 @@ buildTarget('prod').buildFlow(
                 targetTask('createNodePackage', {
                     properties: {
                         packageJson: buildProject.getProperty("worker.unitTest.packageJson"),
-                        resourcePaths: buildProject.getProperty("worker.resourcePaths"),
-                        sourcePaths: buildProject.getProperty("worker.sourcePaths").concat(
-                            buildProject.getProperty("worker.unitTest.sourcePaths")
-                        ),
-                        scriptPaths: buildProject.getProperty("worker.scriptPaths").concat(
-                            buildProject.getProperty("worker.unitTest.scriptPaths")
-                        ),
-                        testPaths: buildProject.getProperty("worker.unitTest.testPaths")
+                        packagePaths: {
+                            "./resources": buildProject.getProperty("worker.resourcePaths"),
+                            "./lib": buildProject.getProperty("worker.sourcePaths").concat(
+                                buildProject.getProperty("worker.unitTest.sourcePaths")
+                            ),
+                            "./scripts": buildProject.getProperty("worker.scriptPaths").concat(
+                                buildProject.getProperty("worker.unitTest.scriptPaths")
+                            ),
+                            "./test": buildProject.getProperty("worker.unitTest.testPaths")
+                        }
                     }
                 }),
                 targetTask('generateBugPackRegistry', {
@@ -332,9 +338,11 @@ buildTarget('prod').buildFlow(
                 targetTask('createNodePackage', {
                     properties: {
                         packageJson: buildProject.getProperty("worker.packageJson"),
-                        resourcePaths: buildProject.getProperty("worker.resourcePaths"),
-                        sourcePaths: buildProject.getProperty("worker.sourcePaths"),
-                        scriptPaths: buildProject.getProperty("worker.scriptPaths")
+                        packagePaths: {
+                            "./resources": buildProject.getProperty("worker.resourcePaths"),
+                            "./lib": buildProject.getProperty("worker.sourcePaths"),
+                            "./scripts": buildProject.getProperty("worker.scriptPaths")
+                        }
                     }
                 }),
                 targetTask('generateBugPackRegistry', {

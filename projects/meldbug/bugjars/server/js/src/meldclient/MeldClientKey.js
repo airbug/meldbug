@@ -21,154 +21,161 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack             = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var ArgumentBug         = bugpack.require('ArgumentBug');
-var Class               = bugpack.require('Class');
-var IObjectable         = bugpack.require('IObjectable');
-var Obj                 = bugpack.require('Obj');
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-var MeldClientKey = Class.extend(Obj, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Constructor
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var ArgumentBug         = bugpack.require('ArgumentBug');
+    var Class               = bugpack.require('Class');
+    var IObjectable         = bugpack.require('IObjectable');
+    var Obj                 = bugpack.require('Obj');
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     * @constructs
-     * @param {string} callUuid
+     * @class
+     * @extends {Obj}
      */
-    _constructor: function(callUuid) {
+    var MeldClientKey = Class.extend(Obj, {
 
-        this._super();
+        _name: "meldbug.MeldClientKey",
 
 
         //-------------------------------------------------------------------------------
-        // Properties
+        // Constructor
         //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {string}
+         * @constructs
+         * @param {string} callUuid
          */
-        this.callUuid           = callUuid;
-    },
+        _constructor: function(callUuid) {
+
+            this._super();
 
 
-    //-------------------------------------------------------------------------------
-    // Getters and Setters
-    //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
+            // Properties
+            //-------------------------------------------------------------------------------
 
-    /**
-     * @return {string}
-     */
-    getCallUuid: function() {
-        return this.callUuid;
-    },
+            /**
+             * @private
+             * @type {string}
+             */
+            this.callUuid           = callUuid;
+        },
 
 
-    //-------------------------------------------------------------------------------
-    // Object Implementation
-    //-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
+        // Getters and Setters
+        //-------------------------------------------------------------------------------
 
-    /**
-     * @param {*} value
-     * @return {boolean}
-     */
-    equals: function(value) {
-        if (Class.doesExtend(value, MeldClientKey)) {
-            return (value.getCallUuid() === this.getCallUuid());
+        /**
+         * @return {string}
+         */
+        getCallUuid: function() {
+            return this.callUuid;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Obj Methods
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @param {*} value
+         * @return {boolean}
+         */
+        equals: function(value) {
+            if (Class.doesExtend(value, MeldClientKey)) {
+                return (value.getCallUuid() === this.getCallUuid());
+            }
+            return false;
+        },
+
+        /**
+         * @return {number}
+         */
+        hashCode: function() {
+            if (!this._hashCode) {
+                this._hashCode = Obj.hashCode("[MeldClientKey]" +
+                    Obj.hashCode(this.callUuid));
+            }
+            return this._hashCode;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // IObjectable Implementation
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @return {Object}
+         */
+        toObject: function() {
+            return {
+                callUuid: this.callUuid
+            };
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Public Methods
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @return {string}
+         */
+        toStringKey: function() {
+            return "meldClient" + ":" + this.callUuid;
         }
-        return false;
-    },
+    });
 
-    /**
-     * @return {number}
-     */
-    hashCode: function() {
-        if (!this._hashCode) {
-            this._hashCode = Obj.hashCode("[MeldClientKey]" +
-                Obj.hashCode(this.callUuid));
-        }
-        return this._hashCode;
-    },
 
 
     //-------------------------------------------------------------------------------
-    // IObjectable Implementation
+    // Static Methods
     //-------------------------------------------------------------------------------
 
     /**
-     * @return {Object}
+     * @static
+     * @param {string} stringKey
+     * @returns {MeldClientKey}
      */
-    toObject: function() {
-        return {
-            callUuid: this.callUuid
-        };
-    },
-
-
-    //-------------------------------------------------------------------------------
-    // Public Methods
-    //-------------------------------------------------------------------------------
-
-    /**
-     * @return {string}
-     */
-    toStringKey: function() {
-        return "meldClient" + ":" + this.callUuid;
-    }
-});
-
-
-
-//-------------------------------------------------------------------------------
-// Static Methods
-//-------------------------------------------------------------------------------
-
-/**
- * @static
- * @param {string} stringKey
- * @returns {MeldClientKey}
- */
-MeldClientKey.fromStringKey = function(stringKey) {
-    var keyParts = stringKey.split(":");
-    if (keyParts.length === 2) {
-        var meldClient = keyParts[0];
-        var callUuid = keyParts[1];
-        if (meldClient === "meldClient") {
-            return new MeldClientKey(callUuid);
+    MeldClientKey.fromStringKey = function(stringKey) {
+        var keyParts = stringKey.split(":");
+        if (keyParts.length === 2) {
+            var meldClient = keyParts[0];
+            var callUuid = keyParts[1];
+            if (meldClient === "meldClient") {
+                return new MeldClientKey(callUuid);
+            } else {
+                throw new ArgumentBug(ArgumentBug.ILLEGAL, "stringKey", stringKey, "parameter must in MeldClientKey string format");
+            }
         } else {
             throw new ArgumentBug(ArgumentBug.ILLEGAL, "stringKey", stringKey, "parameter must in MeldClientKey string format");
         }
-    } else {
-        throw new ArgumentBug(ArgumentBug.ILLEGAL, "stringKey", stringKey, "parameter must in MeldClientKey string format");
-    }
-};
+    };
 
 
-//-------------------------------------------------------------------------------
-// Interfaces
-//-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
+    // Interfaces
+    //-------------------------------------------------------------------------------
 
-Class.implement(MeldClientKey, IObjectable);
+    Class.implement(MeldClientKey, IObjectable);
 
 
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
+    // Exports
+    //-------------------------------------------------------------------------------
 
-bugpack.export('meldbug.MeldClientKey', MeldClientKey);
+    bugpack.export('meldbug.MeldClientKey', MeldClientKey);
+});

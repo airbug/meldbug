@@ -22,111 +22,114 @@
 
 
 //-------------------------------------------------------------------------------
-// Common Modules
+// Context
 //-------------------------------------------------------------------------------
 
-var bugpack                     = require('bugpack').context();
-
-
-//-------------------------------------------------------------------------------
-// BugPack
-//-------------------------------------------------------------------------------
-
-var Class                       = bugpack.require('Class');
-var MarshPropertyTag     = bugpack.require('bugmarsh.MarshPropertyTag');
-var MarshTag             = bugpack.require('bugmarsh.MarshTag');
-var BugMeta                     = bugpack.require('bugmeta.BugMeta');
-var Task                        = bugpack.require('bugtask.Task');
-
-
-//-------------------------------------------------------------------------------
-// Simplify References
-//-------------------------------------------------------------------------------
-
-var bugmeta                             = BugMeta.context();
-var marsh                               = MarshTag.marsh;
-var property                            = MarshPropertyTag.property;
-
-
-//-------------------------------------------------------------------------------
-// Declare Class
-//-------------------------------------------------------------------------------
-
-/**
- * @class
- * @extends {Task}
- */
-var MeldTask = Class.extend(Task, {
+require('bugpack').context("*", function(bugpack) {
 
     //-------------------------------------------------------------------------------
-    // Constructor
+    // BugPack
+    //-------------------------------------------------------------------------------
+
+    var Class                       = bugpack.require('Class');
+    var MarshPropertyTag     = bugpack.require('bugmarsh.MarshPropertyTag');
+    var MarshTag             = bugpack.require('bugmarsh.MarshTag');
+    var BugMeta                     = bugpack.require('bugmeta.BugMeta');
+    var Task                        = bugpack.require('bugtask.Task');
+
+
+    //-------------------------------------------------------------------------------
+    // Simplify References
+    //-------------------------------------------------------------------------------
+
+    var bugmeta                             = BugMeta.context();
+    var marsh                               = MarshTag.marsh;
+    var property                            = MarshPropertyTag.property;
+
+
+    //-------------------------------------------------------------------------------
+    // Declare Class
     //-------------------------------------------------------------------------------
 
     /**
-     * @constructs
-     * @param {string} taskUuid
-     * @param {string} callUuid
-     * @param {MeldTransaction} meldTransaction
+     * @class
+     * @extends {Task}
      */
-    _constructor: function(taskUuid, callUuid, meldTransaction) {
+    var MeldTask = Class.extend(Task, {
 
-        this._super(taskUuid);
+        _name: "meldbug.MeldTask",
 
 
         //-------------------------------------------------------------------------------
-        // Properties
+        // Constructor
         //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {string}
+         * @constructs
+         * @param {string} taskUuid
+         * @param {string} callUuid
+         * @param {MeldTransaction} meldTransaction
          */
-        this.callUuid               = callUuid;
+        _constructor: function(taskUuid, callUuid, meldTransaction) {
+
+            this._super(taskUuid);
+
+
+            //-------------------------------------------------------------------------------
+            // Properties
+            //-------------------------------------------------------------------------------
+
+            /**
+             * @private
+             * @type {string}
+             */
+            this.callUuid               = callUuid;
+
+            /**
+             * @private
+             * @type {MeldTransaction}
+             */
+            this.meldTransaction        = meldTransaction;
+        },
+
+
+        //-------------------------------------------------------------------------------
+        // Getters and Setters
+        //-------------------------------------------------------------------------------
 
         /**
-         * @private
-         * @type {MeldTransaction}
+         * @return {string}
          */
-        this.meldTransaction        = meldTransaction;
-    },
+        getCallUuid: function() {
+            return this.callUuid;
+        },
+
+        /**
+         * @return {MeldTransaction}
+         */
+        getMeldTransaction: function() {
+            return this.meldTransaction;
+        }
+    });
 
 
     //-------------------------------------------------------------------------------
-    // Getters and Setters
+    // BugMeta
     //-------------------------------------------------------------------------------
 
-    /**
-     * @return {string}
-     */
-    getCallUuid: function() {
-        return this.callUuid;
-    },
+    bugmeta.tag(MeldTask).with(
+        marsh("MeldTask")
+            .properties([
+                property("callUuid"),
+                property("meldTransaction"),
+                property("taskUuid")
+            ])
+    );
 
-    /**
-     * @return {MeldTransaction}
-     */
-    getMeldTransaction: function() {
-        return this.meldTransaction;
-    }
+
+    //-------------------------------------------------------------------------------
+    // Exports
+    //-------------------------------------------------------------------------------
+
+    bugpack.export('meldbug.MeldTask', MeldTask);
 });
-
-
-//-------------------------------------------------------------------------------
-// BugMeta
-//-------------------------------------------------------------------------------
-
-bugmeta.tag(MeldTask).with(
-    marsh("MeldTask")
-        .properties([
-            property("callUuid"),
-            property("meldTransaction"),
-            property("taskUuid")
-        ])
-);
-
-
-//-------------------------------------------------------------------------------
-// Exports
-//-------------------------------------------------------------------------------
-
-bugpack.export('meldbug.MeldTask', MeldTask);
