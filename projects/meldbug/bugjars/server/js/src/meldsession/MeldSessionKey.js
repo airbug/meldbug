@@ -30,10 +30,10 @@ require('bugpack').context("*", function(bugpack) {
     // BugPack
     //-------------------------------------------------------------------------------
 
-    var ArgumentBug         = bugpack.require('ArgumentBug');
-    var Class               = bugpack.require('Class');
-    var IObjectable         = bugpack.require('IObjectable');
-    var Obj                 = bugpack.require('Obj');
+    var ArgumentBug     = bugpack.require('ArgumentBug');
+    var Class           = bugpack.require('Class');
+    var IObjectable     = bugpack.require('IObjectable');
+    var Obj             = bugpack.require('Obj');
 
 
     //-------------------------------------------------------------------------------

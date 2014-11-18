@@ -269,7 +269,7 @@ require('bugpack').context("*", function(bugpack) {
                 }),
                 $task(function(flow) {
 
-                    //NOTE BRN: We set the mirror to the serverMeldBucket here since we have successfully queued messages
+                    //NOTE BRN: We set mirrorMeldBucket here since we have successfully queued messages
                     // that will update the client to the point of the server
 
                     _this.meldBucketManager.setMeldBucket(mirrorMeldBucketKey, mirrorMeldBucket, function(throwable) {

@@ -45,10 +45,10 @@ var nodejs              = enableModule('nodejs');
 // Values
 //-------------------------------------------------------------------------------
 
-var version         = "0.0.10";
+var version         = "0.1.0";
 var dependencies    = {
-    bugpack: "0.1.14",
-    redis: "0.10.0",
+    bugpack: "0.2.0",
+    redis: "0.11.0",
     "socket.io": "0.9.16"
 };
 
@@ -74,12 +74,12 @@ buildProperties({
             "./projects/meldbug/bugjars/core/js/src",
             "./projects/meldbug/bugjars/server/js/src",
             "./projects/meldbugworker/js/src",
+            "../bugapp/libraries/bugapp/js/src",
+            "../bugcall/libraries/core/js/src",
+            "../bugcall/libraries/publisher/js/src",
             "../bugcore/libraries/bugcore/js/src",
-            "../bugfs/projects/bugfs/js/src",
+            "../bugfs/libraries/bugfs/js/src",
             "../bugioc/libraries/bugioc/js/src",
-            "../bugjs/projects/bugapp/js/src",
-            "../bugjs/projects/bugcall/libraries/core/js/src",
-            "../bugjs/projects/bugcall/libraries/publisher/js/src",
             "../bugjs/projects/bugdelta/js/src",
             "../bugjs/projects/bugmarsh/js/src",
             "../bugjs/projects/bugsub/js/src",
@@ -89,7 +89,7 @@ buildProperties({
             "../bugjs/projects/loggerbug/js/src",
             "../bugjs/projects/redis/js/src",
             "../bugjs/projects/socketio/libraries/socket/js/src",
-            "../bugmeta/projects/bugmeta/js/src"
+            "../bugmeta/libraries/bugmeta/js/src"
         ],
         scriptPaths: [
             "../bugjs/projects/bugwork/js/scripts",
@@ -101,29 +101,30 @@ buildProperties({
                 version: version,
                 dependencies: dependencies,
                 scripts: {
-                    start: "node ./scripts/meldbug-worker-application-start.js"
+                    start: "node ./scripts/meldbug-worker-application-start.js",
+                    test: "node ./test/scripts/bugunit-run.js"
                 }
             },
             sourcePaths: [
-                "../buganno/projects/buganno/js/src",
-                "../bugunit/projects/bugdouble/js/src",
-                "../bugunit/projects/bugunit/js/src",
+                "../buganno/libraries/buganno/js/src",
+                "../bugdouble/libraries/bugdouble/js/src",
+                "../bugunit/libraries/bugunit/js/src",
                 "../bugyarn/libraries/bugyarn/js/src"
             ],
             scriptPaths: [
-                "../buganno/projects/buganno/js/scripts",
-                "../bugunit/projects/bugunit/js/scripts"
+                "../buganno/libraries/buganno/js/scripts",
+                "../bugunit/libraries/bugunit/js/scripts"
             ],
             testPaths: [
                 "./projects/meldbug/bugjars/core/js/test",
                 "./projects/meldbug/bugjars/server/js/test",
                 "./projects/meldbugworker/js/test",
+                "../bugapp/libraries/bugapp/js/test",
+                "../bugcall/libraries/core/js/test",
+                "../bugcall/libraries/publisher/js/test",
                 "../bugcore/libraries/bugcore/js/test",
-                "../bugfs/projects/bugfs/js/test",
+                "../bugfs/libraries/bugfs/js/test",
                 "../bugioc/libraries/bugioc/js/test",
-                "../bugjs/projects/bugapp/js/test",
-                "../bugjs/projects/bugcall/libraries/core/js/test",
-                "../bugjs/projects/bugcall/libraries/publisher/js/test",
                 "../bugjs/projects/bugdelta/js/test",
                 "../bugjs/projects/bugmarsh/js/test",
                 "../bugjs/projects/bugsub/js/test",
@@ -133,7 +134,7 @@ buildProperties({
                 "../bugjs/projects/loggerbug/js/test",
                 "../bugjs/projects/redis/js/test",
                 "../bugjs/projects/socketio/libraries/socket/js/test",
-                "../bugmeta/projects/bugmeta/js/test"
+                "../bugmeta/libraries/bugmeta/js/test"
             ]
         }
     },
@@ -193,14 +194,12 @@ buildTarget('local').buildFlow(
                     properties: {
                         packageJson: buildProject.getProperty("worker.packageJson"),
                         packagePaths: {
+                            "./lib": buildProject.getProperty("worker.sourcePaths"),
                             "./resources": buildProject.getProperty("worker.resourcePaths"),
-                            "./lib": buildProject.getProperty("worker.sourcePaths").concat(
-                                buildProject.getProperty("worker.unitTest.sourcePaths")
-                            ),
-                            "./scripts": buildProject.getProperty("worker.scriptPaths").concat(
-                                buildProject.getProperty("worker.unitTest.scriptPaths")
-                            ),
-                            "./test": buildProject.getProperty("worker.unitTest.testPaths")
+                            "./scripts": buildProject.getProperty("worker.scriptPaths"),
+                            "./test": buildProject.getProperty("worker.unitTest.testPaths"),
+                            "./test/lib": buildProject.getProperty("worker.unitTest.sourcePaths"),
+                            "./test/scripts": buildProject.getProperty("worker.unitTest.scriptPaths")
                         }
                     }
                 }),
@@ -290,14 +289,12 @@ buildTarget('prod').buildFlow(
                     properties: {
                         packageJson: buildProject.getProperty("worker.unitTest.packageJson"),
                         packagePaths: {
+                            "./lib": buildProject.getProperty("worker.sourcePaths"),
                             "./resources": buildProject.getProperty("worker.resourcePaths"),
-                            "./lib": buildProject.getProperty("worker.sourcePaths").concat(
-                                buildProject.getProperty("worker.unitTest.sourcePaths")
-                            ),
-                            "./scripts": buildProject.getProperty("worker.scriptPaths").concat(
-                                buildProject.getProperty("worker.unitTest.scriptPaths")
-                            ),
-                            "./test": buildProject.getProperty("worker.unitTest.testPaths")
+                            "./scripts": buildProject.getProperty("worker.scriptPaths"),
+                            "./test": buildProject.getProperty("worker.unitTest.testPaths"),
+                            "./test/lib": buildProject.getProperty("worker.unitTest.sourcePaths"),
+                            "./test/scripts": buildProject.getProperty("worker.unitTest.scriptPaths")
                         }
                     }
                 }),
@@ -339,8 +336,8 @@ buildTarget('prod').buildFlow(
                     properties: {
                         packageJson: buildProject.getProperty("worker.packageJson"),
                         packagePaths: {
-                            "./resources": buildProject.getProperty("worker.resourcePaths"),
                             "./lib": buildProject.getProperty("worker.sourcePaths"),
+                            "./resources": buildProject.getProperty("worker.resourcePaths"),
                             "./scripts": buildProject.getProperty("worker.scriptPaths")
                         }
                     }

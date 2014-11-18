@@ -175,12 +175,6 @@ require('bugpack').context("*", function(bugpack) {
                         });
                     }),
                     $task(function(flow) {
-                        var serverMeldBucketKey = _this.meldBucketManager.generateMeldBucketKey("serverMeldBucket", callUuid);
-                        _this.meldBucketManager.deleteMeldBucketByKey(serverMeldBucketKey, function(throwable) {
-                            flow.complete(throwable);
-                        });
-                    }),
-                    $task(function(flow) {
                         _this.meldManager.removeCallUuid(callUuid, function(throwable) {
                             flow.complete(throwable);
                         });

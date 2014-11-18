@@ -35,23 +35,23 @@ require('bugpack').context("*", function(bugpack) {
     // BugPack
     //-------------------------------------------------------------------------------
 
-    var Class               = bugpack.require('Class');
-    var Obj                 = bugpack.require('Obj');
-    var UuidGenerator       = bugpack.require('UuidGenerator');
-    var ArgTag       = bugpack.require('bugioc.ArgTag');
-    var ModuleTag    = bugpack.require('bugioc.ModuleTag');
-    var BugMeta             = bugpack.require('bugmeta.BugMeta');
-    var TaskManager         = bugpack.require('bugtask.TaskManager');
-    var CleanupTask         = bugpack.require('meldbug.CleanupTask');
+    var Class           = bugpack.require('Class');
+    var Obj             = bugpack.require('Obj');
+    var UuidGenerator   = bugpack.require('UuidGenerator');
+    var ArgTag          = bugpack.require('bugioc.ArgTag');
+    var ModuleTag       = bugpack.require('bugioc.ModuleTag');
+    var BugMeta         = bugpack.require('bugmeta.BugMeta');
+    var TaskManager     = bugpack.require('bugtask.TaskManager');
+    var CleanupTask     = bugpack.require('meldbug.CleanupTask');
 
 
     //-------------------------------------------------------------------------------
     // Simplify References
     //-------------------------------------------------------------------------------
 
-    var arg                 = ArgTag.arg;
-    var bugmeta             = BugMeta.context();
-    var module              = ModuleTag.module;
+    var arg             = ArgTag.arg;
+    var bugmeta         = BugMeta.context();
+    var module          = ModuleTag.module;
 
 
     //-------------------------------------------------------------------------------
