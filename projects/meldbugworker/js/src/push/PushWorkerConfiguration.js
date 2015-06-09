@@ -330,7 +330,7 @@ require('bugpack').context("*", function(bugpack) {
         /**
          * @param {RedisClient} redisClient
          * @param {RedisClient} subscriberRedisClient
-         * @returns {RedisPubSub}
+         * @return {RedisPubSub}
          */
         redisPubSub: function(redisClient, subscriberRedisClient) {
             this._redisPubSub = new RedisPubSub(redisClient, subscriberRedisClient);

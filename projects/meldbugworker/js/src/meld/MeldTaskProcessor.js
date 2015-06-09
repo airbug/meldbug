@@ -314,7 +314,7 @@ require('bugpack').context("*", function(bugpack) {
          * @private
          * @param {MeldBucket} originalMeldBucket
          * @param {MeldBucket} updatedMeldBucket
-         * @returns {MeldTransaction}
+         * @return {MeldTransaction}
          */
         generateTransaction: function(originalMeldBucket, updatedMeldBucket) {
             return this.meldTransactionGenerator.generateMeldTransactionBetweenMeldBuckets(updatedMeldBucket, originalMeldBucket);

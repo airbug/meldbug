@@ -98,7 +98,7 @@ require('bugpack').context("*", function(bugpack) {
         },
 
         /**
-         * @returns {boolean}
+         * @return {boolean}
          */
         isActive: function() {
             return this.getActive();

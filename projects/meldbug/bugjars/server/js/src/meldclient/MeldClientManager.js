@@ -242,7 +242,7 @@ require('bugpack').context("*", function(bugpack) {
 
         /**
          * @param {{meldClientKey: Object, active: boolean, lastActive: string}} meldClientData
-         * @returns {MeldClient}
+         * @return {MeldClient}
          */
         buildMeldClient: function(meldClientData) {
             var meldClientKey = this.buildMeldClientKey(meldClientData.meldClientKey);
@@ -252,7 +252,7 @@ require('bugpack').context("*", function(bugpack) {
         /**
          * @private
          * @param {MeldClient} meldClient
-         * @returns {{meldClientKey: Object, active: boolean, lastActive: string}}
+         * @return {{meldClientKey: Object, active: boolean, lastActive: string}}
          */
         unbuildMeldClient: function(meldClient) {
             return {
@@ -274,7 +274,7 @@ require('bugpack').context("*", function(bugpack) {
         /**
          * @private
          * @param {MeldClientKey} meldClientKey
-         * @returns {{callUuid: string}}
+         * @return {{callUuid: string}}
          */
         unbuildMeldClientKey: function(meldClientKey) {
             return {

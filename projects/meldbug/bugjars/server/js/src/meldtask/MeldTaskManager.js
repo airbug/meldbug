@@ -74,7 +74,7 @@ require('bugpack').context("*", function(bugpack) {
         /**
          * @param {string} callUuid
          * @param {MeldTransaction} meldTransaction
-         * @returns {MeldTask}
+         * @return {MeldTask}
          */
         generateMeldTask: function(callUuid, meldTransaction) {
             var taskUuid = UuidGenerator.generateUuid();

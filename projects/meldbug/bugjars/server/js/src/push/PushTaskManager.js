@@ -73,7 +73,7 @@ require('bugpack').context("*", function(bugpack) {
 
         /**
          * @param {Push} push
-         * @returns {PushTask}
+         * @return {PushTask}
          */
         generatePushTask: function(push) {
             var taskUuid = UuidGenerator.generateUuid();
@@ -89,7 +89,7 @@ require('bugpack').context("*", function(bugpack) {
          * @private
          * @param {string} taskUuid
          * @param {Push} push
-         * @returns {PushTask}
+         * @return {PushTask}
          */
         factoryPushTask: function(taskUuid, push) {
             return new PushTask(taskUuid, push);

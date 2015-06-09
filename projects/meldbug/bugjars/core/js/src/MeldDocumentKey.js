@@ -179,7 +179,7 @@ require('bugpack').context("*", function(bugpack) {
     /**
      * @static
      * @param {string} stringKey
-     * @returns {MeldDocumentKey}
+     * @return {MeldDocumentKey}
      */
     MeldDocumentKey.fromStringKey = function(stringKey) {
         var keyParts = stringKey.split(":");

@@ -73,7 +73,7 @@ require('bugpack').context("*", function(bugpack) {
 
         /**
          * @param {string} callUuid
-         * @returns {CleanupTask}
+         * @return {CleanupTask}
          */
         generateCleanupTask: function(callUuid) {
             var taskUuid = UuidGenerator.generateUuid();
@@ -89,7 +89,7 @@ require('bugpack').context("*", function(bugpack) {
          * @private
          * @param {string} taskUuid
          * @param {string} callUuid
-         * @returns {CleanupTask}
+         * @return {CleanupTask}
          */
         factoryCleanupTask: function(taskUuid, callUuid) {
             return new CleanupTask(taskUuid, callUuid);

@@ -149,7 +149,7 @@ require('bugpack').context("*", function(bugpack) {
          * @param {MeldDocumentKey} meldDocumentKey
          * @param {string} path
          * @param {*} setValue
-         * @returns {AddToSetOperation}
+         * @return {AddToSetOperation}
          */
         factoryAddToSetOperation: function(meldDocumentKey, path, setValue) {
             return new AddToSetOperation(meldDocumentKey, path, setValue);
@@ -159,7 +159,7 @@ require('bugpack').context("*", function(bugpack) {
          * @private
          * @param {MeldDocumentKey} meldDocumentKey
          * @param {*} data
-         * @returns {MergeDocumentOperation}
+         * @return {MergeDocumentOperation}
          */
         factoryMergeDocumentOperation: function(meldDocumentKey, data) {
             return new MergeDocumentOperation(meldDocumentKey, data);
@@ -169,7 +169,7 @@ require('bugpack').context("*", function(bugpack) {
          * @private
          * @param {MeldDocumentKey} meldDocumentKey
          * @param {MeldDocument} meldDocument
-         * @returns {PutMeldDocumentOperation}
+         * @return {PutMeldDocumentOperation}
          */
         factoryPutMeldDocumentOperation: function(meldDocumentKey, meldDocument) {
             return new PutMeldDocumentOperation(meldDocumentKey, meldDocument);
@@ -180,7 +180,7 @@ require('bugpack').context("*", function(bugpack) {
          * @param {MeldDocumentKey} meldDocumentKey
          * @param {string} path
          * @param {*} setValue
-         * @returns {RemoveFromSetOperation}
+         * @return {RemoveFromSetOperation}
          */
         factoryRemoveFromSetOperation: function(meldDocumentKey, path, setValue) {
             return new RemoveFromSetOperation(meldDocumentKey, path, setValue);
@@ -189,7 +189,7 @@ require('bugpack').context("*", function(bugpack) {
         /**
          * @private
          * @param {MeldDocumentKey} meldDocumentKey
-         * @returns {RemoveMeldDocumentOperation}
+         * @return {RemoveMeldDocumentOperation}
          */
         factoryRemoveMeldDocumentOperation: function(meldDocumentKey) {
             return new RemoveMeldDocumentOperation(meldDocumentKey);
@@ -200,7 +200,7 @@ require('bugpack').context("*", function(bugpack) {
          * @param {MeldDocumentKey} meldDocumentKey
          * @param {string} path
          * @param {string} propertyName
-         * @returns {RemoveObjectPropertyOperation}
+         * @return {RemoveObjectPropertyOperation}
          */
         factoryRemoveObjectPropertyOperation: function(meldDocumentKey, path, propertyName) {
             return new RemoveObjectPropertyOperation(meldDocumentKey, path, propertyName);
@@ -210,7 +210,7 @@ require('bugpack').context("*", function(bugpack) {
          * @private
          * @param {MeldDocumentKey} meldDocumentKey
          * @param {*} data
-         * @returns {SetDocumentOperation}
+         * @return {SetDocumentOperation}
          */
         factorySetDocumentOperation: function(meldDocumentKey, data) {
             return new SetDocumentOperation(meldDocumentKey, data);
@@ -223,7 +223,7 @@ require('bugpack').context("*", function(bugpack) {
          * @param {string} path
          * @param {string} propertyName
          * @param {*} propertyValue
-         * @returns {SetObjectPropertyOperation}
+         * @return {SetObjectPropertyOperation}
          */
         factorySetObjectPropertyOperation: function(meldDocumentKey, path, propertyName, propertyValue) {
             return new SetObjectPropertyOperation(meldDocumentKey, path, propertyName, propertyValue);

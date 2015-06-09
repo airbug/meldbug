@@ -52,7 +52,7 @@ require('bugpack').context("*", function(bugpack) {
         /**
          * @override
          * @param {boolean} deep
-         * @returns {MeldBucketOperation}
+         * @return {MeldBucketOperation}
          */
         clone: function(deep) {
             var clone = new MeldBucketOperation(this.getMeldDocumentKey());

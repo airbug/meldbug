@@ -154,7 +154,7 @@ require('bugpack').context("*", function(bugpack) {
         /**
          * @param {string} type
          * @param {String} callUuid
-         * @returns {MeldBucketKey}
+         * @return {MeldBucketKey}
          */
         generateMeldBucketKey: function(type, callUuid) {
             return this.meldBuilder.generateMeldBucketKey(type, callUuid);

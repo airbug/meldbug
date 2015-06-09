@@ -90,7 +90,7 @@ require('bugpack').context("*", function(bugpack) {
 
         /**
          * @param {MeldTransaction} meldTransaction
-         * @returns {List}
+         * @return {List}
          */
         applyMeldTransaction: function(meldTransaction) {
             var _this               = this;

@@ -195,7 +195,7 @@ require('bugpack').context("*", function(bugpack) {
          * @param {MeldDocumentKey} meldDocumentKey
          * @param {string} path
          * @param {*} setValue
-         * @returns {Push}
+         * @return {Push}
          */
         addToSet: function(meldDocumentKey, path, setValue) {
             this.meldTransaction.addMeldOperation(new AddToSetOperation(meldDocumentKey, path, setValue));

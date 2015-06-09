@@ -148,7 +148,7 @@ require('bugpack').context("*", function(bugpack) {
     /**
      * @static
      * @param {string} stringKey
-     * @returns {MeldSessionKey}
+     * @return {MeldSessionKey}
      */
     MeldSessionKey.fromStringKey = function(stringKey) {
         var keyParts = stringKey.split(":");
